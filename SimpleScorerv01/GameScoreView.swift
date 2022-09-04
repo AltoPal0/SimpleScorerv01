@@ -28,6 +28,10 @@ struct GameScoreView: View {
     @State private var showImagePicker = false
     @State private var pickerSource = UIImagePickerController.SourceType.photoLibrary
     
+    //Grid view
+    private var colors: [Color] = [.yellow, .purple, .green]
+    private var gridItemLayout = Array(repeating: GridItem(.adaptive(minimum: 325, maximum: 325), spacing: 84), count: Int(((UIScreen.main.bounds.width) / 325).rounded(.down)))
+    
     func nbrRowsColumns(screenWidth: CGFloat, playerCount: Int) -> (rows : Int, columns : Int) {
         
         let nbrColumns = Double((screenWidth) / 325).rounded(.down)
@@ -67,9 +71,14 @@ struct GameScoreView: View {
                             ScrollView(self.displayInfo.shouldScroll ? .vertical : []) {
                                 VStack()  {
                                     if self.game.playerScores.count > 0 {
-                                        ScoreCardsGridView( rows:self.nbrRowsColumns(screenWidth: geometry.size.width, playerCount: self.game.playerScores.count).rows,
-                                                            columns: self.nbrRowsColumns(screenWidth: geometry.size.width, playerCount: self.game.playerScores.count).columns)
-                                            .frame(maxWidth:geometry.size.width)
+                                        LazyVGrid(columns: gridItemLayout, spacing: 20) {
+                                            ForEach((0..<self.game.playerScores.count), id: \.self) {
+                                                ScoreCardView(
+                                                    playerScore:self.game.playerScores[$0],
+                                                    index: $0
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                                 .keyboardAdaptive()
@@ -214,10 +223,13 @@ struct cubeRotation: ViewModifier {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-//            GameScoreView()
-//                .previewLayout(.fixed(width: 1000, height: 320))
             GameScoreView()
-//                .previewDevice("iPad Air 2")
+                .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
+                .previewDisplayName("iPad Pro (11-inch) (3rd generation)")
+            
+            GameScoreView()
+                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
+                .previewDisplayName("iPhone X")
         }
         .environmentObject(GlobalDisplayInfo())
         .environmentObject(Game(withTestPlayers: ()))
@@ -233,47 +245,5 @@ extension AnyTransition {
         )
     }
 }
-
-struct ScoreCardsGridView: View {
-    let rows : Int
-    let columns: Int
-    
-    @EnvironmentObject var game: Game
-    @EnvironmentObject var displayInfo : GlobalDisplayInfo
-    
-    var body: some View {
-        VStack {
-            if self.displayInfo.scoreCardSize == .compact { Spacer() }
-            ForEach(0 ..< self.rows, id: \.self) { row in
-                Group {
-                    HStack {
-                        ForEach(1 ... self.columns, id: \.self) { column in
-                            Group {
-                                if ((row*self.columns+column-1) < self.game.playerScores.count) {
-                                    ScoreCardView(
-                                        playerScore:self.game.playerScores[row*self.columns+column-1],
-                                        index: row*self.columns+column-1
-                                    )
-                                } else {
-                                    Rectangle().opacity(0)
-                                }
-                            }.padding(.horizontal, 5)
-                        }
-                    }
-                    .padding(.horizontal, 15)
-                    .padding(.bottom,10)
-                    .padding(.top,5)
-                    
-                     if self.displayInfo.scoreCardSize == .compact { Spacer() }
-                }
-                
-                
-            }
-            
-            
-        }
-    }
-}
-
 
 
