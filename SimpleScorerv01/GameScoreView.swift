@@ -66,6 +66,8 @@ struct GameScoreView: View {
                 // Score Cards View
                 ScoreCardsGridView()
                 .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
+                
+                BottomButtonsView()
 
                 if self.showImagePicker {
                     CircleImagePickerView(isPresented: self.$showImagePicker, selectedImage: self.$imagePicked, source: self.pickerSource)

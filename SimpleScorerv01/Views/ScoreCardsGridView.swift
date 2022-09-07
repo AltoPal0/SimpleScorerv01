@@ -29,29 +29,6 @@ struct ScoreCardsGridView: View {
                     }
                 }
             }
-            
-            // bottom Scroll Buttons
-            VStack {
-                Spacer()
-                HStack {
-                    Image(systemName: "arrow.left.circle")
-                        .font(.system(.largeTitle, design: .rounded))
-                        .foregroundColor(Color.gray)
-                        .background(Color.clear.opacity(0))
-                        .onTapGesture {
-                            self.displayInfo.screenDisplayed = .allScores
-                            
-                        }.padding()
-                    Spacer()
-                    Image(systemName: "arrow.right.circle")
-                        .font(.system(.largeTitle, design: .rounded))
-                        .foregroundColor(Color.gray)
-                        .background(Color.clear.opacity(0))
-                        .onTapGesture {
-                            self.displayInfo.screenDisplayed = .gameSetup
-                        }.padding()
-                }
-            }
         }
     }
 }

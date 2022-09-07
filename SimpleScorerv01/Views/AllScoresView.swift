@@ -77,20 +77,6 @@ struct AllScoresView: View {
                     
                 }
                 
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        Image(systemName: "arrow.right.circle")
-                            .font(.system(.largeTitle, design: .rounded))
-                            .foregroundColor(Color.gray)
-                            .background(Color.clear.opacity(0))
-                            .onTapGesture {
-                                self.displayInfo.screenDisplayed = .scoreCards
-                            }
-                            .padding()
-                    }
-                }
                 if self.showHelp && !self.dismissHelpForever && game.currentMaxNumberOfRounds() >= 2 {
                     HelpView(showHelp: self.$showHelp, DismissHelpForever: self.$dismissHelpForever)
                 }
