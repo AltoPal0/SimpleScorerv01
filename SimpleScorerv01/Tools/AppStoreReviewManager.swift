@@ -53,7 +53,9 @@ enum AppStoreReviewManager {
         if count >= minimumReviewWorthyActionCount && currentVersion != lastVersionPromptedForReview {
             let twoSecondsFromNow = DispatchTime.now() + 2.0
             DispatchQueue.main.asyncAfter(deadline: twoSecondsFromNow) {
-                SKStoreReviewController.requestReview()
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                    SKStoreReviewController.requestReview(in: scene)
+                }
                 UserDefaults.standard.set(currentVersion, forKey: UserDefaultsKeys.lastVersionPromptedForReviewKey)
             }
         }
