@@ -88,7 +88,7 @@ struct ScoreCardView: View {
                 .clipShape(Rectangle()).cornerRadius(14)
                 .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 .offset(self.dragOffset)
-                .animation(.easeOut).transition(.slide)
+//                .animation(.easeOut).transition(.slide)
             }
             .onTapGesture {
                 self.scoreEditing = true
@@ -162,7 +162,7 @@ struct ScoreCardView: View {
                         .lineLimit(1)
                         .foregroundColor(Color .offWhite)
                         .padding(10)
-                        .animation(.none)
+//                        .animation(.none)
                         
                     Rectangle().fill(Color.offWhite.opacity(0.5))
                             .border(width: 1, edge: .leading, color: .offWhite)

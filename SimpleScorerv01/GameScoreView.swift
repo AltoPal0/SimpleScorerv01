@@ -29,7 +29,7 @@ struct GameScoreView: View {
     @State private var pickerSource = UIImagePickerController.SourceType.photoLibrary
     
     //Grid view
-    private var gridItemLayout = Array(repeating: GridItem(.adaptive(minimum: 325, maximum: 325), spacing: 84), count: Int(((UIScreen.main.bounds.width) / 325).rounded(.down)))
+    
     
     func nbrRowsColumns(screenWidth: CGFloat, playerCount: Int) -> (rows : Int, columns : Int) {
         
@@ -64,51 +64,7 @@ struct GameScoreView: View {
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
 
                 // Score Cards View
-                Group {
-                    ZStack {
-                        if self.game.playerScores.count != 0 {
-                            ScrollView(self.displayInfo.shouldScroll ? .vertical : []) {
-                                VStack()  {
-                                    if self.game.playerScores.count > 0 {
-                                        LazyVGrid(columns: gridItemLayout, spacing: 20) {
-                                            ForEach((0..<self.game.playerScores.count), id: \.self) {
-                                                ScoreCardView(
-                                                    playerScore:self.game.playerScores[$0],
-                                                    index: $0
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                .keyboardAdaptive()
-                                
-                            }
-                        } 
-                        
-                        // bottom Scroll Buttons
-                        VStack {
-                            Spacer()
-                            HStack {
-                                Image(systemName: "arrow.left.circle")
-                                    .font(.system(.largeTitle, design: .rounded))
-                                    .foregroundColor(Color.gray)
-                                    .background(Color.clear.opacity(0))
-                                    .onTapGesture {
-                                        self.displayInfo.screenDisplayed = .allScores
-
-                                }.padding()
-                                Spacer()
-                                Image(systemName: "arrow.right.circle")
-                                    .font(.system(.largeTitle, design: .rounded))
-                                    .foregroundColor(Color.gray)
-                                    .background(Color.clear.opacity(0))
-                                    .onTapGesture {
-                                        self.displayInfo.screenDisplayed = .gameSetup
-                                }.padding()
-                            }
-                        }
-                    }
-                }
+                ScoreCardsGridView()
                 .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
 
                 if self.showImagePicker {
@@ -212,7 +168,7 @@ struct cubeRotation: ViewModifier {
             .rotation3DEffect(self.angle(), axis: (x: 0, y:1 , z:0), anchor: self.edge())
             .offset(x: self.offSet() , y: 0)
 //            .animation(.linear)
-            .animation(.easeOut).transition(.slide)
+//            .animation(.easeOut).transition(.slide)
             .disabled(!(self.displayInfo.screenDisplayed == screen))
     }
     

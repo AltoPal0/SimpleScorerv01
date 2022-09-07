@@ -14,6 +14,7 @@
 		D7899CC0249CADBA00C6053E /* AllScoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7899CBF249CADBA00C6053E /* AllScoresView.swift */; };
 		D78C0A5A24891FDC00FF5EEE /* PlayersEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */; };
 		D7C03BAF246EEA1B0006FB9F /* KeyboardAvoidance.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7C03BAE246EEA1B0006FB9F /* KeyboardAvoidance.swift */; };
+		D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */; };
 		E8245A6C24600FE40057FB45 /* CircleImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8245A6B24600FE40057FB45 /* CircleImagePickerView.swift */; };
 		E828ADB2242370F40046BAF8 /* PlayerScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E828ADB1242370F40046BAF8 /* PlayerScore.swift */; };
 		E828ADB4242387500046BAF8 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = E828ADB3242387500046BAF8 /* Game.swift */; };
@@ -44,6 +45,7 @@
 		D7899CBF249CADBA00C6053E /* AllScoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView.swift; sourceTree = "<group>"; };
 		D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayersEntryView.swift; sourceTree = "<group>"; };
 		D7C03BAE246EEA1B0006FB9F /* KeyboardAvoidance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardAvoidance.swift; sourceTree = "<group>"; };
+		D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCardsGridView.swift; sourceTree = "<group>"; };
 		E8245A6B24600FE40057FB45 /* CircleImagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleImagePickerView.swift; sourceTree = "<group>"; };
 		E828ADB1242370F40046BAF8 /* PlayerScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerScore.swift; sourceTree = "<group>"; };
 		E828ADB3242387500046BAF8 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 				D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */,
 				E88C328A25488751000EE7AB /* KeyPadView.swift */,
 				D7027B0D25556ED9009FB899 /* HelpView.swift */,
+				D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -326,6 +329,7 @@
 				D7C03BAF246EEA1B0006FB9F /* KeyboardAvoidance.swift in Sources */,
 				D7027B0E25556ED9009FB899 /* HelpView.swift in Sources */,
 				E828ADB4242387500046BAF8 /* Game.swift in Sources */,
+				D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */,
 				E8F648382464014E00F59B7C /* GameSetupView.swift in Sources */,
 				D70F1356248E37F9001D3217 /* SATextField.swift in Sources */,
 				E8875198241F99DB0091853F /* AppDelegate.swift in Sources */,
@@ -486,6 +490,7 @@
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -511,6 +516,7 @@
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
