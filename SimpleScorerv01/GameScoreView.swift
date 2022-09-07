@@ -59,16 +59,17 @@ struct GameScoreView: View {
                 
                 AllScoresView()
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
+//                    .scaleEffect(0.9)
                 
                 GameSetupView(showPlayerEntry: self.$showPlayerEntry)
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
 
                 // Score Cards View
                 ScoreCardsGridView()
-                .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
+                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
                 
                 BottomButtonsView()
-
+                
                 if self.showImagePicker {
                     CircleImagePickerView(isPresented: self.$showImagePicker, selectedImage: self.$imagePicked, source: self.pickerSource)
                         .edgesIgnoringSafeArea(.all)
@@ -78,42 +79,42 @@ struct GameScoreView: View {
                     PlayersEntryView(isVisible: self.$showPlayerEntry)
                 }
             }
-            .gesture(
-
-                DragGesture()
-                    .onChanged { gesture in
-//                        print("\(gesture.translation.width) - Prev \(previousWidth) - left? \(swipingLeft)")
-                        if !(self.displayInfo.allScoreScrolling) {
-                            self.setSwipingDirection(width: gesture.translation.width)
-
-                            if gesture.startLocation.x > (geometry.size.width - 25) && self.displayInfo.screenDisplayed != ScreenType.gameSetup {
-                                self.dragOffset = gesture.translation
-                            } else if gesture.startLocation.x < 25 && self.displayInfo.screenDisplayed != ScreenType.allScores {
-                                self.dragOffset = gesture.translation
-                            } else {
-                                self.dragOffset = .zero
-                            }
-                        } else {
-                            self.dragOffset = .zero
-                        }
-
-                    }
-                    .onEnded({ (value) in
-
-                        if self.dragOffset != .zero {
-                            if self.dragOffset.width > 0 && !self.swipingLeft {
-                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1) != nil) {
-                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
-                                }
-                            } else if self.dragOffset.width < 0 && self.swipingLeft {
-                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1) != nil) {
-                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
-                                }
-                            }
-                            self.dragOffset = .zero
-                        }
-                    })
-            )
+//            .gesture(
+//
+//                DragGesture()
+//                    .onChanged { gesture in
+////                        print("\(gesture.translation.width) - Prev \(previousWidth) - left? \(swipingLeft)")
+//                        if !(self.displayInfo.allScoreScrolling) {
+//                            self.setSwipingDirection(width: gesture.translation.width)
+//
+//                            if gesture.startLocation.x > (geometry.size.width - 25) && self.displayInfo.screenDisplayed != ScreenType.gameSetup {
+//                                self.dragOffset = gesture.translation
+//                            } else if gesture.startLocation.x < 25 && self.displayInfo.screenDisplayed != ScreenType.allScores {
+//                                self.dragOffset = gesture.translation
+//                            } else {
+//                                self.dragOffset = .zero
+//                            }
+//                        } else {
+//                            self.dragOffset = .zero
+//                        }
+//
+//                    }
+//                    .onEnded({ (value) in
+//
+//                        if self.dragOffset != .zero {
+//                            if self.dragOffset.width > 0 && !self.swipingLeft {
+//                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1) != nil) {
+//                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
+//                                }
+//                            } else if self.dragOffset.width < 0 && self.swipingLeft {
+//                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1) != nil) {
+//                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
+//                                }
+//                            }
+//                            self.dragOffset = .zero
+//                        }
+//                    })
+//            )
         }
     }
 }
@@ -129,7 +130,11 @@ struct cubeRotation: ViewModifier {
     let screenWidth : CGFloat
     
     func angle() -> Angle {
-        return Angle(degrees: 90 * Double(screen - self.displayInfo.screenDisplayed)) + self.dragToRotation(translation: self.dragOffset)
+        if !(self.dragOffset == .zero) {
+            return Angle(degrees: 90 * Double(screen - self.displayInfo.screenDisplayed)) + self.dragToRotation(translation: self.dragOffset)
+        } else {
+            return Angle(degrees: 0.0)
+        }
     }
     
     func edge() -> UnitPoint {
@@ -156,7 +161,7 @@ struct cubeRotation: ViewModifier {
     }
     
     func offSet() -> CGFloat {
-        return screenWidth * CGFloat(screen - self.displayInfo.screenDisplayed) + self.dragOffset.width * 1.2
+        return screenWidth * CGFloat(screen - self.displayInfo.screenDisplayed) + self.dragOffset.width
     }
     
     func dragToRotation(translation : CGSize) -> Angle {
