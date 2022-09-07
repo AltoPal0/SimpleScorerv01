@@ -175,7 +175,7 @@ struct cubeRotation: ViewModifier {
             .rotation3DEffect(self.angle(), axis: (x: 0, y:1 , z:0), anchor: self.edge())
             .offset(x: self.offSet() , y: 0)
 //            .animation(.linear)
-//            .animation(.easeOut).transition(.slide)
+            .animation(.easeOut).transition(.slide)
             .disabled(!(self.displayInfo.screenDisplayed == screen))
     }
     

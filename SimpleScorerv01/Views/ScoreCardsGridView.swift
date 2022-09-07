@@ -28,7 +28,7 @@ struct ScoreCardsGridView: View {
                         )
                     }
                 }
-            }
+            }.animation(.none)
         }
     }
 }
