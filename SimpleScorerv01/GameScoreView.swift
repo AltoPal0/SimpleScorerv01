@@ -29,7 +29,6 @@ struct GameScoreView: View {
     @State private var pickerSource = UIImagePickerController.SourceType.photoLibrary
     
     //Grid view
-    private var colors: [Color] = [.yellow, .purple, .green]
     private var gridItemLayout = Array(repeating: GridItem(.adaptive(minimum: 325, maximum: 325), spacing: 84), count: Int(((UIScreen.main.bounds.width) / 325).rounded(.down)))
     
     func nbrRowsColumns(screenWidth: CGFloat, playerCount: Int) -> (rows : Int, columns : Int) {
@@ -84,9 +83,7 @@ struct GameScoreView: View {
                                 .keyboardAdaptive()
                                 
                             }
-                        } else {
-                            EmptyView()
-                        }
+                        } 
                         
                         // bottom Scroll Buttons
                         VStack {
@@ -123,42 +120,42 @@ struct GameScoreView: View {
                     PlayersEntryView(isVisible: self.$showPlayerEntry)
                 }
             }
-//            .gesture(
-//
-//                DragGesture()
-//                    .onChanged { gesture in
-////                        print("\(gesture.translation.width) - Prev \(previousWidth) - left? \(swipingLeft)")
-//                        if !(self.displayInfo.allScoreScrolling) {
-//                            self.setSwipingDirection(width: gesture.translation.width)
-//
-//                            if gesture.startLocation.x > (geometry.size.width - 25) && self.displayInfo.screenDisplayed != ScreenType.gameSetup {
-//                                self.dragOffset = gesture.translation
-//                            } else if gesture.startLocation.x < 25 && self.displayInfo.screenDisplayed != ScreenType.allScores {
-//                                self.dragOffset = gesture.translation
-//                            } else {
-//                                self.dragOffset = .zero
-//                            }
-//                        } else {
-//                            self.dragOffset = .zero
-//                        }
-//
-//                    }
-//                    .onEnded({ (value) in
-//
-//                        if self.dragOffset != .zero {
-//                            if self.dragOffset.width > 0 && !self.swipingLeft {
-//                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1) != nil) {
-//                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
-//                                }
-//                            } else if self.dragOffset.width < 0 && self.swipingLeft {
-//                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1) != nil) {
-//                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
-//                                }
-//                            }
-//                            self.dragOffset = .zero
-//                        }
-//                    })
-//            )
+            .gesture(
+
+                DragGesture()
+                    .onChanged { gesture in
+//                        print("\(gesture.translation.width) - Prev \(previousWidth) - left? \(swipingLeft)")
+                        if !(self.displayInfo.allScoreScrolling) {
+                            self.setSwipingDirection(width: gesture.translation.width)
+
+                            if gesture.startLocation.x > (geometry.size.width - 25) && self.displayInfo.screenDisplayed != ScreenType.gameSetup {
+                                self.dragOffset = gesture.translation
+                            } else if gesture.startLocation.x < 25 && self.displayInfo.screenDisplayed != ScreenType.allScores {
+                                self.dragOffset = gesture.translation
+                            } else {
+                                self.dragOffset = .zero
+                            }
+                        } else {
+                            self.dragOffset = .zero
+                        }
+
+                    }
+                    .onEnded({ (value) in
+
+                        if self.dragOffset != .zero {
+                            if self.dragOffset.width > 0 && !self.swipingLeft {
+                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1) != nil) {
+                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
+                                }
+                            } else if self.dragOffset.width < 0 && self.swipingLeft {
+                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1) != nil) {
+                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
+                                }
+                            }
+                            self.dragOffset = .zero
+                        }
+                    })
+            )
         }
     }
 }
@@ -214,7 +211,8 @@ struct cubeRotation: ViewModifier {
         content
             .rotation3DEffect(self.angle(), axis: (x: 0, y:1 , z:0), anchor: self.edge())
             .offset(x: self.offSet() , y: 0)
-            .animation(.linear)
+//            .animation(.linear)
+            .animation(.easeOut).transition(.slide)
             .disabled(!(self.displayInfo.screenDisplayed == screen))
     }
     
@@ -237,13 +235,13 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-extension AnyTransition {
-    static var scaleAndOffset: AnyTransition {
-        AnyTransition.asymmetric(
-            insertion: .scale(scale: 0, anchor: .bottom),
-            removal: .offset(x: -600, y: 00)
-        )
-    }
-}
+//extension AnyTransition {
+//    static var scaleAndOffset: AnyTransition {
+//        AnyTransition.asymmetric(
+//            insertion: .scale(scale: 0, anchor: .bottom),
+//            removal: .offset(x: -600, y: 00)
+//        )
+//    }
+//}
 
 
