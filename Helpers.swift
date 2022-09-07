@@ -123,22 +123,22 @@ extension String {
 
 // Keyboard slide
 // Courtesy of https://stackoverflow.com/questions/56491881/move-textfield-up-when-thekeyboard-has-appeared-by-using-swiftui-ios
-struct GeometryGetter: View {
-    @Binding var rect: CGRect
-
-    var body: some View {
-        GeometryReader { geometry in
-            Group { () -> AnyView in
-                // void the possibility of modifying the state of the view while it is being rendered
-                DispatchQueue.main.async {
-                    self.rect = geometry.frame(in: .global)
-                }
-
-                return AnyView(Color.clear)
-            }
-        }
-    }
-}
+//struct GeometryGetter: View {
+//    @Binding var rect: CGRect
+//
+//    var body: some View {
+//        GeometryReader { geometry in
+//            Group { () -> AnyView in
+//                // void the possibility of modifying the state of the view while it is being rendered
+//                DispatchQueue.main.async {
+//                    self.rect = geometry.frame(in: .global)
+//                }
+//
+//                return AnyView(Color.clear)
+//            }
+//        }
+//    }
+//}
 
 // MARK: - Views / Images
 
