@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import Introspect
+//import Introspect
 
 struct ScoreCardView: View {
     
@@ -254,6 +254,12 @@ struct PlayerNameView: View {
     
     @State private var showingAlert = false
     
+    private enum Field:Int, Hashable {
+        case  name
+    }
+    
+    @FocusState private var focusedField: Field?
+    
     var indexOfScoreCard : Int
     
     var body: some View {
@@ -268,6 +274,7 @@ struct PlayerNameView: View {
                         .simultaneousGesture(
                             LongPressGesture()
                                 .onEnded { _ in
+                                    self.focusedField = .name
                                     self.nameEditing = true
                                 }
                         )
@@ -295,18 +302,18 @@ struct PlayerNameView: View {
                         
                         
                     })
-                        .introspectTextField { textField in
-                            if self.shouldBecomeFirstResponder() && !textField.isFirstResponder {
-                                textField.becomeFirstResponder()
-                            }
-                        }
-                        .font(.system(.largeTitle, design: .rounded))
-                        .background(Color.offWhite.opacity(0.6))
-                        .foregroundColor(Color.offWhite)
-                        .foregroundColor(Color .offWhite)
+                    .focused($focusedField, equals: .name)
+                    .font(.system(.largeTitle, design: .rounded))
+                    .background(Color.offWhite.opacity(0.6))
+                    .foregroundColor(Color.offWhite)
+                    .foregroundColor(Color .offWhite)
+                    .onTapGesture {
+                        self.focusedField = .name
+                    }
                 }
             }
-        }.alert(isPresented: $showingAlert) {
+        }
+        .alert(isPresented: $showingAlert) {
             Alert(title: Text("No name entered"), message: Text("Please enter a name"), dismissButton: .default(Text("OK")))
         }
     }
