@@ -79,42 +79,42 @@ struct GameScoreView: View {
                     PlayersEntryView(isVisible: self.$showPlayerEntry)
                 }
             }
-//            .gesture(
-//
-//                DragGesture()
-//                    .onChanged { gesture in
-////                        print("\(gesture.translation.width) - Prev \(previousWidth) - left? \(swipingLeft)")
-//                        if !(self.displayInfo.allScoreScrolling) {
-//                            self.setSwipingDirection(width: gesture.translation.width)
-//
-//                            if gesture.startLocation.x > (geometry.size.width - 25) && self.displayInfo.screenDisplayed != ScreenType.gameSetup {
-//                                self.dragOffset = gesture.translation
-//                            } else if gesture.startLocation.x < 25 && self.displayInfo.screenDisplayed != ScreenType.allScores {
-//                                self.dragOffset = gesture.translation
-//                            } else {
-//                                self.dragOffset = .zero
-//                            }
-//                        } else {
-//                            self.dragOffset = .zero
-//                        }
-//
-//                    }
-//                    .onEnded({ (value) in
-//
-//                        if self.dragOffset != .zero {
-//                            if self.dragOffset.width > 0 && !self.swipingLeft {
-//                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1) != nil) {
-//                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
-//                                }
-//                            } else if self.dragOffset.width < 0 && self.swipingLeft {
-//                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1) != nil) {
-//                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
-//                                }
-//                            }
-//                            self.dragOffset = .zero
-//                        }
-//                    })
-//            )
+            .gesture(
+
+                DragGesture()
+                    .onChanged { gesture in
+//                        print("\(gesture.translation.width) - Prev \(previousWidth) - left? \(swipingLeft)")
+                        if !(self.displayInfo.allScoreScrolling) {
+                            self.setSwipingDirection(width: gesture.translation.width)
+
+                            if gesture.startLocation.x > (geometry.size.width - 25) && self.displayInfo.screenDisplayed != ScreenType.gameSetup {
+                                self.dragOffset = gesture.translation
+                            } else if gesture.startLocation.x < 25 && self.displayInfo.screenDisplayed != ScreenType.allScores {
+                                self.dragOffset = gesture.translation
+                            } else {
+                                self.dragOffset = .zero
+                            }
+                        } else {
+                            self.dragOffset = .zero
+                        }
+
+                    }
+                    .onEnded({ (value) in
+
+                        if self.dragOffset != .zero {
+                            if self.dragOffset.width > 0 && !self.swipingLeft {
+                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1) != nil) {
+                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
+                                }
+                            } else if self.dragOffset.width < 0 && self.swipingLeft {
+                                if (ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1) != nil) {
+                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
+                                }
+                            }
+                            self.dragOffset = .zero
+                        }
+                    })
+            )
         }
     }
 }
