@@ -64,7 +64,7 @@ struct ScoreCardView: View {
                                 .padding(10)
                                 .frame(width: frameHeight*2/3)
                             
-                            PlayerNameView(scoreEditing: $scoreEditing, nameEditing: $nameEditing, playerScore: playerScore, username: $username, indexOfScoreCard: index)
+                            PlayerNameView(scoreEditing: $scoreEditing, nameEditing: $nameEditing, showBottomBar: $showBottomBar, playerScore: playerScore, username: $username, indexOfScoreCard: index)
                             
                             ExpandableScoreSection
                         }
@@ -120,8 +120,10 @@ struct ScoreCardView: View {
     
     var ExpandableScoreSection: some View {
         Group {
+            // X mark of score editing
             VStack {
                 if scoreEditing {
+                    
                     VStack {
                         Image(systemName: "xmark").foregroundColor(Color.white)
                             .padding()
@@ -246,6 +248,7 @@ struct PlayerNameView: View {
     
     @Binding var scoreEditing : Bool
     @Binding var nameEditing : Bool
+    @Binding var showBottomBar : Bool
     var playerScore : PlayerScore
     @Binding var username : String
     
@@ -261,9 +264,18 @@ struct PlayerNameView: View {
                         .font(Font.system(size: fontSize(nbrChar: self.playerScore.player.name.count + ( String(self.playerScore.totalScore()).count - 2), fontSize: 40), weight: .semibold, design: .rounded))
                             .lineLimit(1)
                         .foregroundColor(Color .offWhite)
-                        .onLongPressGesture {
-                            self.nameEditing = true
-                        }
+                    
+                        .simultaneousGesture(
+                            LongPressGesture()
+                                .onEnded { _ in
+                                    self.nameEditing = true
+                                }
+                        )
+                        .highPriorityGesture(TapGesture()
+                            .onEnded { _ in
+                                self.scoreEditing = true
+                                self.showBottomBar = true
+                            })
                 } else {
                     TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {
                         
