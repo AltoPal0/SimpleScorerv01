@@ -294,7 +294,7 @@ struct PlayerNameView: View {
                             self.nameEditing = false
                             let index = self.game.playerScores.firstIndex(where: {$0.id == self.playerScore.id})!
                             self.game.playerScores[index].player.name = self.username
-                            self.game.playerScores[index].player.initials = self.game.avatarInitialsForPlayer(player: self.game.playerScores[index].player)
+                            self.game.avatarInitialsForPlayers()
                             
                             self.username = ""
                             self.displayInfo.indexOFTextfieldFocused += 1

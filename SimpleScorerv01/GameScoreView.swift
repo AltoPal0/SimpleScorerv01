@@ -193,8 +193,8 @@ struct ContentView_Previews: PreviewProvider {
                 .previewDisplayName("iPhone X")
         }
         .environmentObject(GlobalDisplayInfo())
-        .environmentObject(Game(withTestPlayers: ()))
-        
+//        .environmentObject(Game(withTestPlayers: ()))
+        .environmentObject(Game())
     }
 }
 
