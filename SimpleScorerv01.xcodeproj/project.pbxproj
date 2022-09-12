@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,8 +13,8 @@
 		D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */; };
 		D7899CC0249CADBA00C6053E /* AllScoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7899CBF249CADBA00C6053E /* AllScoresView.swift */; };
 		D78C0A5A24891FDC00FF5EEE /* PlayersEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */; };
-		D7C03BAF246EEA1B0006FB9F /* KeyboardAvoidance.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7C03BAE246EEA1B0006FB9F /* KeyboardAvoidance.swift */; };
 		D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */; };
+		D7F35C3728C8DF830007223D /* BottomButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F35C3628C8DF830007223D /* BottomButtonsView.swift */; };
 		E8245A6C24600FE40057FB45 /* CircleImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8245A6B24600FE40057FB45 /* CircleImagePickerView.swift */; };
 		E828ADB2242370F40046BAF8 /* PlayerScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E828ADB1242370F40046BAF8 /* PlayerScore.swift */; };
 		E828ADB4242387500046BAF8 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = E828ADB3242387500046BAF8 /* Game.swift */; };
@@ -44,8 +44,8 @@
 		D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDisplayInfo.swift; sourceTree = "<group>"; };
 		D7899CBF249CADBA00C6053E /* AllScoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView.swift; sourceTree = "<group>"; };
 		D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayersEntryView.swift; sourceTree = "<group>"; };
-		D7C03BAE246EEA1B0006FB9F /* KeyboardAvoidance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardAvoidance.swift; sourceTree = "<group>"; };
 		D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCardsGridView.swift; sourceTree = "<group>"; };
+		D7F35C3628C8DF830007223D /* BottomButtonsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomButtonsView.swift; sourceTree = "<group>"; };
 		E8245A6B24600FE40057FB45 /* CircleImagePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleImagePickerView.swift; sourceTree = "<group>"; };
 		E828ADB1242370F40046BAF8 /* PlayerScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerScore.swift; sourceTree = "<group>"; };
 		E828ADB3242387500046BAF8 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
@@ -103,7 +103,6 @@
 			isa = PBXGroup;
 			children = (
 				E8ADADAC25540B3600874D44 /* AppStoreReviewManager.swift */,
-				D7C03BAE246EEA1B0006FB9F /* KeyboardAvoidance.swift */,
 				D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */,
 				D70F1355248E37F9001D3217 /* SATextField.swift */,
 			);
@@ -178,6 +177,7 @@
 		E88751B3241F9DE90091853F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D7F35C3628C8DF830007223D /* BottomButtonsView.swift */,
 				E88751B4241F9E000091853F /* AvatarView.swift */,
 				D7899CBF249CADBA00C6053E /* AllScoresView.swift */,
 				E8245A6B24600FE40057FB45 /* CircleImagePickerView.swift */,
@@ -218,7 +218,6 @@
 				E8875190241F99DB0091853F /* Sources */,
 				E8875191241F99DB0091853F /* Frameworks */,
 				E8875192241F99DB0091853F /* Resources */,
-				9B04F5AF2B0F214FF7DB051A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -298,23 +297,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9B04F5AF2B0F214FF7DB051A /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SimpleScorerv01/Pods-SimpleScorerv01-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SimpleScorerv01/Pods-SimpleScorerv01-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SimpleScorerv01/Pods-SimpleScorerv01-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -326,7 +308,6 @@
 				E84FABFE2435E94B00C806D2 /* ClickWheel.swift in Sources */,
 				E88751B1241F9B9A0091853F /* Player.swift in Sources */,
 				E88C328B25488751000EE7AB /* KeyPadView.swift in Sources */,
-				D7C03BAF246EEA1B0006FB9F /* KeyboardAvoidance.swift in Sources */,
 				D7027B0E25556ED9009FB899 /* HelpView.swift in Sources */,
 				E828ADB4242387500046BAF8 /* Game.swift in Sources */,
 				D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */,
@@ -339,6 +320,7 @@
 				D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */,
 				E887519A241F99DB0091853F /* SceneDelegate.swift in Sources */,
 				D78C0A5A24891FDC00FF5EEE /* PlayersEntryView.swift in Sources */,
+				D7F35C3728C8DF830007223D /* BottomButtonsView.swift in Sources */,
 				E887519C241F99DB0091853F /* GameScoreView.swift in Sources */,
 				E84D87F0242218DB00FEBFFF /* Round.swift in Sources */,
 				E8AE91A8245C405B00CA7F55 /* Helpers.swift in Sources */,
@@ -413,7 +395,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -468,7 +450,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -490,7 +472,7 @@
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -516,7 +498,7 @@
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
