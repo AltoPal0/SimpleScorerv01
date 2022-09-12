@@ -126,7 +126,7 @@ struct ImageResizerView: View {
                     HStack {
                         Spacer()
                         Button(action: {
-                            self.image = resizeImage(image: self.rectToCapture.uiImage!, targetSize: CGSize(width: 200, height: 200))
+//                            self.image = resizeImage(image: self.rectToCapture.uiImage!, targetSize: CGSize(width: 200, height: 200))
                             self.isPresented = false
                         }) {
                             Image(systemName: "checkmark")
