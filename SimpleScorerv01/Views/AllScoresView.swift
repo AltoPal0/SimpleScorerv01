@@ -192,7 +192,7 @@ struct PlayerScoreColumn: View {
                 
                 AvatarView(user: playerScore.player)
                     .padding(5)
-                    .frame(maxHeight:scoreColumnMaxWidth)
+                    .frame(minWidth:scoreColumnMaxWidth, maxHeight:scoreColumnMaxWidth)
                 
                 ScrollView(maxHeightForPoints/CGFloat(game.currentMaxNumberOfRounds()+1) < cellHeight ? .vertical : []) {
                     VStack {
