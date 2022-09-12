@@ -79,31 +79,52 @@ class Game : ObservableObject {
         return false
     }
     
-    func avatarInitialsForPlayer(player : Player) -> String {
+    func avatarInitialsForPlayers() {
         
         var indexOfDifference = 0
         
-        var initials = player.name.uppercased().prefix(1)
+        var maxDiffs: [Int] = [Int](repeating: 0, count: self.playerScores.count)
         
         for playerScore in self.playerScores.sorted(by: {$0.player.name.lowercased() < $1.player.name.lowercased()}) {
-            print(playerScore.player.name,"-",player.name)
-            if player.id != playerScore.player.id {
+            
+            
+//                print(playerScore.player.name,"-",player.name)
+
+            for (index, pScore) in self.playerScores.enumerated() {
                 
-                while player.name.lowercased()[indexOfDifference] == playerScore.player.name.lowercased()[indexOfDifference]
-                        && player.name.length <= indexOfDifference + 1
-                        && playerScore.player.name.length <= indexOfDifference + 1 {
+                if playerScore.player.name != pScore.player.name
+                    && playerScore.player.name.lowercased()[0] == pScore.player.name.lowercased()[0] {
+
+                    print(pScore.player.name, " vs.", playerScore.player.name)
                     
-                    indexOfDifference += 1
-                    print(indexOfDifference)
+//                    print(playerScore.player.name.lowercased()[indexOfDifference],"=?",pScore.player.name.lowercased()[indexOfDifference])
+                    
+                    while playerScore.player.name.lowercased()[indexOfDifference] == pScore.player.name.lowercased()[indexOfDifference]
+                            &&  pScore.player.name.length >= indexOfDifference
+                            && playerScore.player.name.length >= indexOfDifference
+                    {
+                        indexOfDifference += 1
+                        
+                        if maxDiffs[index] < indexOfDifference {
+                            maxDiffs[index] = indexOfDifference
+                        }
+                    }
+                    
+                    
                 }
+                indexOfDifference = 0
+            }
+            
+        }
+        
+        for (i,maxDiff) in maxDiffs.enumerated() {
+            print("max ",maxDiff," for ",self.playerScores[i].player.name, " - ", self.playerScores[i].player.name)
+            if maxDiff > 0 {
+                self.playerScores[i].player.initials = self.playerScores[i].player.name[0] + self.playerScores[i].player.name[maxDiff]
+            } else {
+                self.playerScores[i].player.initials = self.playerScores[i].player.name[0]
             }
         }
-        
-        if indexOfDifference > 0 && player.name.length <= indexOfDifference + 1 {
-            initials += player.name.lowercased()[indexOfDifference]
-        }
-        
-        return String(initials)
     }
     
     // MARK: - Score functions
