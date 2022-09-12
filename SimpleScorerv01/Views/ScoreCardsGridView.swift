@@ -15,7 +15,7 @@ struct ScoreCardsGridView: View {
     @EnvironmentObject var game : Game
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
-    private var gridItemLayout = Array(repeating: GridItem(.adaptive(minimum: 325, maximum: 325), spacing: 84), count: Int(((UIScreen.main.bounds.width) / 325).rounded(.down)))
+    private var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: 325), spacing: 84)]
     
     var body: some View {
         ZStack{
@@ -39,5 +39,6 @@ struct LazyVGridTest_Previews: PreviewProvider {
         ScoreCardsGridView()
             .environmentObject(GlobalDisplayInfo())
             .environmentObject(Game(withTestPlayers: ()))
+            .previewInterfaceOrientation(.landscapeLeft)
     }
 }

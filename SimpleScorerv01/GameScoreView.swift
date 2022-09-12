@@ -191,6 +191,7 @@ struct ContentView_Previews: PreviewProvider {
             GameScoreView()
                 .previewDevice(PreviewDevice(rawValue: "iPhone X"))
                 .previewDisplayName("iPhone X")
+                .previewInterfaceOrientation(.landscapeLeft)
         }
         .environmentObject(GlobalDisplayInfo())
 //        .environmentObject(Game(withTestPlayers: ()))

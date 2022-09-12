@@ -159,14 +159,7 @@ struct RoundedCorner: Shape {
     }
 }
 
-extension CGRect {
-    var uiImage: UIImage? {
-        UIApplication.shared.windows
-            .filter{ $0.isKeyWindow }
-            .first?.rootViewController?.view
-            .asImage(rect: self)
-    }
-}
+
 
 extension View {
     func getRect(_ rect: Binding<CGRect>) -> some View {
