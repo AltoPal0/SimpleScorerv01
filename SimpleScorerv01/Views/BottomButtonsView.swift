@@ -20,7 +20,7 @@ struct BottomButtonsView: View {
                 Image(systemName: "arrow.left.circle")
                     .font(.system(.largeTitle, design: .rounded))
                     .foregroundColor(Color.gray)
-                    .background(Color.clear.opacity(0))
+                    .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
                     .onTapGesture {
                         if self.displayInfo.screenDisplayed == .gameSetup {
                             self.displayInfo.screenDisplayed = .scoreCards
@@ -38,7 +38,8 @@ struct BottomButtonsView: View {
                 Image(systemName: "arrow.right.circle")
                     .font(.system(.largeTitle, design: .rounded))
                     .foregroundColor(Color.gray)
-                    .background(Color.clear.opacity(0))
+                    .contentShape(Circle())
+                    .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
                     .onTapGesture {
                         if self.displayInfo.screenDisplayed == .allScores {
                             self.displayInfo.screenDisplayed = .scoreCards
