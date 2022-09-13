@@ -44,7 +44,7 @@ struct GameSetupView: View {
             }
             .padding()
             
-            AnimatedGradientView()
+            LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: UnitPoint(x: 0.2, y: 0.2), endPoint: UnitPoint(x: 0.8, y: 0.8))
                 .mask(
                     HStack {
                         Spacer()
