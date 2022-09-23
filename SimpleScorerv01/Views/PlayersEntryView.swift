@@ -27,7 +27,7 @@ struct PlayersEntryView: View {
             ZStack {
                 ForEach(cardViews, id: \.playerScore.id) { cardView in
                     cardView
-                        .frame(height: self.frameHeight)
+                        .frame(width:350, height: self.frameHeight)
                         .clipShape(Rectangle()).cornerRadius(14)
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                         .overlay(
@@ -62,7 +62,7 @@ struct PlayersEntryView: View {
                         .offset(self.offset(for: cardView.playerScore))
                         .scaleEffect(self.scale(for: cardView.playerScore))
                         .padding()
-                        .animation(.spring()).transition(.slide)
+                        .animation(Animation .spring(), value: self.offset(for: cardView.playerScore))
                 }
             }
             .offset(x: 0, y: -30)
@@ -75,7 +75,6 @@ struct PlayersEntryView: View {
     func commitNameAndMove(forIndex i : Int) {
 
         self.game.playerScores[i].player.name = self.username
-//        self.game.playerScores[i].player.initials = self.game.avatarInitialsForPlayer(player:  self.game.playerScores[i].player)
         self.username = ""
         
         if self.cardViews.count > 0 {
@@ -95,7 +94,6 @@ struct PlayersEntryView: View {
         for playerScore in game.playerScores {
             let index = self.game.playerScores.firstIndex(where: { $0.id == playerScore.id })
             
-//            self.cardViews.append(ScoreCardView(playerScore: self.$game.playerScores[index!], size: .compact, index: index!))
             if self.game.playerScores[index!].player.name == Player.defaultName {
                 self.cardViews.append(CardView(playerScore: self.$game.playerScores[index!], username: self.$username,isFirstResponder: index == 0))
             }
@@ -129,8 +127,6 @@ struct PlayersEntryView: View {
             return CGSize()
         }
         
-//        if self.cardViews.count == 0 { return CGSize(width: 0, height: -20 * CGFloat(cardIndex)) }
-        
         return CGSize(width: 0, height: -20 * CGFloat(cardIndex))
     }
     
@@ -140,7 +136,7 @@ struct PlayersEntryView: View {
             return 1
         }
 
-        return CGFloat(100 - (cardIndex)*10)/100
+        return max(CGFloat(100 - (cardIndex)*10)/100, 10/100)
     }
     
     private func isTopCard(cardView: CardView) -> Bool {
@@ -192,6 +188,6 @@ struct CardView: Identifiable, View {
 
 struct PlayersEntryView_Previews: PreviewProvider {
     static var previews: some View {
-            PlayersEntryView(isVisible: .constant(true)).environmentObject(Game())
+        PlayersEntryView(isVisible: .constant(true)).environmentObject(Game(withTestEmptyNamePlayers: ()))
     }
 }

@@ -60,6 +60,35 @@ class Game : ObservableObject {
         return !allPlayersHaveNames && self.playerScores.count > 0
     }
     
+    func indexOfPlayerWithNoName (playerScore : PlayerScore) -> Int {
+        
+        var playersWithNoName : [PlayerScore] = []
+        
+        for playerScore in self.playerScores {
+            if playerScore.player.name == Player.defaultName {
+                playersWithNoName.append(playerScore)
+            }
+        }
+        
+        for (index, pScoreNoName) in playersWithNoName.enumerated() {
+            if pScoreNoName.id == playerScore.id {
+                return index
+            }
+        }
+        
+        return -1
+    }
+    
+    func nbrOfPlayersNeedingNames () -> Int {
+        var count = 0
+        for playerScore in self.playerScores {
+            if playerScore.player.name == Player.defaultName {
+                count += 1
+            }
+        }
+        return count
+    }
+    
     func listNames() -> String {
         var names = ""
         for playerScore in self.playerScores {
@@ -323,6 +352,18 @@ extension Game {
     convenience init(withTestPlayers: Void) {
         self.init()
         self.addTestPlayers()
+    }
+    
+    convenience init(withTestEmptyNamePlayers: Void) {
+        self.init()
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[1]))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[2]))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[3]))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[4]))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[5]))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[6]))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[7]))
+
     }
 }
 

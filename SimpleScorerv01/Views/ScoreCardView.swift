@@ -66,7 +66,11 @@ struct ScoreCardView: View {
                             
                             PlayerNameView(scoreEditing: $scoreEditing, nameEditing: $nameEditing, showBottomBar: $showBottomBar, playerScore: playerScore, username: $username, indexOfScoreCard: index)
                             
-                            ExpandableScoreSection
+                            if displayInfo.screenDisplayed == .scoreCards {
+                                ExpandableScoreSection
+                            } else {
+                                Spacer(minLength: 50)
+                            }
                         }
                         .frame(height: frameHeight*2/3)
                         
@@ -308,7 +312,14 @@ struct PlayerNameView: View {
                     .foregroundColor(Color.offWhite)
                     .foregroundColor(Color .offWhite)
                     .onTapGesture {
-                        self.focusedField = .name
+                        if displayInfo.screenDisplayed == .scoreCards {
+                            self.focusedField = .name
+                        } else {
+                            if game.nbrOfPlayersNeedingNames() - game.indexOfPlayerWithNoName(playerScore: self.playerScore) == 1 {
+                                self.focusedField = .name
+                            }
+                            
+                        }
                     }
                 }
             }

@@ -94,7 +94,7 @@ struct ImageResizerView: View {
                 Image(uiImage: self.image.fixedOrientation)
                     .resizable()
                     .scaledToFit()
-                    .animation(.default)
+//                    .animation(.default)
                     .offset(self.draged)
                     .scaleEffect(self.scale)
                     .gesture(
@@ -119,7 +119,7 @@ struct ImageResizerView: View {
                         let parent = geo.frame(in: .local)
                         self.postArranging(translation: CGSize.zero, in: parent)
                     })
-                    .animation(.spring())
+//                    .animation(.spring())
                 
                 VStack {
                     Spacer()

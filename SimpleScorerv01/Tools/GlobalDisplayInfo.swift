@@ -13,7 +13,7 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var screenDisplayed = ScreenType.gameSetup
     @Published var indexOFTextfieldFocused : Int = 1000
     @Published var gradients = gradiants.shuffled()
-    @Published var scoreCardSize = CardSize.normal
+    @Published var scoreCardSize = CardSize.compact
     @Published var shouldScroll = true
     @Published var allScoreScrolling = false
 

@@ -31,12 +31,12 @@ struct GameScoreView: View {
     //Grid view
     
     
-    func nbrRowsColumns(screenWidth: CGFloat, playerCount: Int) -> (rows : Int, columns : Int) {
-        
-        let nbrColumns = Double((screenWidth) / 325).rounded(.down)
-        let nbrRows = Double(Double(playerCount) / nbrColumns).rounded(.up)
-        return (Int(nbrRows),Int(nbrColumns))
-    }
+//    func nbrRowsColumns(screenWidth: CGFloat, playerCount: Int) -> (rows : Int, columns : Int) {
+//        
+//        let nbrColumns = Double((screenWidth) / 325).rounded(.down)
+//        let nbrRows = Double(Double(playerCount) / nbrColumns).rounded(.up)
+//        return (Int(nbrRows),Int(nbrColumns))
+//    }
     
     func dragToRotation(translation : CGSize) -> Angle {
         return Angle(degrees: Double(translation.width/4.16))
@@ -175,10 +175,9 @@ struct cubeRotation: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-//            .rotation3DEffect(self.angle(), axis: (x: 0, y:1 , z:0), anchor: self.edge())
+            .rotation3DEffect(self.angle(), axis: (x: 0, y:1 , z:0), anchor: self.edge())
             .offset(x: self.offSet() , y: 0)
-//            .animation(.linear)
-            .animation(.easeOut).transition(.slide)
+            .animation(.easeOut(duration: 0.3), value: self.offSet())
             .disabled(!(self.displayInfo.screenDisplayed == screen))
     }
     
@@ -190,6 +189,7 @@ struct ContentView_Previews: PreviewProvider {
             GameScoreView()
                 .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
                 .previewDisplayName("iPad Pro (11-inch) (3rd generation)")
+                .previewInterfaceOrientation(.landscapeLeft)
             
             GameScoreView()
                 .previewDevice(PreviewDevice(rawValue: "iPhone X"))
