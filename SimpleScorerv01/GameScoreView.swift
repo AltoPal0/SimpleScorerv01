@@ -71,8 +71,6 @@ struct GameScoreView: View {
                 
                 BottomButtonsView()
                 
-                Text("\(geometry.size.width) - \(UIScreen.main.bounds.width)")
-                
                 if self.showImagePicker {
                     CircleImagePickerView(isPresented: self.$showImagePicker, selectedImage: self.$imagePicked, source: self.pickerSource)
                         .edgesIgnoringSafeArea(.all)
