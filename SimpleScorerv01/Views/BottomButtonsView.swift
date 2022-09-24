@@ -12,54 +12,62 @@ struct BottomButtonsView: View {
     
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
+    @Binding var movingEdge : Edge
+    
     var body: some View {
         VStack {
             Spacer()
             HStack {
                 if !(self.displayInfo.screenDisplayed == .allScores) {
-                Image(systemName: "arrow.left.circle")
-                    .font(.system(.largeTitle, design: .rounded))
-                    .foregroundColor(Color.gray)
-                    .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
-                    .onTapGesture {
-                        if self.displayInfo.screenDisplayed == .gameSetup {
-                            self.displayInfo.screenDisplayed = .scoreCards
-                        } else {
-                            withAnimation {
-                                self.displayInfo.screenDisplayed = .allScores
+                    Image(systemName: "arrow.left.circle")
+                        .font(.system(.largeTitle, design: .rounded))
+                        .foregroundColor(Color.gray)
+                        .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
+                        .onTapGesture {
+                            withAnimation{
+                                if self.displayInfo.screenDisplayed == .gameSetup {
+                                    self.movingEdge = .leading
+                                    self.displayInfo.screenDisplayed = .scoreCards
+                                } else {
+//                                    self.movingEdge = .trailing
+                                    self.displayInfo.screenDisplayed = .allScores
+                                }
                             }
-                        }
-                    }.padding()
+                        }.padding()
                 } else {
                     EmptyView()
                 }
                 Spacer()
                 if !(self.displayInfo.screenDisplayed == .gameSetup) {
-                Image(systemName: "arrow.right.circle")
-                    .font(.system(.largeTitle, design: .rounded))
-                    .foregroundColor(Color.gray)
-                    .contentShape(Circle())
-                    .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
-                    .onTapGesture {
-                        if self.displayInfo.screenDisplayed == .allScores {
-                            self.displayInfo.screenDisplayed = .scoreCards
-                        } else {
-                            self.displayInfo.screenDisplayed = .gameSetup
-                        }
-                    }.padding()
+                    Image(systemName: "arrow.right.circle")
+                        .font(.system(.largeTitle, design: .rounded))
+                        .foregroundColor(Color.gray)
+                        .contentShape(Circle())
+                        .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
+                        .onTapGesture {
+                            withAnimation{
+                                if self.displayInfo.screenDisplayed == .allScores {
+                                    self.movingEdge = .trailing
+                                    self.displayInfo.screenDisplayed = .scoreCards
+                                } else {
+//                                    self.movingEdge = .leading
+                                    self.displayInfo.screenDisplayed = .gameSetup
+                                }
+                            }
+                        }.padding()
                 } else {
                     EmptyView()
                 }
                 
-//                if self.dismissHelpForever {
-//                    Image(systemName: "questionmark.circle")
-//                        .font(.system(.largeTitle, design: .rounded))
-//                        .foregroundColor(Color.gray)
-//                        .padding([.bottom])
-//                        .onTapGesture {
-//                            self.showHelp = true
-//                    }
-//                }
+                //                if self.dismissHelpForever {
+                //                    Image(systemName: "questionmark.circle")
+                //                        .font(.system(.largeTitle, design: .rounded))
+                //                        .foregroundColor(Color.gray)
+                //                        .padding([.bottom])
+                //                        .onTapGesture {
+                //                            self.showHelp = true
+                //                    }
+                //                }
                 
             }
         }
@@ -68,6 +76,6 @@ struct BottomButtonsView: View {
 
 struct BottomButtonsView_Previews: PreviewProvider {
     static var previews: some View {
-        BottomButtonsView()
+        BottomButtonsView(movingEdge: .constant(.trailing))
     }
 }
