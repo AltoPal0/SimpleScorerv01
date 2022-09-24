@@ -25,7 +25,7 @@ struct GameSetupView: View {
     var body: some View {
         
         ZStack {
-            Color.offWhite.edgesIgnoringSafeArea(.all)
+//            Color.offWhite.edgesIgnoringSafeArea(.all)
             
             HStack {
                 Spacer()

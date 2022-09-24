@@ -37,7 +37,7 @@ struct AllScoresView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.offWhite.edgesIgnoringSafeArea(.all)
+//                Color.offWhite.edgesIgnoringSafeArea(.all)
                 
                 ScrollView(geometry.size.width/CGFloat(game.playerScores.count) < scoreColumnMaxWidth ? .horizontal : []) {
                     HStack {

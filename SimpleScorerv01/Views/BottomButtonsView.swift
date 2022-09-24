@@ -25,10 +25,10 @@ struct BottomButtonsView: View {
                         if self.displayInfo.screenDisplayed == .gameSetup {
                             self.displayInfo.screenDisplayed = .scoreCards
                         } else {
-//                            self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
-                            self.displayInfo.screenDisplayed = .allScores
+                            withAnimation {
+                                self.displayInfo.screenDisplayed = .allScores
+                            }
                         }
-                        
                     }.padding()
                 } else {
                     EmptyView()

@@ -22,7 +22,7 @@ struct PlayersEntryView: View {
     var body: some View {
         ZStack {
             
-            Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-Double(self.cardViews.count+1))
+//            Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-Double(self.cardViews.count+1))
             
             ZStack {
                 ForEach(cardViews, id: \.playerScore.id) { cardView in
