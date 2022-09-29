@@ -77,9 +77,9 @@ struct AllScoresView: View {
                     
                 }
                 
-                if self.showHelp && !self.dismissHelpForever && game.currentMaxNumberOfRounds() >= 2 {
-                    HelpView(showHelp: self.$showHelp, DismissHelpForever: self.$dismissHelpForever)
-                }
+//                if self.showHelp && !self.dismissHelpForever && game.currentMaxNumberOfRounds() >= 2 {
+//                    HelpView(showHelp: self.$showHelp, DismissHelpForever: self.$dismissHelpForever)
+//                }
                 
             }
         }
