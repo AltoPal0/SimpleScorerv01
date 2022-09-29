@@ -47,7 +47,7 @@ struct GameScoreView: View {
                 
                 if displayInfo.screenDisplayed == .scoreCards {
                     ScoreCardsGridView()
-                        .transition(.asymmetric(insertion: .move(edge: movingEdge), removal: .move(edge: ( (movingEdge == .leading) ? .trailing : .leading)   )))
+                        .transition(.opacity)
                 }
                 
                 BottomButtonsView(movingEdge: $movingEdge)
