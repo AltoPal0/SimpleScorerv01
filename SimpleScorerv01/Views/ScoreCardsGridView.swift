@@ -1,5 +1,5 @@
 //
-//  LazyVGridTest.swift
+//  ScoreCardsGridView.swift
 //  SimpleScorerv01
 //
 //  Created by Dev on 7/9/22.
@@ -34,11 +34,11 @@ struct ScoreCardsGridView: View {
 }
 
 
-struct LazyVGridTest_Previews: PreviewProvider {
+struct ScoreCardsGridView_Previews: PreviewProvider {
     static var previews: some View {
         ScoreCardsGridView()
             .environmentObject(GlobalDisplayInfo())
             .environmentObject(Game(withTestPlayers: ()))
-            .previewInterfaceOrientation(.landscapeLeft)
+//            .previewInterfaceOrientation(.landscapeLeft)
     }
 }
