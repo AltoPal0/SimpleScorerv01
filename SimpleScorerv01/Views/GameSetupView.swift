@@ -194,21 +194,22 @@ struct GameSetupView: View {
             .padding()
      
             // TODO: Put this help button somewhere else
-//            if self.dismissHelpForever {
-//                Image(systemName: "questionmark.circle")
-//                    .font(.system(.largeTitle, design: .rounded))
-//                    .foregroundColor(Color.gray)
-//                    .padding([.bottom])
-//                    .onTapGesture {
-//                        self.showHelp = true
-//                }
-//            }
             
-            
-            
-            if self.showHelp {
-                HelpScreensView(showHelp: self.$showHelp)
+            VStack {
+                Spacer()
+                Image(systemName: "questionmark.circle")
+                    .font(.system(.largeTitle, design: .rounded))
+                    .foregroundColor(Color.gray)
+                    .padding([.bottom])
+                    .onTapGesture {
+                        self.showHelp = true
+                    }
+                
+                if self.showHelp {
+                    HelpScreensView(showHelp: self.$showHelp)
+                }
             }
+            
         }
     }
     
