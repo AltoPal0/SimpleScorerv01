@@ -6,6 +6,13 @@
 //  Copyright © 2020 Stephane Giloppe. All rights reserved.
 //
 
+//Section(header: Text("Sticky Header")) {
+//    ForEach(0...3) { item in
+//        Text(item)
+//    }
+//}
+//}
+
 import SwiftUI
 
 enum ScoreEditMode {
