@@ -36,7 +36,7 @@ struct GameScoreView: View {
                 Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
                 
                 if displayInfo.screenDisplayed == .allScores {
-                    AllScoresView()
+                    AllScoresView_new()
                         .transition(.move(edge: .leading))
                 }
                 

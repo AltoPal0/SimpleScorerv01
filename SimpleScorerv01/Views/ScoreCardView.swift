@@ -175,8 +175,6 @@ struct ScoreCardView: View {
                             .overlay(Image(systemName: "checkmark").foregroundColor(Color.white))
                             .frame(minWidth:70, maxWidth:70, maxHeight: .infinity)
                             .onTapGesture {
-    //                            let index = self.game.playerScores.firstIndex(where: {$0.id == self.playerScore.id})!
-    //                            self.game.playerScores[index].addPoints(scoreValue: Int(String(format: "%.0f",self.pointsScored))!)
                                 self.game.addPointsFor(player: self.playerScore.player, points: Int(String(format: "%.0f",abs(self.pointsScored) * sign))!)
                                 self.pointsScored = 0
                                 self.sign = 1

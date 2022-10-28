@@ -11,7 +11,7 @@ import SwiftUI
 class Game : ObservableObject {
     
     @Published var playerScores = [PlayerScore] ()
-    @Published var roundsLabels = [Int] ()
+    @Published var maxNbrOfRounds = 0
     
     // MARK: - Player functins
     func addPlayer(player: Player) {
@@ -147,7 +147,7 @@ class Game : ObservableObject {
         }
         
         for (i,maxDiff) in maxDiffs.enumerated() {
-            print("max ",maxDiff," for ",self.playerScores[i].player.name, " - ", self.playerScores[i].player.name)
+//            print("max ",maxDiff," for ",self.playerScores[i].player.name, " - ", self.playerScores[i].player.name)
             if maxDiff > 0 {
                 self.playerScores[i].player.initials = self.playerScores[i].player.name[0] + self.playerScores[i].player.name[maxDiff]
             } else {
@@ -163,7 +163,6 @@ class Game : ObservableObject {
         let nbrOfRounds = self.currentMaxNumberOfRounds()
         
         if self.playerScores[self.indexOf(player: player)!].pointsList.count == nbrOfRounds {
-            self.roundsLabels.append(nbrOfRounds+1)
             self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: points)
         } else if self.playerScores[self.indexOf(player: player)!].pointsList.count == (nbrOfRounds - 1) {
             self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: points)
@@ -171,6 +170,8 @@ class Game : ObservableObject {
             self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: 0)
             self.addPointsFor(player: player, points: points)
         }
+        
+        self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
     }
     
     func deletePointsFor(player : Player, round : Int) {
@@ -187,9 +188,13 @@ class Game : ObservableObject {
             }
         }
         
-        for point in self.playerScores[index].pointsList {
-            print(point.round)
-        }
+        self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
+    }
+    
+    func modifyPointsFor(player : Player, round : Int, points : Int) {
+        let index = self.indexOf(player: player)!
+        
+        self.playerScores[index].modifyScore(newScore: points, forRound: round)
     }
     
     func findScore(playerScore: PlayerScore) -> PlayerScore {
@@ -200,6 +205,8 @@ class Game : ObservableObject {
         for (index, _) in playerScores.enumerated() {
             playerScores[index].resetScore()
         }
+        
+        self.maxNbrOfRounds = 0
         
     }
     
@@ -251,12 +258,12 @@ class Game : ObservableObject {
         self.addPlayer(player: Player(name: "Marc", initials: "M",  colorGradient: gradiants[Int.random(in: 5 ..< 10)]))
         self.addPlayer(player: Player(name: "Mat", initials: "Mt",  colorGradient: gradiants[Int.random(in: 10 ..< 15)]))
         self.addPlayer(player: Player(name: "Eva", initials: "Ev",  colorGradient: gradiants[Int.random(in: 15 ..< 20)]))
-        self.addPlayer(player: Player(name: "Louis", initials: "Lo",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-        self.addPlayer(player: Player(name: "Zoe", initials: "Z",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-        self.addPlayer(player: Player(name: "Gabriel", initials: "G",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-        self.addPlayer(player: Player(name: "Emily", initials: "El",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-        self.addPlayer(player: Player(name: "Chris", initials: "C",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-        self.addPlayer(player: Player(name: "Steve", initials: "S",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
+//        self.addPlayer(player: Player(name: "Louis", initials: "Lo",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
+//        self.addPlayer(player: Player(name: "Zoe", initials: "Z",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
+//        self.addPlayer(player: Player(name: "Gabriel", initials: "G",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
+//        self.addPlayer(player: Player(name: "Emily", initials: "El",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
+//        self.addPlayer(player: Player(name: "Chris", initials: "C",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
+//        self.addPlayer(player: Player(name: "Steve", initials: "S",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
         
         //        self.addEmptyPlayer(with: gradiants[Int.random(in: 0 ..< 5)])
         //        self.addEmptyPlayer(with: gradiants[Int.random(in: 5 ..< 10)])
@@ -338,12 +345,9 @@ class Game : ObservableObject {
 //        self.playerScores[3].addPoints(scoreValue: 53)
 //        self.playerScores[3].addPoints(scoreValue: -43)
 //        self.playerScores[3].addPoints(scoreValue: 3)
-//        //
-//
-//
-//        for n in 1...18 {
-//            self.roundsLabels.append(n)
-//        }
+        
+        self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
+
     }
     
 }

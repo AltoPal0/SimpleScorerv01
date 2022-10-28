@@ -87,13 +87,12 @@ extension Color {
 }
 
 extension LinearGradient {
+    
     init(_ colors: Color...) {
         self.init(gradient: Gradient(colors: colors), startPoint: .topLeading, endPoint: .bottomTrailing)
     }
     
     static let gradDefault = LinearGradient(Color(hex: 0x283048),Color(hex: 0x859398))
-
-    
 
 }
 

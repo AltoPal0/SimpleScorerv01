@@ -15,11 +15,7 @@
 
 import SwiftUI
 
-enum ScoreEditMode {
-    case
-    modification ,
-    addition
-}
+
 
 struct AllScoresView: View {
     
@@ -83,11 +79,6 @@ struct AllScoresView: View {
                     }
                     
                 }
-                
-//                if self.showHelp && !self.dismissHelpForever && game.currentMaxNumberOfRounds() >= 2 {
-//                    HelpView(showHelp: self.$showHelp, DismissHelpForever: self.$dismissHelpForever)
-//                }
-                
             }
         }
     }
@@ -201,7 +192,7 @@ struct PlayerScoreColumn: View {
                     .padding(5)
                     .frame(minWidth:scoreColumnMaxWidth, maxHeight:scoreColumnMaxWidth)
                 
-                ScrollView(maxHeightForPoints/CGFloat(game.currentMaxNumberOfRounds()+1) < cellHeight ? .vertical : []) {
+                ScrollView(maxHeightForPoints/CGFloat(game.maxNbrOfRounds+1) < cellHeight ? .vertical : []) {
                     VStack {
                         pointList
                         Spacer()
@@ -209,7 +200,7 @@ struct PlayerScoreColumn: View {
                 }
                 .border(width: 1, edge: .bottom, color: .offWhite)
                 .border(width: 1, edge: .top, color: .offWhite)
-                .frame(maxHeight:8 + max(cellHeight * CGFloat(game.currentMaxNumberOfRounds()), cellHeight))
+                .frame(maxHeight:8 + max(cellHeight * CGFloat(game.maxNbrOfRounds), cellHeight))
                 
                 Rectangle().fill(Color.clear)
                     .overlay(

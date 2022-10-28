@@ -130,15 +130,7 @@ struct ContentView_keypad : View {
 
 }
 
-#if DEBUG
-struct KeyPadButton_Previews: PreviewProvider {
-    static var previews: some View {
-        KeyPadButton(key: "8")
-            .padding()
-            .frame(width: 80, height: 80)
-            .previewLayout(.sizeThatFits)
-    }
-}
+
 
 struct ContentView_keypad_Previews : PreviewProvider {
     static var previews: some View {
@@ -149,4 +141,4 @@ struct ContentView_keypad_Previews : PreviewProvider {
 }
 
 
-#endif
+

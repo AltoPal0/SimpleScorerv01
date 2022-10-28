@@ -21,7 +21,7 @@ struct AvatarView: View {
     @ViewBuilder
     var body: some View {
         
-        ZStack {
+        ZStack(alignment: .center) {
             if user.photoImage?.imageAsset != nil {
                 Image(uiImage: resizeImage(image: user.photoImage!.fixedOrientation.squared()!, targetSize: CGSize(width: 200, height: 200)))
                 .resizable()
@@ -31,11 +31,11 @@ struct AvatarView: View {
                     .fontWeight(.regular)
                     .font(.system(.largeTitle, design: .rounded))
                     .scaledToFill()
-                    .minimumScaleFactor(0.9)
+                    .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .foregroundColor(Color.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .padding(10)
             } else {
                 Image(systemName: "keyboard")
                     .font(.system(size: 30, weight: .light, design: .default))
@@ -73,7 +73,7 @@ struct CircleImage_Previews: PreviewProvider {
         Group {
             AvatarView(user: Player(name: "Stephane", initials: "St", photoImage: UIImage(named: "vertical"), colorGradient: gradiants[0]))
                 .background(Color.orangeEnd)
-                .previewLayout(.fixed(width: 200, height: 300))
+                .previewLayout(.fixed(width: 50, height: 50))
             
             AvatarView(user: Player(name: "Stephane", initials: "St", photoImage: UIImage(named: "steph-test"), colorGradient: gradiants[0]))
             .background(Color.orangeEnd)
@@ -81,7 +81,7 @@ struct CircleImage_Previews: PreviewProvider {
             
             AvatarView(user: Player(name: "Karim", initials: "Wm", colorGradient: gradiants[0]))    
             .background(Color.orangeEnd)
-            .previewLayout(.fixed(width: 70, height: 70))
+            .previewLayout(.fixed(width: 40, height: 40))
             
             
             AvatarView(user: Player())
