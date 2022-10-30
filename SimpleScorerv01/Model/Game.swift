@@ -124,7 +124,7 @@ class Game : ObservableObject {
                 if playerScore.player.name != pScore.player.name
                     && playerScore.player.name.lowercased()[0] == pScore.player.name.lowercased()[0] {
 
-                    print(pScore.player.name, " vs.", playerScore.player.name)
+//                    print(pScore.player.name, " vs.", playerScore.player.name)
                     
 //                    print(playerScore.player.name.lowercased()[indexOfDifference],"=?",pScore.player.name.lowercased()[indexOfDifference])
                     
