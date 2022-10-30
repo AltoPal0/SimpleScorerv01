@@ -12,7 +12,6 @@
 		D70F1356248E37F9001D3217 /* SATextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70F1355248E37F9001D3217 /* SATextField.swift */; };
 		D72849FB28EC999900D564CE /* AllScoresView_new.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72849FA28EC999900D564CE /* AllScoresView_new.swift */; };
 		D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */; };
-		D7899CC0249CADBA00C6053E /* AllScoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7899CBF249CADBA00C6053E /* AllScoresView.swift */; };
 		D78C0A5A24891FDC00FF5EEE /* PlayersEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */; };
 		D7AE4FF328FF14B700678E10 /* ScoreCorrectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */; };
 		D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */; };
@@ -45,7 +44,6 @@
 		D70F1355248E37F9001D3217 /* SATextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SATextField.swift; sourceTree = "<group>"; };
 		D72849FA28EC999900D564CE /* AllScoresView_new.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView_new.swift; sourceTree = "<group>"; };
 		D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDisplayInfo.swift; sourceTree = "<group>"; };
-		D7899CBF249CADBA00C6053E /* AllScoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView.swift; sourceTree = "<group>"; };
 		D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayersEntryView.swift; sourceTree = "<group>"; };
 		D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCorrectionView.swift; sourceTree = "<group>"; };
 		D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCardsGridView.swift; sourceTree = "<group>"; };
@@ -182,7 +180,6 @@
 			isa = PBXGroup;
 			children = (
 				D72849FA28EC999900D564CE /* AllScoresView_new.swift */,
-				D7899CBF249CADBA00C6053E /* AllScoresView.swift */,
 				E88751B4241F9E000091853F /* AvatarView.swift */,
 				D7F35C3628C8DF830007223D /* BottomButtonsView.swift */,
 				E8245A6B24600FE40057FB45 /* CircleImagePickerView.swift */,
@@ -322,7 +319,6 @@
 				D70F1356248E37F9001D3217 /* SATextField.swift in Sources */,
 				E8875198241F99DB0091853F /* AppDelegate.swift in Sources */,
 				E8B42DA52456DFBB001AE7C2 /* Constants.swift in Sources */,
-				D7899CC0249CADBA00C6053E /* AllScoresView.swift in Sources */,
 				E8ADADAD25540B3600874D44 /* AppStoreReviewManager.swift in Sources */,
 				D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */,
 				E887519A241F99DB0091853F /* SceneDelegate.swift in Sources */,
