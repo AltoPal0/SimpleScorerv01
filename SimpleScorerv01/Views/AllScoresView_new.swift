@@ -82,16 +82,17 @@ struct AllScoresView_new: View {
                         }
                     }
                     
-//                    if showKeypad {
-                        VStack {
-//                            Spacer()
+                    
+                    VStack {
+                        Spacer()
+                        if showKeypad {
                             ScoreCorrectionView(editMode: scoreEdit.mode, playerIndex: scoreEdit.playerIdx, round: scoreEdit.round, showKeypad: $showKeypad)
                                 .frame(maxWidth: 400, maxHeight: 300)
                                 .padding(.bottom,50)
                                 .padding(.horizontal)
-                                
+                            
                         }
-//                    }
+                    }
                 }
                 .frame(minWidth: geometry.size.width)
                 .padding(.vertical, 25)
@@ -205,13 +206,13 @@ struct Cell: View {
                 })
                 .actionSheet(isPresented: $showingActionSheet) {
                     ActionSheet(title: Text("Edit score").font(.system(.headline, design: .rounded)), buttons: [
-                        .default(Text("MODIFY")) {
+                        .default(Text("Modify")) {
                             scoreEdit.playerIdx = playerIndex
                             scoreEdit.mode = .modification
                             scoreEdit.round = round
                             self.showKeypad = true
                         },
-                        .destructive(Text("DELETE")) {
+                        .destructive(Text("Delete")) {
                             game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
                         },
                         .cancel()
