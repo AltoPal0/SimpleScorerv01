@@ -28,76 +28,75 @@ struct AllScoresView_new: View {
     @State var scoreEdit = (playerIdx: 0, round: 0, mode: ScoreEditMode.addition)
     
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView(.horizontal) {
-                ZStack {
-                    
-                    //background colors
-                    HStack {
-                        ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                            ColumnBack(player: game.playerScores[idx].player).padding(.horizontal,2)
-                        }
-                    }
-                    .frame(maxHeight: scrollViewContentSize.height + 180)
-                    
-                    VStack (alignment: .center){
+        ZStack{
+            GeometryReader { geometry in
+                ScrollView(.horizontal) {
+                    ZStack {
                         
-                        // Initials
-                        HStack() {
-                            ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                AvatarView(user: game.playerScores[idx].player)
-                                    .frame(width:columnWidth-10)
-                                    .padding(.vertical, 10)
-                                    .padding(.horizontal,7)
-                            }
-                        }
-                        
-                        
-                        //Points
-                        ScrollView([.vertical]) {
-                            HStack{
-                                ForEach(0..<game.playerScores.count, id: \.self) { playerIndex in
-                                    PointsRows(maxNbrOfRounds: $game.maxNbrOfRounds, pointList: game.playerScores[playerIndex].pointsList, playerIndex: playerIndex, showKeypad: $showKeypad, scoreEdit: $scoreEdit)
-                                        .padding(.horizontal,2)
-                                    
-                                }.background(
-                                    GeometryReader { geo -> Color in
-                                        DispatchQueue.main.async {
-                                            scrollViewContentSize = geo.size
-                                        }
-                                        return Color.clear
-                                    }
-                                )
-                            }
-                        }
-                        .frame(maxHeight: scrollViewContentSize.height)
-                        
-                        // Totals
+                        //background colors
                         HStack {
                             ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                TotalRows(totalScore: game.playerScores[idx].totalScore(), playerIndex: idx, showKeyPad: $showKeypad, scoreEdit: $scoreEdit)
-                                    .frame(maxHeight: rowHeight)
-                                    .padding(.horizontal,2)
+                                ColumnBack(player: game.playerScores[idx].player).padding(.horizontal,2)
+                            }
+                        }
+                        .frame(maxHeight: scrollViewContentSize.height + 180)
+                        
+                        VStack (alignment: .center){
+                            
+                            // Initials
+                            HStack() {
+                                ForEach(0..<game.playerScores.count, id: \.self) { idx in
+                                    AvatarView(user: game.playerScores[idx].player)
+                                        .frame(width:columnWidth-10)
+                                        .padding(.vertical, 10)
+                                        .padding(.horizontal,7)
+                                }
+                            }
+                            
+                            
+                            //Points
+                            ScrollView([.vertical]) {
+                                HStack{
+                                    ForEach(0..<game.playerScores.count, id: \.self) { playerIndex in
+                                        PointsRows(maxNbrOfRounds: $game.maxNbrOfRounds, pointList: game.playerScores[playerIndex].pointsList, playerIndex: playerIndex, showKeypad: $showKeypad, scoreEdit: $scoreEdit)
+                                            .padding(.horizontal,2)
+                                        
+                                    }.background(
+                                        GeometryReader { geo -> Color in
+                                            DispatchQueue.main.async {
+                                                scrollViewContentSize = geo.size
+                                            }
+                                            return Color.clear
+                                        }
+                                    )
+                                }
+                            }
+                            .frame(maxHeight: scrollViewContentSize.height)
+                            
+                            // Totals
+                            HStack {
+                                ForEach(0..<game.playerScores.count, id: \.self) { idx in
+                                    TotalRows(totalScore: game.playerScores[idx].totalScore(), playerIndex: idx, showKeyPad: $showKeypad, scoreEdit: $scoreEdit)
+                                        .frame(maxHeight: rowHeight)
+                                        .padding(.horizontal,2)
+                                }
                             }
                         }
                     }
-                    
-                    
-                    VStack {
-                        Spacer()
-                        if showKeypad {
-                            ScoreCorrectionView(editMode: scoreEdit.mode, playerIndex: scoreEdit.playerIdx, round: scoreEdit.round, showKeypad: $showKeypad)
-                                .frame(maxWidth: 400, maxHeight: 300)
-                                .padding(.bottom,50)
-                                .padding(.horizontal)
-                            
-                        }
-                    }
+                    .frame(minWidth: geometry.size.width)
+                    .padding(.vertical, 25)
                 }
-                .frame(minWidth: geometry.size.width)
-                .padding(.vertical, 25)
-                
-                
+            }
+            if showKeypad {
+                VStack {
+                    Spacer()
+                    
+                    ScoreCorrectionView(editMode: scoreEdit.mode, playerIndex: scoreEdit.playerIdx, round: scoreEdit.round, showKeypad: $showKeypad)
+                        .frame(maxWidth: 350, maxHeight: 300)
+                        .padding(.bottom,50)
+                        .padding(.horizontal)
+                    
+                }
             }
         }
     }
@@ -218,9 +217,6 @@ struct Cell: View {
                         .cancel()
                     ])
                 }
-                .onTapGesture(count: 2, perform: {
-                    self.showKeypad = true
-                })
         }
     }
 }

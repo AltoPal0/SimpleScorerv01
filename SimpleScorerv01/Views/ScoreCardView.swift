@@ -122,7 +122,7 @@ struct ScoreCardView: View {
                         }
                     })
                     .onEnded({ (value) in
-                        withAnimation{
+                        withAnimation(){
                             if value.translation.width < -100 && !self.scoreEditing && !slideOpen {
                                 self.slideOpen = true
                                 self.dragOffset.width = -120
