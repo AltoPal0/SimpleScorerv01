@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-//import Introspect
 
 struct ScoreCardView: View {
     
@@ -26,17 +25,26 @@ struct ScoreCardView: View {
     
     let frameHeight = CGFloat(135)
     @State private var showBottomBar = false
+    @State private var slideOpen = false
+    @State private var showingAlert = false
+    
+    private enum Field:Int, Hashable {
+        case  name
+    }
+    
+    @FocusState private var focusedField: Field?
     
     @State private var dragOffset = CGSize.zero
 //    @State private var dragOffset = CGSize(width: -180, height: 0)
     
-    var index : Int
+//    var index : Int
     
     var body: some View {
         
         return
             ZStack {
                 
+                // button delete / edit
                 HStack {
                     Spacer()
                     
@@ -47,8 +55,19 @@ struct ScoreCardView: View {
                     }) {
                         Image(systemName: "trash.circle")
                             .font(.system(size: 45, weight: .light, design: .default))
-                            .foregroundColor(Color.red)
-                            .padding()
+                            .foregroundColor(Color.offRed)
+                            .contentShape(Rectangle()).frame(height: self.frameHeight*2/3)
+                    }
+                    
+                    Button(action: {
+                        self.focusedField = .name
+                        self.nameEditing = true
+                        self.dragOffset = CGSize.zero
+                        self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
+                    }) {
+                        Image(systemName: "pencil.tip.crop.circle")
+                            .font(.system(size: 45, weight: .light, design: .default))
+                            .foregroundColor(Color.gray)
                             .contentShape(Rectangle()).frame(height: self.frameHeight*2/3)
                     }
                 }
@@ -64,7 +83,7 @@ struct ScoreCardView: View {
                                 .padding(10)
                                 .frame(width: frameHeight*2/3)
                             
-                            PlayerNameView(scoreEditing: $scoreEditing, nameEditing: $nameEditing, showBottomBar: $showBottomBar, playerScore: playerScore, username: $username, indexOfScoreCard: index)
+                            playerNameView
                             
                             if displayInfo.screenDisplayed == .scoreCards {
                                 ExpandableScoreSection
@@ -94,26 +113,97 @@ struct ScoreCardView: View {
                 .offset(self.dragOffset)
 //                .animation(.easeOut).transition(.slide)
             }
+            
+            .gesture(
+                DragGesture(coordinateSpace: .local)
+                    .onChanged({ (value) in
+                        if !self.scoreEditing && value.translation.width < 0 {
+                            self.dragOffset.width = value.translation.width + (slideOpen ? -120 : 0)
+                        }
+                    })
+                    .onEnded({ (value) in
+                        withAnimation{
+                            if value.translation.width < -100 && !self.scoreEditing && !slideOpen {
+                                self.slideOpen = true
+                                self.dragOffset.width = -120
+                            } else {
+                                self.slideOpen = false
+                                self.dragOffset = CGSize.zero
+                            }
+                        }
+                    })
+            )
             .onTapGesture {
                 self.scoreEditing = true
                 self.showBottomBar = true
-                self.dragOffset.width = 0
+                withAnimation {
+                    self.dragOffset.width = 0
+                }
             }
-//            .gesture(
-//                DragGesture(minimumDistance: 25, coordinateSpace: .local)
-//                    .onChanged({ (value) in
-//                        if !self.scoreEditing {
-//                            self.dragOffset.width = value.translation.width
-//                        }
-//                    })
-//                    .onEnded({ (value) in
-//                        if value.translation.width < -90 && !self.scoreEditing {
-//                            self.dragOffset.width = -75
-//                        } else {
-//                            self.dragOffset = CGSize.zero
-//                        }
-//                    }))
         
+    }
+    
+    var playerNameView: some View {
+        Group {
+            if !scoreEditing {
+                if !self.nameEditing && self.playerScore.player.name != Player.defaultName {
+                    Text(self.playerScore.player.name)
+                        .font(Font.system(size: fontSize(nbrChar: self.playerScore.player.name.count + ( String(self.playerScore.totalScore()).count - 2), fontSize: 40), weight: .semibold, design: .rounded))
+                            .lineLimit(1)
+                        .foregroundColor(Color .offWhite)
+                    
+                        .simultaneousGesture(
+                            LongPressGesture()
+                                .onEnded { _ in
+                                    self.focusedField = .name
+                                    self.nameEditing = true
+                                }
+                        )
+                        .highPriorityGesture(TapGesture()
+                            .onEnded { _ in
+                                self.scoreEditing = true
+                                self.showBottomBar = true
+                            })
+                } else {
+                    TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {
+                        
+                        
+                        if self.username.count == 0 {
+                            self.showingAlert = true
+                        } else {
+                            
+                            self.nameEditing = false
+                            let index = self.game.playerScores.firstIndex(where: {$0.id == self.playerScore.id})!
+                            self.game.playerScores[index].player.name = self.username
+                            self.game.avatarInitialsForPlayers()
+                            
+                            self.username = ""
+                            self.displayInfo.indexOFTextfieldFocused += 1
+                        }
+                        
+                        
+                    })
+                    .focused($focusedField, equals: .name)
+                    .font(.system(.largeTitle, design: .rounded))
+                    .background(Color.offWhite.opacity(0.6))
+                    .foregroundColor(Color.offWhite)
+                    .foregroundColor(Color .offWhite)
+                    .onTapGesture {
+                        if displayInfo.screenDisplayed == .scoreCards {
+                            self.focusedField = .name
+                        } else {
+                            if game.nbrOfPlayersNeedingNames() - game.indexOfPlayerWithNoName(playerScore: self.playerScore) == 1 {
+                                self.focusedField = .name
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+        .alert(isPresented: $showingAlert) {
+            Alert(title: Text("No name entered"), message: Text("Please enter a name"), dismissButton: .default(Text("OK")))
+        }
     }
     
     var totalFrameHeight : CGFloat {
@@ -241,127 +331,13 @@ struct ScoreCardView: View {
     }
 }
 
-
-
-struct PlayerNameView: View {
-    
-    @EnvironmentObject var displayInfo : GlobalDisplayInfo
-    @EnvironmentObject var game : Game
-    
-    @Binding var scoreEditing : Bool
-    @Binding var nameEditing : Bool
-    @Binding var showBottomBar : Bool
-    var playerScore : PlayerScore
-    @Binding var username : String
-    
-    @State private var showingAlert = false
-    
-    private enum Field:Int, Hashable {
-        case  name
-    }
-    
-    @FocusState private var focusedField: Field?
-    
-    var indexOfScoreCard : Int
-    
-    var body: some View {
-        Group {
-            if !scoreEditing {
-                if !self.nameEditing && self.playerScore.player.name != Player.defaultName {
-                    Text(self.playerScore.player.name)
-                        .font(Font.system(size: fontSize(nbrChar: self.playerScore.player.name.count + ( String(self.playerScore.totalScore()).count - 2), fontSize: 40), weight: .semibold, design: .rounded))
-                            .lineLimit(1)
-                        .foregroundColor(Color .offWhite)
-                    
-                        .simultaneousGesture(
-                            LongPressGesture()
-                                .onEnded { _ in
-                                    self.focusedField = .name
-                                    self.nameEditing = true
-                                }
-                        )
-                        .highPriorityGesture(TapGesture()
-                            .onEnded { _ in
-                                self.scoreEditing = true
-                                self.showBottomBar = true
-                            })
-                } else {
-                    TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {
-                        
-                        
-                        if self.username.count == 0 {
-                            self.showingAlert = true
-                        } else {
-                            
-                            self.nameEditing = false
-                            let index = self.game.playerScores.firstIndex(where: {$0.id == self.playerScore.id})!
-                            self.game.playerScores[index].player.name = self.username
-                            self.game.avatarInitialsForPlayers()
-                            
-                            self.username = ""
-                            self.displayInfo.indexOFTextfieldFocused += 1
-                        }
-                        
-                        
-                    })
-                    .focused($focusedField, equals: .name)
-                    .font(.system(.largeTitle, design: .rounded))
-                    .background(Color.offWhite.opacity(0.6))
-                    .foregroundColor(Color.offWhite)
-                    .foregroundColor(Color .offWhite)
-                    .onTapGesture {
-                        if displayInfo.screenDisplayed == .scoreCards {
-                            self.focusedField = .name
-                        } else {
-                            if game.nbrOfPlayersNeedingNames() - game.indexOfPlayerWithNoName(playerScore: self.playerScore) == 1 {
-                                self.focusedField = .name
-                            }
-                            
-                        }
-                    }
-                }
-            }
-        }
-        .alert(isPresented: $showingAlert) {
-            Alert(title: Text("No name entered"), message: Text("Please enter a name"), dismissButton: .default(Text("OK")))
-        }
-    }
-    
-    func shouldBecomeFirstResponder() -> Bool {
-        
-        
-        if self.displayInfo.screenDisplayed == .gameSetup {
-            if self.indexOfScoreCard < self.displayInfo.indexOFTextfieldFocused {
-                self.displayInfo.indexOFTextfieldFocused = self.indexOfScoreCard
-            }
-            return false
-        }
-        
-        if self.nameEditing {
-            return true
-        }
-        
-        return false
-        
-//        if self.playerScore.player.name == Player.defaultName {
-//            if self.indexOfScoreCard == self.displayInfo.indexOFTextfieldFocused {
-//                return true
-//            } else {
-//                return false
-//            }
-//        } else {
-//            return false
-//        }
-    }
-}
-
 struct ScoreCardView_Previews: PreviewProvider {
     
     static var previews: some View {
         Group {
 
-            ScoreCardView(playerScore: PlayerScore(player: Player(name: "Steph", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: []),index: 1)
-                    .previewLayout(.sizeThatFits)
+            ScoreCardView(playerScore: PlayerScore(player: Player(name: "Steph", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: []))
+//                    .previewLayout(.sizeThatFits)
                     .padding(.horizontal, 15)
                     .padding(.bottom,15)
                 

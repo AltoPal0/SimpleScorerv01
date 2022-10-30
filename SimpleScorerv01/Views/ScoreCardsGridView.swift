@@ -23,8 +23,7 @@ struct ScoreCardsGridView: View {
                 LazyVGrid(columns: gridItemLayout, spacing: 20) {
                     ForEach((0..<self.game.playerScores.count), id: \.self) {
                         ScoreCardView(
-                            playerScore:self.game.playerScores[$0],
-                            index: $0
+                            playerScore:self.game.playerScores[$0]
                         )
                     }
                 }.padding()

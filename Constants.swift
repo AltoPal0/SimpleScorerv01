@@ -83,6 +83,9 @@ extension Color {
     static let cyan2 = Color(red: 0 / 255, green: 205 / 255, blue: 172 / 255)
 
     static let offWhite = Color(red: 235 / 255, green: 235 / 255, blue: 245 / 255)
+    
+    static let offRed = Color(red: 235 / 255, green: 55 / 255, blue: 55 / 255)
+    static let offGray = Color(red: 82 / 255, green: 82 / 255, blue: 82 / 255)
 
 }
 
