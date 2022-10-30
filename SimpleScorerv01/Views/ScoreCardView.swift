@@ -136,7 +136,7 @@ struct ScoreCardView: View {
             .onTapGesture {
                 self.scoreEditing = true
                 self.showBottomBar = true
-                withAnimation {
+                withAnimation(.easeInOut(duration: 0.1)) {
                     self.dragOffset.width = 0
                 }
             }
