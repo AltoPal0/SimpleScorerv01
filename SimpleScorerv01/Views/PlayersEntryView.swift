@@ -37,7 +37,7 @@ struct PlayersEntryView: View {
                                 SATextField(tag: self.index(for: cardView.playerScore)!, placeholder: "Player #\(self.game.playerScores.firstIndex(where: { $0.id == cardView.playerScore.id })!+1)"
                                     , returnKey: self.cardViews.last?.playerScore.id == cardView.playerScore.id ? .done : .next
                                     , changeHandler: { (newString) in
-                                        self.username = newString
+                                    self.username = newString.capitalized.trimmingCharacters(in: .whitespacesAndNewlines)
                                     }
                                     , onCommitHandler: {
                                         if self.username == "" {

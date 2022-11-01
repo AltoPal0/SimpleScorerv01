@@ -65,7 +65,7 @@ struct ScoreCardView: View {
                         self.dragOffset = CGSize.zero
                         self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                     }) {
-                        Image(systemName: "pencil.tip.crop.circle")
+                        Image(systemName: "pencil.circle")
                             .font(.system(size: 45, weight: .light, design: .default))
                             .foregroundColor(Color.gray)
                             .contentShape(Rectangle()).frame(height: self.frameHeight*2/3)
@@ -113,7 +113,6 @@ struct ScoreCardView: View {
                 .offset(self.dragOffset)
 //                .animation(.easeOut).transition(.slide)
             }
-            
             .gesture(
                 DragGesture(coordinateSpace: .local)
                     .onChanged({ (value) in
@@ -148,8 +147,10 @@ struct ScoreCardView: View {
             if !scoreEditing {
                 if !self.nameEditing && self.playerScore.player.name != Player.defaultName {
                     Text(self.playerScore.player.name)
-                        .font(Font.system(size: fontSize(nbrChar: self.playerScore.player.name.count + ( String(self.playerScore.totalScore()).count - 2), fontSize: 40), weight: .semibold, design: .rounded))
+                        .font(Font.system(size: 40, weight: .semibold, design: .rounded))
                             .lineLimit(1)
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
                         .foregroundColor(Color .offWhite)
                     
                         .simultaneousGesture(
@@ -174,7 +175,7 @@ struct ScoreCardView: View {
                             
                             self.nameEditing = false
                             let index = self.game.playerScores.firstIndex(where: {$0.id == self.playerScore.id})!
-                            self.game.playerScores[index].player.name = self.username
+                            self.game.playerScores[index].player.name = self.username.capitalized.trimmingCharacters(in: .whitespacesAndNewlines)
                             self.game.avatarInitialsForPlayers()
                             
                             self.username = ""
@@ -322,13 +323,13 @@ struct ScoreCardView: View {
         }
     }
     
-    func fontSize(nbrChar :Int, fontSize :Int) -> CGFloat {
-        
-        if nbrChar <= 3 { return CGFloat(fontSize)}
-        
-//        return self.scoreEditing ? CGFloat(fontSize - (nbrChar-2)*10 ) : CGFloat(fontSize - (nbrChar-3)*10)
-        return CGFloat(fontSize - (nbrChar-2)*5 )
-    }
+//    func fontSize(nbrChar :Int, fontSize :Int) -> CGFloat {
+//
+//        if nbrChar <= 5 { return CGFloat(fontSize)}
+//
+////        return self.scoreEditing ? CGFloat(fontSize - (nbrChar-2)*10 ) : CGFloat(fontSize - (nbrChar-3)*10)
+//        return CGFloat(fontSize - (nbrChar-5)*5 )
+//    }
 }
 
 struct ScoreCardView_Previews: PreviewProvider {
