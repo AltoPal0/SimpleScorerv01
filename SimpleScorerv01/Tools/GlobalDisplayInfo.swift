@@ -17,10 +17,16 @@ class GlobalDisplayInfo: ObservableObject {
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         
+        let screenAera = Double(UIScreen.main.bounds.size.width * UIScreen.main.bounds.size.height)
+        let cardAera = 325 * 135 * 1.3
+        
         // SCoreCards View
         self.scoreCardSize = .normal
         
-        if nbrPlayers > 4 {
+        if Double(nbrPlayers + 1) * cardAera > screenAera {
+            print(nbrPlayers * 325 * 135)
+            print(screenAera)
+            print(cardAera)
             self.scoreCardSize = .compact
         }
         
