@@ -10,6 +10,8 @@ import SwiftUI
 
 struct PlayersEntryView: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     @EnvironmentObject var game : Game
     @Binding var isVisible : Bool
     
@@ -22,14 +24,18 @@ struct PlayersEntryView: View {
     var body: some View {
         ZStack {
             
-            Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-Double(self.cardViews.count+1))
+            if colorScheme == .dark {
+                Color.midnightBlue.edgesIgnoringSafeArea(.all).zIndex(-1).zIndex(-Double(self.cardViews.count+1))
+            } else {
+                Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1).zIndex(-Double(self.cardViews.count+1))
+            }
             
             ZStack {
                 ForEach(cardViews, id: \.playerScore.id) { cardView in
                     cardView
                         .frame(width:350, height: self.frameHeight)
                         .clipShape(Rectangle()).cornerRadius(14)
-                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
                         .overlay(
                             HStack {
                                 Rectangle().fill(Color.clear).frame(width: self.frameHeight, height: self.frameHeight)

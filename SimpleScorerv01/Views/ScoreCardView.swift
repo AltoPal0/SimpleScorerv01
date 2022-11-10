@@ -109,7 +109,11 @@ struct ScoreCardView: View {
                     }
                 }
                 .clipShape(Rectangle()).cornerRadius(14)
-                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.offWhite, lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
                 .offset(self.dragOffset)
             }
             .gesture(

@@ -41,6 +41,7 @@ struct AllScoresView_new: View {
                         }
                         .frame(maxHeight: scrollViewContentSize.height + 180)
                         
+                        
                         VStack (alignment: .center){
                             
                             // Initials
@@ -109,7 +110,7 @@ struct ColumnBack: View {
         ZStack {
             player.colorGradient.frame(width: columnWidth)
                 .clipShape(Rectangle()).cornerRadius(14)
-                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
             VStack {
                 EmptyView()
                     .border(width: 1, edge: .bottom, color: .white)
@@ -123,7 +124,10 @@ struct ColumnBack: View {
                     .frame(width: columnWidth, height: rowHeight)
             }
             
-        }
+        }.overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.offWhite, lineWidth: 1)
+        )
     }
 }
 
