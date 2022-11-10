@@ -111,7 +111,6 @@ struct ScoreCardView: View {
                 .clipShape(Rectangle()).cornerRadius(14)
                 .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 .offset(self.dragOffset)
-//                .animation(.easeOut).transition(.slide)
             }
             .gesture(
                 DragGesture(coordinateSpace: .local)
@@ -133,10 +132,17 @@ struct ScoreCardView: View {
                     })
             )
             .onTapGesture {
-                self.scoreEditing = true
-                self.showBottomBar = true
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    self.dragOffset.width = 0
+                if self.slideOpen {
+                    self.slideOpen = false
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.dragOffset = CGSize.zero
+                    }
+                } else {
+                    self.scoreEditing = true
+                    self.showBottomBar = true
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        self.dragOffset.width = 0
+                    }
                 }
             }
         
@@ -152,19 +158,6 @@ struct ScoreCardView: View {
                             .scaledToFit()
                             .minimumScaleFactor(0.5)
                         .foregroundColor(Color .offWhite)
-                    
-                        .simultaneousGesture(
-                            LongPressGesture()
-                                .onEnded { _ in
-                                    self.focusedField = .name
-                                    self.nameEditing = true
-                                }
-                        )
-                        .highPriorityGesture(TapGesture()
-                            .onEnded { _ in
-                                self.scoreEditing = true
-                                self.showBottomBar = true
-                            })
                 } else {
                     TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {
                         
@@ -242,20 +235,20 @@ struct ScoreCardView: View {
             
             HStack {
                 Text("\(self.playerScore.totalScore())")
-                    .font(Font.system(size: fontSize(nbrChar: String(self.playerScore.totalScore()).count, fontSize: self.scoreEditing ? 25 : 50), weight: .bold, design: .rounded))
+                    .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
                     .scaledToFill()
-                    .minimumScaleFactor(0.9)
+                    .minimumScaleFactor(0.2)
                     .lineLimit(1)
-                    .layoutPriority(1)
+//                    .layoutPriority(1)
                     .foregroundColor(Color .offWhite)
                     .padding(.horizontal,self.scoreEditing ? 0 : 20)
                 
                 if scoreEditing {
                     
                     Text("\(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
-                        .font(Font.system(size: fontSize(nbrChar: String(format: "%.0f",abs(self.pointsScored)).count, fontSize: 40), weight: .bold, design: .rounded))
+                        .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
                         .scaledToFill()
-                        .minimumScaleFactor(0.9)
+                        .minimumScaleFactor(0.2)
                         .lineLimit(1)
                         .foregroundColor(Color .offWhite)
                         .padding(10)

@@ -11,6 +11,8 @@ import Combine
 
 struct GameScoreView: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     @EnvironmentObject var game : Game
     @State private var shouldScroll = true
     @State var movingEdge = Edge.trailing
@@ -31,38 +33,38 @@ struct GameScoreView: View {
     
     var body: some View {
         
-        GeometryReader { geometry in
-            ZStack {
+        ZStack {
+            if colorScheme == .dark {
+                Color.midnightBlue.edgesIgnoringSafeArea(.all).zIndex(-1)
+            } else {
                 Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
-                
-                if displayInfo.screenDisplayed == .allScores {
-                    AllScoresView_new()
-                        .transition(.move(edge: .leading))
-                }
-                
-                if displayInfo.screenDisplayed == .gameSetup {
-                    GameSetupView(showPlayerEntry: self.$showPlayerEntry)
-                        .transition(.move(edge: .trailing))
-                }
-                
-                if displayInfo.screenDisplayed == .scoreCards {
-                    ScoreCardsGridView()
-                        .transition(.opacity)
-                }
-                
-                BottomButtonsView(movingEdge: $movingEdge)
-//
-//                if self.showImagePicker {
-//                    CircleImagePickerView(isPresented: self.$showImagePicker, selectedImage: self.$imagePicked, source: self.pickerSource)
-//                        .edgesIgnoringSafeArea(.all)
-//                }
-//
-                if self.showPlayerEntry {
-                    PlayersEntryView(isVisible: self.$showPlayerEntry)
-                }
-                
             }
-
+            if displayInfo.screenDisplayed == .allScores {
+                AllScoresView_new()
+                    .transition(.move(edge: .leading))
+            }
+            
+            if displayInfo.screenDisplayed == .gameSetup {
+                GameSetupView(showPlayerEntry: self.$showPlayerEntry)
+                    .transition(.move(edge: .trailing))
+            }
+            
+            if displayInfo.screenDisplayed == .scoreCards {
+                ScoreCardsGridView()
+                    .transition(.opacity)
+            }
+            
+            BottomButtonsView(movingEdge: $movingEdge)
+            //
+            //                if self.showImagePicker {
+            //                    CircleImagePickerView(isPresented: self.$showImagePicker, selectedImage: self.$imagePicked, source: self.pickerSource)
+            //                        .edgesIgnoringSafeArea(.all)
+            //                }
+            //
+            if self.showPlayerEntry {
+                PlayersEntryView(isVisible: self.$showPlayerEntry)
+            }
+            
         }
     }
 }
@@ -71,14 +73,20 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             GameScoreView()
-                .previewDevice(PreviewDevice(rawValue: "iPad Pro (11-inch) (3rd generation)"))
-                .previewDisplayName("iPad Pro (11-inch) (3rd generation)")
-                .previewInterfaceOrientation(.landscapeLeft)
-            
-            GameScoreView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
+                .previewDevice("iPhone X")
                 .previewDisplayName("iPhone X")
-//                .previewInterfaceOrientation(.landscapeLeft)
+            GameScoreView()
+                .previewDevice("iPad Pro (11-inch) (2nd generation)")
+                .previewDisplayName("iPad Pro")
+            GameScoreView()
+                .previewDevice("iPhone SE (2nd generation)")
+                .previewDisplayName("iPhone SE")
+            GameScoreView()
+                .previewDevice("iPhone 13 mini")
+                .previewDisplayName("iPhone mini")
+            GameScoreView()
+                .previewDevice("iPhone 14 Pro Max")
+                .previewDisplayName("iPhone Pro Max")
         }
         .environmentObject(GlobalDisplayInfo())
         .environmentObject(Game(withTestPlayers: ()))

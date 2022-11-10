@@ -11,6 +11,7 @@ import SwiftUI
 struct BottomButtonsView: View {
     
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
+    @Environment(\.colorScheme) var colorScheme
     
     @Binding var movingEdge : Edge
     
@@ -21,8 +22,8 @@ struct BottomButtonsView: View {
                 if !(self.displayInfo.screenDisplayed == .allScores) {
                     Image(systemName: "arrow.left.circle")
                         .font(.system(.largeTitle, design: .rounded))
-                        .foregroundColor(Color.gray)
-                        .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
+                        .foregroundColor(colorScheme == .dark ? Color.gray : Color.gray)
+                        .background(Circle().foregroundColor(Color .clear))
                         .onTapGesture {
                             withAnimation{
                                 if self.displayInfo.screenDisplayed == .gameSetup {
@@ -43,7 +44,7 @@ struct BottomButtonsView: View {
                         .font(.system(.largeTitle, design: .rounded))
                         .foregroundColor(Color.gray)
                         .contentShape(Circle())
-                        .background(Circle().foregroundColor(Color .offWhite).opacity(0.5))
+                        .background(Circle().foregroundColor(Color .clear))
                         .onTapGesture {
                             withAnimation{
                                 if self.displayInfo.screenDisplayed == .allScores {
@@ -77,5 +78,6 @@ struct BottomButtonsView: View {
 struct BottomButtonsView_Previews: PreviewProvider {
     static var previews: some View {
         BottomButtonsView(movingEdge: .constant(.trailing))
+            .environmentObject(GlobalDisplayInfo())
     }
 }

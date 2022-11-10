@@ -26,8 +26,9 @@ struct ScoreCardsGridView: View {
                             playerScore:self.game.playerScores[$0]
                         )
                     }
-                }.padding()
-            }//.animation(.none, value: 0)
+                }
+                .padding()
+            }
         }
     }
 }
