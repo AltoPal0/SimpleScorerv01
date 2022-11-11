@@ -11,6 +11,8 @@ import SwiftUI
 struct BottomButtonsView: View {
     
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
+    @EnvironmentObject var game : Game
+    
     @Environment(\.colorScheme) var colorScheme
     
     @Binding var movingEdge : Edge
@@ -19,7 +21,7 @@ struct BottomButtonsView: View {
         VStack {
             Spacer()
             HStack {
-                if !(self.displayInfo.screenDisplayed == .allScores) {
+                if !(self.displayInfo.screenDisplayed == .allScores) && !game.needsNameEntry() && !(game.playerScores.count == 0)  {
                     Image(systemName: "arrow.left.circle")
                         .font(.system(.largeTitle, design: .rounded))
                         .foregroundColor(colorScheme == .dark ? Color.gray : Color.gray)
@@ -79,5 +81,6 @@ struct BottomButtonsView_Previews: PreviewProvider {
     static var previews: some View {
         BottomButtonsView(movingEdge: .constant(.trailing))
             .environmentObject(GlobalDisplayInfo())
+            .environmentObject(Game())
     }
 }

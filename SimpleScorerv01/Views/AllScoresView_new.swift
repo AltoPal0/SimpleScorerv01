@@ -144,10 +144,12 @@ struct TotalRows: View {
                 count: 1
             )
         ) {
-            Text("\(totalScore)")
+            Text("\(totalScore < 10000 ? String(totalScore) : String(totalScore / 1000)+"K")")
                 .font(Font.system(size: fontSize(nbrChar: String(totalScore).count, fontSize: 25)
                                   , weight: .bold
                                   , design: .rounded))
+                .scaledToFit()
+                .minimumScaleFactor(0.4)
                 .frame(width: columnWidth)
                 .foregroundColor(.white)
                 .onTapGesture(count: 1, perform: {

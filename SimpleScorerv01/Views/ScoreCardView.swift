@@ -83,14 +83,12 @@ struct ScoreCardView: View {
                             AvatarView(user: playerScore.player)
                                 .padding(10)
                                 .frame(width: frameHeight*2/3)
+                            if self.playerScore.totalScore() < 1000000 {
+                                playerNameView
+                            }
                             
-                            playerNameView
-                            
-//                            if displayInfo.screenDisplayed == .scoreCards {
-                                ExpandableScoreSection
-//                            } else {
-//                                Spacer(minLength: 50)
-//                            }
+                            ExpandableScoreSection
+
                         }
                         .frame(height: frameHeight*2/3)
                         
@@ -123,8 +121,6 @@ struct ScoreCardView: View {
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
                 .offset(self.dragOffset)
-                
-                Text(maxWidth.width.description)
                 
             }
             .gesture(
@@ -171,8 +167,7 @@ struct ScoreCardView: View {
                     Text(self.playerScore.player.name)
                         .font(Font.system(size: 40, weight: .semibold, design: .rounded))
                             .lineLimit(1)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
+                            .minimumScaleFactor(0.1)
                         .foregroundColor(Color .offWhite)
                 } else {
                     TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {
@@ -250,25 +245,14 @@ struct ScoreCardView: View {
             Spacer()
             
             HStack {
-                Text("\(self.playerScore.totalScore())")
-                    .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
-                    .scaledToFill()
-                    .minimumScaleFactor(0.1)
-                    .lineLimit(1)
-//                    .layoutPriority(1)
-                    .foregroundColor(Color .offWhite)
-                    .padding(.horizontal,self.scoreEditing ? 0 : 20)
-                
                 if scoreEditing {
                     
-                    Text("\(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
-                        .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
-                        .scaledToFill()
-                        .minimumScaleFactor(0.1)
-                        .lineLimit(1)
+                    Text("\(self.playerScore.totalScore()) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
+                        .font(Font.system(size: 25, weight: .bold, design: .rounded))
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(2)
                         .foregroundColor(Color .offWhite)
                         .padding(10)
-//                        .animation(.none)
                         
                     Rectangle().fill(Color.offWhite.opacity(0.5))
                             .border(width: 1, edge: .leading, color: .offWhite)
@@ -284,6 +268,13 @@ struct ScoreCardView: View {
                                     self.showBottomBar = false
                                 }
                         }
+                } else {
+                    Text("\(self.playerScore.totalScore())")
+                        .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
+                        .minimumScaleFactor(0.2)
+                        .lineLimit(1)
+                        .foregroundColor(Color .offWhite)
+                        .padding(.horizontal,self.scoreEditing ? 0 : 20)
                 }
             }
             
@@ -346,7 +337,7 @@ struct ScoreCardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
 
-            ScoreCardView(playerScore: PlayerScore(player: Player(name: "Steph", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: []))
+            ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]))
 //                    .previewLayout(.sizeThatFits)
                     .padding(.horizontal, 15)
                     .padding(.bottom,15)

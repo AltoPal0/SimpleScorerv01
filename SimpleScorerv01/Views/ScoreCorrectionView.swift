@@ -62,12 +62,12 @@ struct ScoreCorrectionView: View {
                         
                         Text(display)
                             .font(Font.system(
-                                size: fontSize(nbrChar: display.count - 2, fontSize: 50),
+                                size: 30,
                                 weight: .bold,
                                 design: .rounded))
-                            .scaledToFill()
+//                            .scaledToFill()
                             .minimumScaleFactor(0.9)
-                            .lineLimit(1)
+                            .lineLimit(2)
                             .foregroundColor(Color .offWhite)
                             .padding(.horizontal,20)
                         
