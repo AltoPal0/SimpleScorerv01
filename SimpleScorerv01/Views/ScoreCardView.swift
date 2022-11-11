@@ -24,6 +24,7 @@ struct ScoreCardView: View {
     @State private var username = ""
     
     let frameHeight = CGFloat(135)
+    @State private var maxWidth = CGSize.zero
     @State private var showBottomBar = false
     @State private var slideOpen = false
     @State private var showingAlert = false
@@ -85,11 +86,11 @@ struct ScoreCardView: View {
                             
                             playerNameView
                             
-                            if displayInfo.screenDisplayed == .scoreCards {
+//                            if displayInfo.screenDisplayed == .scoreCards {
                                 ExpandableScoreSection
-                            } else {
-                                Spacer(minLength: 50)
-                            }
+//                            } else {
+//                                Spacer(minLength: 50)
+//                            }
                         }
                         .frame(height: frameHeight*2/3)
                         
@@ -107,7 +108,14 @@ struct ScoreCardView: View {
                             }
                         }
                     }
-                }
+                    .frame(maxWidth: maxWidth.width)
+                }.background(
+                    GeometryReader { geo -> Color in
+                        DispatchQueue.main.async {
+                            maxWidth = geo.size
+                        }
+                        return Color.clear
+                    })
                 .clipShape(Rectangle()).cornerRadius(14)
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
@@ -115,6 +123,9 @@ struct ScoreCardView: View {
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
                 .offset(self.dragOffset)
+                
+                Text(maxWidth.width.description)
+                
             }
             .gesture(
                 DragGesture(coordinateSpace: .local)
@@ -149,6 +160,7 @@ struct ScoreCardView: View {
                     }
                 }
             }
+            
         
     }
     
@@ -241,7 +253,7 @@ struct ScoreCardView: View {
                 Text("\(self.playerScore.totalScore())")
                     .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
                     .scaledToFill()
-                    .minimumScaleFactor(0.2)
+                    .minimumScaleFactor(0.1)
                     .lineLimit(1)
 //                    .layoutPriority(1)
                     .foregroundColor(Color .offWhite)
@@ -252,7 +264,7 @@ struct ScoreCardView: View {
                     Text("\(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
                         .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
                         .scaledToFill()
-                        .minimumScaleFactor(0.2)
+                        .minimumScaleFactor(0.1)
                         .lineLimit(1)
                         .foregroundColor(Color .offWhite)
                         .padding(10)

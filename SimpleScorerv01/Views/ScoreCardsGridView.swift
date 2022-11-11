@@ -15,7 +15,7 @@ struct ScoreCardsGridView: View {
     @EnvironmentObject var game : Game
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
-    private var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: 325), spacing: 20)]
+    private var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: .infinity), spacing: 20)]
     
     var body: some View {
         ZStack{
@@ -27,7 +27,7 @@ struct ScoreCardsGridView: View {
                         )
                     }
                 }
-                .padding()
+                .padding(20)
             }
         }
     }
