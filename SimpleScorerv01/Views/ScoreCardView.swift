@@ -50,7 +50,9 @@ struct ScoreCardView: View {
                     Spacer()
                     
                     Button(action: {
+                        self.displayInfo.gradients.append(self.playerScore.player.colorGradient)
                         self.game.removePlayer(player: self.playerScore.player)
+                        
                         self.dragOffset = CGSize.zero
                         self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                     }) {

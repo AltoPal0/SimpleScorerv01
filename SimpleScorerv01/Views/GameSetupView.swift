@@ -123,6 +123,9 @@ struct GameSetupView: View {
                                         .overlay(Image(systemName: "minus").font(.system(.largeTitle, design: .rounded)).foregroundColor(Color.offWhite))
                                         .padding(.trailing)
                                         .onTapGesture {
+                                            if self.game.playerScores.count > 0 {
+                                                self.displayInfo.gradients.append((self.game.playerScores.last?.player.colorGradient)!)
+                                            }
                                             self.game.removeLastPlayer()
                                             self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                                     }
@@ -153,6 +156,7 @@ struct GameSetupView: View {
                                         .padding(.leading)
                                         .onTapGesture {
                                             let grad = self.displayInfo.gradients.last!
+                                            print(self.displayInfo.gradients.count)
                                             if self.displayInfo.gradients.count > 1 {
                                                 self.displayInfo.gradients.removeLast()
                                             }
