@@ -37,28 +37,26 @@ enum ScreenType : Int, Comparable {
 
 
 let gradiants =
-    [LinearGradient(Color(hex: 0xf4c4f3),Color(hex: 0xfc67fa)),
-    LinearGradient(Color(hex: 0x7f7fd5),Color(hex: 0x86a8e7),Color(hex: 0x91eae4)),
-    LinearGradient(Color(hex: 0xa770ef),Color(hex: 0xcf8bf3),Color(hex: 0xfdb99b)),
-    LinearGradient(Color(hex: 0x3a7bd5),Color(hex: 0x3a6073)),
-    LinearGradient(Color(hex: 0x43cea2),Color(hex: 0x185a9d)),
-    LinearGradient(Color(hex: 0x4568DC),Color(hex: 0xB06AB3)),
-    LinearGradient(Color(hex: 0x2193b0),Color(hex: 0x6dd5ed)),
-    LinearGradient(Color(hex: 0x00b09b),Color(hex: 0x96c93d)),
-    LinearGradient(Color(hex: 0xfeac5e),Color(hex: 0xc779d0),Color(hex: 0x4bc0c8)),
-    LinearGradient(Color(hex: 0xf09819),Color(hex: 0xedde5d)),
-    LinearGradient(Color(hex: 0xf79d00),Color(hex: 0x64f38c)),
-    LinearGradient(Color(hex: 0xef32d9),Color(hex: 0x89fffd)),
-        
-    LinearGradient(Color(hex: 0xf12711),Color(hex: 0xf5af19)),
-    LinearGradient(Color(hex: 0xbc4e9c),Color(hex: 0xf80759)),
-//    LinearGradient(Color(hex: 0x1E9600),Color(hex: 0xFFF200),Color(hex: 0xFF0000)),
-    LinearGradient(Color(hex: 0xFDC830),Color(hex: 0xF37335)),
-    LinearGradient(Color(hex: 0xf79d00),Color(hex: 0x64f38c)),
-    LinearGradient(Color(hex: 0xEECDA3),Color(hex: 0xEF629F)),
-    LinearGradient(Color(hex: 0xfe8c00),Color(hex: 0xf83600)),
-    LinearGradient(Color(hex: 0xd53369),Color(hex: 0xcbad6d)),
-    LinearGradient(Color(hex: 0x16A085),Color(hex: 0xF4D03F))]
+    [LinearGradient(Color(hex: 0x00b09b),Color(hex: 0x96c93d)),
+     LinearGradient(Color(hex: 0x16A085),Color(hex: 0xF4D03F)),
+     LinearGradient(Color(hex: 0x2193b0),Color(hex: 0x6dd5ed)),
+     LinearGradient(Color(hex: 0x3a7bd5),Color(hex: 0x3a6073)),
+     LinearGradient(Color(hex: 0x43cea2),Color(hex: 0x185a9d)),
+     LinearGradient(Color(hex: 0x4568DC),Color(hex: 0xB06AB3)),
+     LinearGradient(Color(hex: 0x64f38c),Color(hex: 0xf79d00)),
+     LinearGradient(Color(hex: 0x7f7fd5),Color(hex: 0x86a8e7),Color(hex: 0x91eae4)),
+     LinearGradient(Color(hex: 0xa770ef),Color(hex: 0xcf8bf3),Color(hex: 0xfdb99b)),
+     LinearGradient(Color(hex: 0xbc4e9c),Color(hex: 0xf80759)),
+     LinearGradient(Color(hex: 0xd53369),Color(hex: 0xcbad6d)),
+     LinearGradient(Color(hex: 0xEECDA3),Color(hex: 0xEF629F)),
+     LinearGradient(Color(hex: 0xef32d9),Color(hex: 0x89fffd)),
+     LinearGradient(Color(hex: 0xf09819),Color(hex: 0xedde5d)),
+     LinearGradient(Color(hex: 0xf12711),Color(hex: 0xf5af19)),
+     LinearGradient(Color(hex: 0xf4c4f3),Color(hex: 0xfc67fa)),
+     LinearGradient(Color(hex: 0xf79d00),Color(hex: 0x64f38c)),
+     LinearGradient(Color(hex: 0xFDC830),Color(hex: 0xF37335)),
+     LinearGradient(Color(hex: 0xfe8c00),Color(hex: 0xf83600)),
+     LinearGradient(Color(hex: 0xfeac5e),Color(hex: 0xc779d0),Color(hex: 0x4bc0c8)),]
 
 func randomGrad() -> LinearGradient {
     
