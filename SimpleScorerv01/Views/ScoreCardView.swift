@@ -13,7 +13,9 @@ struct ScoreCardView: View {
     @EnvironmentObject var game : Game
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
-    var playerScore: PlayerScore
+    var playerScore : PlayerScore
+    var scrollReaderProxy : ScrollViewProxy
+    var cardId : Int
     
     @State private var pointsScored = CGFloat(0)
     @State private var sign = CGFloat(1)
@@ -28,6 +30,7 @@ struct ScoreCardView: View {
     @State private var showBottomBar = false
     @State private var slideOpen = false
     @State private var showingAlert = false
+    @State private var isOverflowingScreen = false
     
     private enum Field:Int, Hashable {
         case  name
@@ -42,9 +45,8 @@ struct ScoreCardView: View {
     
     var body: some View {
         
-        return
             ZStack {
-                
+
                 // button delete / edit
                 HStack {
                     Spacer()
@@ -75,6 +77,7 @@ struct ScoreCardView: View {
                     }
                 }
                 
+                // Actual whole card
                 ZStack {
   
                     self.playerScore.player.colorGradient.frame(height: totalFrameHeight)
@@ -85,6 +88,7 @@ struct ScoreCardView: View {
                             AvatarView(user: playerScore.player)
                                 .padding(10)
                                 .frame(width: frameHeight*2/3)
+                            
                             if self.playerScore.totalScore() < 1000000 {
                                 playerNameView
                             }
@@ -101,7 +105,8 @@ struct ScoreCardView: View {
                                     .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
                                     .padding([.horizontal,.bottom],3)
                                     .disabled(self.dragOffset.width != 0)
-                            } else {
+                            }
+                            else {
                                 ScoringBottomBarTools
                                     .frame(height: frameHeight/3)
                                     .disabled(self.dragOffset.width != 0)
@@ -109,10 +114,15 @@ struct ScoreCardView: View {
                         }
                     }
                     .frame(maxWidth: maxWidth.width)
-                }.background(
-                    GeometryReader { geo -> Color in
-                        DispatchQueue.main.async {
+                }
+                .background(GeometryReader { geo -> Color in
+                    DispatchQueue.main.async {
                             maxWidth = geo.size
+                            if geo.frame(in: .global).maxY > UIScreen.main.bounds.maxY {
+                                self.isOverflowingScreen = true
+                            } else {
+                                self.isOverflowingScreen = false
+                            }
                         }
                         return Color.clear
                     })
@@ -123,7 +133,6 @@ struct ScoreCardView: View {
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
                 .offset(self.dragOffset)
-                
             }
             .gesture(
                 DragGesture(coordinateSpace: .local)
@@ -143,21 +152,32 @@ struct ScoreCardView: View {
                             }
                         }
                     })
-            )
+            ) //drag
             .onTapGesture {
+                
                 if self.slideOpen {
                     self.slideOpen = false
                     withAnimation(.easeInOut(duration: 0.3)) {
                         self.dragOffset = CGSize.zero
                     }
-                } else {
+                }
+                else {
                     self.scoreEditing = true
+                    if self.displayInfo.scoreCardSize == .compact {
+                        self.showKeyPad.toggle()
+                    }
                     self.showBottomBar = true
-                    withAnimation(.easeInOut(duration: 0.1)) {
-                        self.dragOffset.width = 0
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if self.isOverflowingScreen {
+//                            withAnimation (.easeIn(duration: 0.1)) {
+                                self.scrollReaderProxy.scrollTo(self.cardId)
+//                            }
+                        }
                     }
                 }
-            }
+            } //tap
+        
+        
             
         
     }
@@ -298,7 +318,6 @@ struct ScoreCardView: View {
             }
             .buttonStyle(SimpleRectButtonStyle())
             
-//            ClickWheel(editing: self.$scoreEditing, pointsScored: self.$pointsScored, wheelColor: Color .purpleStart)
             Button(action: {
                 self.scoreEditing = true
                 self.showKeyPad.toggle()
@@ -338,11 +357,13 @@ struct ScoreCardView_Previews: PreviewProvider {
     
     static var previews: some View {
         Group {
-
-            ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]))
-//                    .previewLayout(.sizeThatFits)
-                    .padding(.horizontal, 15)
-                    .padding(.bottom,15)
+            ScrollViewReader { proxy in
+                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy, cardId: 1)
+    //                    .previewLayout(.sizeThatFits)
+                        .padding(.horizontal, 15)
+                        .padding(.bottom,15)
+            }
+            
                 
 
         }

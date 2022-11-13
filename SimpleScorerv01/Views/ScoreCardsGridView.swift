@@ -20,15 +20,17 @@ struct ScoreCardsGridView: View {
     var body: some View {
         ZStack{
             ScrollView {
-                LazyVGrid(columns: gridItemLayout, spacing: 20) {
-                    ForEach((0..<self.game.playerScores.count), id: \.self) {
-                        ScoreCardView(
-                            playerScore:self.game.playerScores[$0]
-                        )
+                ScrollViewReader { value in
+                    LazyVGrid(columns: gridItemLayout, spacing: 20) {
+                        ForEach((0..<self.game.playerScores.count), id: \.self) {
+
+                                ScoreCardView(playerScore:self.game.playerScores[$0], scrollReaderProxy: value, cardId: $0).id($0)
+
+                        }
                     }
                 }
                 .padding(20)
-            }
+            }   
         }
     }
 }
