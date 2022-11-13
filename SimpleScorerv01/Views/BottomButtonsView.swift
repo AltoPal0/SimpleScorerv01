@@ -16,18 +16,24 @@ struct BottomButtonsView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @Binding var movingEdge : Edge
+    @Binding var showPlayerEntry : Bool
     
     var body: some View {
         VStack {
             Spacer()
             HStack {
-                if !(self.displayInfo.screenDisplayed == .allScores) && !game.needsNameEntry() && !(game.playerScores.count == 0)  {
+                if !(self.displayInfo.screenDisplayed == .allScores)  && !(game.playerScores.count == 0)  {
                     Image(systemName: "arrow.left.circle")
                         .font(.system(.largeTitle, design: .rounded))
                         .foregroundColor(colorScheme == .dark ? Color.gray : Color.gray)
                         .background(Circle().foregroundColor(Color .clear))
                         .onTapGesture {
                             withAnimation{
+                                if game.needsNameEntry() {
+                                    showPlayerEntry = true
+                                } else {
+                                    showPlayerEntry = false
+                                }
                                 if self.displayInfo.screenDisplayed == .gameSetup {
                                     self.movingEdge = .leading
                                     self.displayInfo.screenDisplayed = .scoreCards
@@ -79,7 +85,7 @@ struct BottomButtonsView: View {
 
 struct BottomButtonsView_Previews: PreviewProvider {
     static var previews: some View {
-        BottomButtonsView(movingEdge: .constant(.trailing))
+        BottomButtonsView(movingEdge: .constant(.trailing), showPlayerEntry: .constant(false))
             .environmentObject(GlobalDisplayInfo())
             .environmentObject(Game())
     }

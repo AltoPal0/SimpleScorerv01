@@ -167,11 +167,11 @@ struct ScoreCardView: View {
                         self.showKeyPad.toggle()
                     }
                     self.showBottomBar = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                         if self.isOverflowingScreen {
-//                            withAnimation (.easeIn(duration: 0.1)) {
+                            withAnimation {
                                 self.scrollReaderProxy.scrollTo(self.cardId)
-//                            }
+                            }
                         }
                     }
                 }

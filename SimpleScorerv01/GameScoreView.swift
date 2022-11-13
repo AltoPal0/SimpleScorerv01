@@ -54,7 +54,7 @@ struct GameScoreView: View {
                     .transition(.opacity)
             }
             
-            BottomButtonsView(movingEdge: $movingEdge)
+            BottomButtonsView(movingEdge: $movingEdge, showPlayerEntry: $showPlayerEntry)
             //
             //                if self.showImagePicker {
             //                    CircleImagePickerView(isPresented: self.$showImagePicker, selectedImage: self.$imagePicked, source: self.pickerSource)
