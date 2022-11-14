@@ -91,7 +91,9 @@ struct GameSetupView: View {
                         ActionSheet(title: Text("This will reset all scores to 0").font(.system(.headline, design: .rounded)), buttons: [
                             .default(Text("OK")) {
                                 self.game.resetScores()
-                                self.moveNextScreen()
+                                if game.playerScores.count > 0 {
+                                    self.moveNextScreen()
+                                }
                             },
                             .cancel()
                         ])

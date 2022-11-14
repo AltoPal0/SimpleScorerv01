@@ -16,7 +16,6 @@ struct GameScoreView: View {
     @EnvironmentObject var game : Game
     
     @State private var shouldScroll = true
-    @State var movingEdge = Edge.trailing
     @State var orderedByScores = false
     
     // PlayerEntry
@@ -33,6 +32,8 @@ struct GameScoreView: View {
                     Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
                 }
                 
+                
+                
                 AllScoresView_new()
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
                 
@@ -46,6 +47,8 @@ struct GameScoreView: View {
                         }
                     }
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
+                
+                BottomButtonsView(showPlayerEntry: $showPlayerEntry)
                 
                 TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry)
                 

@@ -15,7 +15,6 @@ struct BottomButtonsView: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-    @Binding var movingEdge : Edge
     @Binding var showPlayerEntry : Bool
     
     var body: some View {
@@ -35,10 +34,8 @@ struct BottomButtonsView: View {
                                     showPlayerEntry = false
                                 }
                                 if self.displayInfo.screenDisplayed == .gameSetup {
-                                    self.movingEdge = .leading
                                     self.displayInfo.screenDisplayed = .scoreCards
                                 } else {
-//                                    self.movingEdge = .trailing
                                     self.displayInfo.screenDisplayed = .allScores
                                 }
                             }
@@ -56,10 +53,8 @@ struct BottomButtonsView: View {
                         .onTapGesture {
                             withAnimation{
                                 if self.displayInfo.screenDisplayed == .allScores {
-                                    self.movingEdge = .trailing
                                     self.displayInfo.screenDisplayed = .scoreCards
                                 } else {
-//                                    self.movingEdge = .leading
                                     self.displayInfo.screenDisplayed = .gameSetup
                                 }
                             }
@@ -85,7 +80,7 @@ struct BottomButtonsView: View {
 
 struct BottomButtonsView_Previews: PreviewProvider {
     static var previews: some View {
-        BottomButtonsView(movingEdge: .constant(.trailing), showPlayerEntry: .constant(false))
+        BottomButtonsView(showPlayerEntry: .constant(false))
             .environmentObject(GlobalDisplayInfo())
             .environmentObject(Game())
     }
