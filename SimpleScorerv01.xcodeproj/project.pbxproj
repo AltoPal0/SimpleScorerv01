@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		03E0751782CCBD235923B648 /* Pods_SimpleScorerv01.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 929B9070BB9E9419D6695C73 /* Pods_SimpleScorerv01.framework */; };
-		D7027B0E25556ED9009FB899 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7027B0D25556ED9009FB899 /* HelpView.swift */; };
 		D70F1356248E37F9001D3217 /* SATextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70F1355248E37F9001D3217 /* SATextField.swift */; };
 		D72849FB28EC999900D564CE /* AllScoresView_new.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72849FA28EC999900D564CE /* AllScoresView_new.swift */; };
 		D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */; };
 		D78C0A5A24891FDC00FF5EEE /* PlayersEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */; };
 		D79069D7292119CF006D418B /* BlocksGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D6292119CF006D418B /* BlocksGridView.swift */; };
+		D79069D929225131006D418B /* TopSwiperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D829225131006D418B /* TopSwiperView.swift */; };
 		D7AE4FF328FF14B700678E10 /* ScoreCorrectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */; };
 		D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */; };
 		D7F35C3728C8DF830007223D /* BottomButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F35C3628C8DF830007223D /* BottomButtonsView.swift */; };
@@ -21,7 +21,6 @@
 		E828ADB2242370F40046BAF8 /* PlayerScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E828ADB1242370F40046BAF8 /* PlayerScore.swift */; };
 		E828ADB4242387500046BAF8 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = E828ADB3242387500046BAF8 /* Game.swift */; };
 		E84D87F0242218DB00FEBFFF /* Round.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84D87EF242218DB00FEBFFF /* Round.swift */; };
-		E84FABFE2435E94B00C806D2 /* ClickWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84FABFD2435E94B00C806D2 /* ClickWheel.swift */; };
 		E8875198241F99DB0091853F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8875197241F99DB0091853F /* AppDelegate.swift */; };
 		E887519A241F99DB0091853F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8875199241F99DB0091853F /* SceneDelegate.swift */; };
 		E887519C241F99DB0091853F /* GameScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E887519B241F99DB0091853F /* GameScoreView.swift */; };
@@ -41,12 +40,12 @@
 /* Begin PBXFileReference section */
 		929B9070BB9E9419D6695C73 /* Pods_SimpleScorerv01.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleScorerv01.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1C66F21B8F1DF96253304AA /* Pods-SimpleScorerv01.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleScorerv01.debug.xcconfig"; path = "Target Support Files/Pods-SimpleScorerv01/Pods-SimpleScorerv01.debug.xcconfig"; sourceTree = "<group>"; };
-		D7027B0D25556ED9009FB899 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		D70F1355248E37F9001D3217 /* SATextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SATextField.swift; sourceTree = "<group>"; };
 		D72849FA28EC999900D564CE /* AllScoresView_new.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView_new.swift; sourceTree = "<group>"; };
 		D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDisplayInfo.swift; sourceTree = "<group>"; };
 		D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayersEntryView.swift; sourceTree = "<group>"; };
 		D79069D6292119CF006D418B /* BlocksGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocksGridView.swift; sourceTree = "<group>"; };
+		D79069D829225131006D418B /* TopSwiperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSwiperView.swift; sourceTree = "<group>"; };
 		D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCorrectionView.swift; sourceTree = "<group>"; };
 		D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCardsGridView.swift; sourceTree = "<group>"; };
 		D7F35C3628C8DF830007223D /* BottomButtonsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomButtonsView.swift; sourceTree = "<group>"; };
@@ -54,7 +53,6 @@
 		E828ADB1242370F40046BAF8 /* PlayerScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerScore.swift; sourceTree = "<group>"; };
 		E828ADB3242387500046BAF8 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		E84D87EF242218DB00FEBFFF /* Round.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Round.swift; sourceTree = "<group>"; };
-		E84FABFD2435E94B00C806D2 /* ClickWheel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickWheel.swift; sourceTree = "<group>"; };
 		E8875194241F99DB0091853F /* SimpleScorer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleScorer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8875197241F99DB0091853F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E8875199241F99DB0091853F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -185,15 +183,14 @@
 				E88751B4241F9E000091853F /* AvatarView.swift */,
 				D7F35C3628C8DF830007223D /* BottomButtonsView.swift */,
 				E8245A6B24600FE40057FB45 /* CircleImagePickerView.swift */,
-				E84FABFD2435E94B00C806D2 /* ClickWheel.swift */,
 				E8F648372464014E00F59B7C /* GameSetupView.swift */,
-				D7027B0D25556ED9009FB899 /* HelpView.swift */,
 				E88C328A25488751000EE7AB /* KeyPadView.swift */,
 				D78C0A5924891FDC00FF5EEE /* PlayersEntryView.swift */,
 				D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */,
 				E897D6C52449B1C900FB214D /* ScoreCardView.swift */,
 				D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */,
 				D79069D6292119CF006D418B /* BlocksGridView.swift */,
+				D79069D829225131006D418B /* TopSwiperView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -312,10 +309,8 @@
 			files = (
 				E8245A6C24600FE40057FB45 /* CircleImagePickerView.swift in Sources */,
 				D79069D7292119CF006D418B /* BlocksGridView.swift in Sources */,
-				E84FABFE2435E94B00C806D2 /* ClickWheel.swift in Sources */,
 				E88751B1241F9B9A0091853F /* Player.swift in Sources */,
 				E88C328B25488751000EE7AB /* KeyPadView.swift in Sources */,
-				D7027B0E25556ED9009FB899 /* HelpView.swift in Sources */,
 				E828ADB4242387500046BAF8 /* Game.swift in Sources */,
 				D72849FB28EC999900D564CE /* AllScoresView_new.swift in Sources */,
 				D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */,
@@ -326,6 +321,7 @@
 				E8ADADAD25540B3600874D44 /* AppStoreReviewManager.swift in Sources */,
 				D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */,
 				E887519A241F99DB0091853F /* SceneDelegate.swift in Sources */,
+				D79069D929225131006D418B /* TopSwiperView.swift in Sources */,
 				D78C0A5A24891FDC00FF5EEE /* PlayersEntryView.swift in Sources */,
 				D7AE4FF328FF14B700678E10 /* ScoreCorrectionView.swift in Sources */,
 				D7F35C3728C8DF830007223D /* BottomButtonsView.swift in Sources */,

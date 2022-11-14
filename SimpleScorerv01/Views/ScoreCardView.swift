@@ -15,7 +15,7 @@ struct ScoreCardView: View {
     
     var playerScore : PlayerScore
     var scrollReaderProxy : ScrollViewProxy
-    var cardId : Int
+    @Binding var orderByScores : Bool
     
     @State private var pointsScored = CGFloat(0)
     @State private var sign = CGFloat(1)
@@ -38,7 +38,7 @@ struct ScoreCardView: View {
     
     @FocusState private var focusedField: Field?
     
-    @State private var dragOffset = CGSize.zero
+    @GestureState private var dragOffset = CGSize.zero
 //    @State private var dragOffset = CGSize(width: -180, height: 0)
     
 //    var index : Int
@@ -53,10 +53,10 @@ struct ScoreCardView: View {
                     
                     Button(action: {
                         self.displayInfo.gradients.append(self.playerScore.player.colorGradient)
-                        self.game.removePlayer(player: self.playerScore.player)
-                        
-                        self.dragOffset = CGSize.zero
-                        self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
+                        withAnimation {
+                            self.game.removePlayer(player: self.playerScore.player)
+                            self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
+                        }
                     }) {
                         Image(systemName: "trash.circle")
                             .font(.system(size: 45, weight: .light, design: .default))
@@ -67,7 +67,7 @@ struct ScoreCardView: View {
                     Button(action: {
                         self.focusedField = .name
                         self.nameEditing = true
-                        self.dragOffset = CGSize.zero
+                        self.slideOpen = false
                         self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                     }) {
                         Image(systemName: "pencil.circle")
@@ -132,50 +132,50 @@ struct ScoreCardView: View {
                         .stroke(Color.offWhite, lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
-                .offset(self.dragOffset)
+                .offset(slideOpen ? CGSize(width: -120, height: 0) : dragOffset)
             }
             .gesture(
                 DragGesture(coordinateSpace: .local)
-                    .onChanged({ (value) in
-                        if !self.scoreEditing && value.translation.width < 0 {
-                            self.dragOffset.width = value.translation.width + (slideOpen ? -120 : 0)
-                        }
-                    })
+                    .updating($dragOffset) { value, state, transaction in
+                        state.width = value.translation.width
+                    }
                     .onEnded({ (value) in
-                        withAnimation(){
                             if value.translation.width < -100 && !self.scoreEditing && !slideOpen {
                                 self.slideOpen = true
-                                self.dragOffset.width = -120
                             } else {
                                 self.slideOpen = false
-                                self.dragOffset = CGSize.zero
                             }
-                        }
                     })
             ) //drag
+            .onLongPressGesture {
+                withAnimation {
+                    orderByScores.toggle()
+                }
+            }
             .onTapGesture {
                 
                 if self.slideOpen {
-                    self.slideOpen = false
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        self.dragOffset = CGSize.zero
+                   
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        self.slideOpen = false
                     }
                 }
                 else {
                     self.scoreEditing = true
                     if self.displayInfo.scoreCardSize == .compact {
-                        self.showKeyPad.toggle()
+                            self.showKeyPad.toggle()
                     }
                     self.showBottomBar = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                         if self.isOverflowingScreen {
                             withAnimation {
-                                self.scrollReaderProxy.scrollTo(self.cardId)
+                                self.scrollReaderProxy.scrollTo(self.playerScore.id)
                             }
                         }
                     }
                 }
             } //tap
+            
         
         
             
@@ -358,14 +358,11 @@ struct ScoreCardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ScrollViewReader { proxy in
-                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy, cardId: 1)
+                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy, orderByScores: .constant(false))
     //                    .previewLayout(.sizeThatFits)
                         .padding(.horizontal, 15)
                         .padding(.bottom,15)
             }
-            
-                
-
         }
         .environmentObject(Game())
         .environmentObject(GlobalDisplayInfo())

@@ -12,27 +12,19 @@ import Combine
 struct GameScoreView: View {
     
     @Environment(\.colorScheme) var colorScheme
-    
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
     @EnvironmentObject var game : Game
+    
     @State private var shouldScroll = true
     @State var movingEdge = Edge.trailing
+    @State var orderedByScores = false
     
     // PlayerEntry
     @State private var showPlayerEntry = false
     
-    // cube display
-    @EnvironmentObject var displayInfo : GlobalDisplayInfo
-    @State var dragOffset = CGSize.zero
-    @State var previousWidth = CGFloat(0)
-    @State var swipingLeft = true
-    
-    // image picker
-    @State private var imagePicked = UIImage()
-    @State private var showImagePicker = false
-    @State private var pickerSource = UIImagePickerController.SourceType.photoLibrary
+    @State var dragOffset = CGFloat(0)
     
     var body: some View {
-        
         ZStack {
             if colorScheme == .dark {
                 Color.midnightBlue.edgesIgnoringSafeArea(.all).zIndex(-1)
@@ -50,17 +42,18 @@ struct GameScoreView: View {
             }
             
             if displayInfo.screenDisplayed == .scoreCards {
-                ScoreCardsGridView()
+                ScoreCardsGridView( orderedByScores: $orderedByScores)
                     .transition(.opacity)
+                    .onLongPressGesture {
+                        withAnimation {
+                            orderedByScores.toggle()
+                        }
+                    }
             }
             
-            BottomButtonsView(movingEdge: $movingEdge, showPlayerEntry: $showPlayerEntry)
-            //
-            //                if self.showImagePicker {
-            //                    CircleImagePickerView(isPresented: self.$showImagePicker, selectedImage: self.$imagePicked, source: self.pickerSource)
-            //                        .edgesIgnoringSafeArea(.all)
-            //                }
-            //
+            //                BottomButtonsView(movingEdge: $movingEdge, showPlayerEntry: $showPlayerEntry)
+            TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry)
+            
             if self.showPlayerEntry {
                 PlayersEntryView(isVisible: self.$showPlayerEntry)
             }
@@ -90,7 +83,7 @@ struct ContentView_Previews: PreviewProvider {
         }
         .environmentObject(GlobalDisplayInfo())
         .environmentObject(Game(withTestPlayers: ()))
-//        .environmentObject(Game())
+        //        .environmentObject(Game())
     }
 }
 

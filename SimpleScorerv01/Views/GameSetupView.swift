@@ -226,28 +226,6 @@ struct GameSetupView: View {
     
 }
 
-struct HelpScreensView: View {
-
-    @Binding var showHelp : Bool
-    @State private var showHelp2 = false
-    
-    var body: some View {
-        ZStack {
-            Color.offWhite.edgesIgnoringSafeArea(.all)
-            Image("Help1").scaledToFit()
-            if showHelp2 {
-                Image("Help2").scaledToFit()
-            }
-        }.onTapGesture(count: /*@START_MENU_TOKEN@*/1/*@END_MENU_TOKEN@*/, perform: {
-            if showHelp2 {
-                showHelp = false
-            } else {
-                showHelp2 = true
-            }
-        })
-    }
-}
-
 
 
 struct GameSetupView_Previews: PreviewProvider {

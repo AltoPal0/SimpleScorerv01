@@ -3,7 +3,7 @@ import SwiftUI
 struct BlocksGridView: View {
     
     private var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: .infinity), spacing: 20)]
-    
+    @State var switched = false
     
     var body: some View {
         ZStack{
@@ -16,6 +16,11 @@ struct BlocksGridView: View {
                     }
                 }
                 .padding(20)
+            }
+            .refreshable {
+                withAnimation {
+                    self.switched.toggle()
+                }
             }
         }
     }
