@@ -9,11 +9,12 @@
 import SwiftUI
 
 struct TopSwiperView: View {
-//    @GestureState var dragOffset = CGSize.zero
+
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     @EnvironmentObject var game : Game
     
-    @Binding var dragOffset : CGFloat
+    @Binding var dragOffset : CGSize
     @Binding var showPlayerEntry : Bool
     
     @GestureState var dragUpdate = CGSize.zero
@@ -25,9 +26,16 @@ struct TopSwiperView: View {
                     .frame(width: 25)
                   .contentShape(Rectangle())
                 Spacer()
-                Color.offWhite.opacity(0.025)
-                    .frame(width: 25)
-                  .contentShape(Rectangle())
+                if colorScheme == .dark {
+                    Color.midnightBlue.opacity(0.025)
+                        .frame(width: 25)
+                      .contentShape(Rectangle())
+                } else {
+                    Color.offWhite.opacity(0.025)
+                        .frame(width: 25)
+                      .contentShape(Rectangle())
+                }
+                
             }
             .ignoresSafeArea()
             
@@ -63,6 +71,6 @@ struct TopSwiperView: View {
 
 struct TopSwiperView_Previews: PreviewProvider {
     static var previews: some View {
-        TopSwiperView(dragOffset: .constant(CGFloat(0)), showPlayerEntry: .constant(false))
+        TopSwiperView(dragOffset: .constant(CGSize.zero), showPlayerEntry: .constant(false))
     }
 }

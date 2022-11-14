@@ -22,44 +22,96 @@ struct GameScoreView: View {
     // PlayerEntry
     @State private var showPlayerEntry = false
     
-    @State var dragOffset = CGFloat(0)
+    @State var dragOffset = CGSize.zero
     
     var body: some View {
-        ZStack {
-            if colorScheme == .dark {
-                Color.midnightBlue.edgesIgnoringSafeArea(.all).zIndex(-1)
-            } else {
-                Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
-            }
-            if displayInfo.screenDisplayed == .allScores {
+        GeometryReader { geometry in
+            ZStack {
+                if colorScheme == .dark {
+                    Color.midnightBlue.edgesIgnoringSafeArea(.all).zIndex(-1)
+                } else {
+                    Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
+                }
+                
                 AllScoresView_new()
-                    .transition(.move(edge: .leading))
-            }
-            
-            if displayInfo.screenDisplayed == .gameSetup {
+                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
+                
                 GameSetupView(showPlayerEntry: self.$showPlayerEntry)
-                    .transition(.move(edge: .trailing))
-            }
-            
-            if displayInfo.screenDisplayed == .scoreCards {
+                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
+                
                 ScoreCardsGridView( orderedByScores: $orderedByScores)
-                    .transition(.opacity)
                     .onLongPressGesture {
                         withAnimation {
                             orderedByScores.toggle()
                         }
                     }
-            }
-            
-            //                BottomButtonsView(movingEdge: $movingEdge, showPlayerEntry: $showPlayerEntry)
-            TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry)
-            
-            if self.showPlayerEntry {
-                PlayersEntryView(isVisible: self.$showPlayerEntry)
+                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
+                
+                TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry)
+                
+                if self.showPlayerEntry {
+                    PlayersEntryView(isVisible: self.$showPlayerEntry)
+                }
             }
             
         }
     }
+}
+
+struct cubeRotation: ViewModifier {
+    
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
+    
+    @Binding var dragOffset : CGSize
+    
+    let screen : ScreenType
+    
+    let screenWidth : CGFloat
+    
+    func angle() -> Angle {
+        return Angle(degrees: 90 * Double(screen - self.displayInfo.screenDisplayed)) + self.dragToRotation(translation: self.dragOffset)
+    }
+    
+    func edge() -> UnitPoint {
+        
+        if (screen - self.displayInfo.screenDisplayed) == 0 {
+            if dragOffset.width > 0 {
+                return .leading
+            } else {
+                return .trailing
+            }
+        } else if (screen - self.displayInfo.screenDisplayed) > 0 {
+            if dragOffset.width > 0 {
+                return .trailing
+            } else {
+                return .leading
+            }
+        } else {
+            if dragOffset.width > 0 {
+                return .trailing
+            } else {
+                return .leading
+            }
+        }
+    }
+    
+    func offSet() -> CGFloat {
+        return screenWidth * CGFloat(screen - self.displayInfo.screenDisplayed) + self.dragOffset.width*1.2
+    }
+    
+    func dragToRotation(translation : CGSize) -> Angle {
+        
+        return Angle(degrees: Double(translation.width/4.16))
+
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .rotation3DEffect(self.angle(), axis: (x: 0, y:1 , z:0.0001), anchor: self.edge())
+            .offset(x: self.offSet() , y: 0)
+            .disabled(!(self.displayInfo.screenDisplayed == screen))
+    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
