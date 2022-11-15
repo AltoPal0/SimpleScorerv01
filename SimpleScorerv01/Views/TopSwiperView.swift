@@ -21,6 +21,8 @@ struct TopSwiperView: View {
     
     var body: some View {
         GeometryReader { geo in
+            
+            let swipeAreaSides = geo.size.width * 0.08
             HStack{
                 Color.clear
                     .frame(width: 25)
@@ -28,11 +30,11 @@ struct TopSwiperView: View {
                 Spacer()
                 if colorScheme == .dark {
                     Color.midnightBlue.opacity(0.025)
-                        .frame(width: 25)
+                        .frame(width: swipeAreaSides )
                       .contentShape(Rectangle())
                 } else {
                     Color.offWhite.opacity(0.025)
-                        .frame(width: 25)
+                        .frame(width: swipeAreaSides)
                       .contentShape(Rectangle())
                 }
                 
@@ -45,11 +47,11 @@ struct TopSwiperView: View {
                         state.width = value.translation.width
                     }
                     .onEnded({ (value) in
-                        if value.startLocation.x > (geo.size.width - 25) && self.displayInfo.screenDisplayed != .gameSetup {
+                        if value.startLocation.x > (geo.size.width - swipeAreaSides) && self.displayInfo.screenDisplayed != .gameSetup {
                             withAnimation{
                                 self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
                             }
-                        } else if value.startLocation.x < 25 && self.displayInfo.screenDisplayed != .allScores {
+                        } else if value.startLocation.x < swipeAreaSides && self.displayInfo.screenDisplayed != .allScores {
                             if game.needsNameEntry() {
                                 withAnimation{
                                     self.showPlayerEntry = true

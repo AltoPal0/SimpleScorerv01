@@ -17,6 +17,9 @@ struct BottomButtonsView: View {
     
     @Binding var showPlayerEntry : Bool
     
+    @State var swipeDirection = "none"
+    @GestureState var dragOffset = CGSize.zero
+    
     var body: some View {
         VStack {
             Spacer()
@@ -44,6 +47,7 @@ struct BottomButtonsView: View {
                     EmptyView()
                 }
                 Spacer()
+                Text(swipeDirection)
                 if !(self.displayInfo.screenDisplayed == .gameSetup) {
                     Image(systemName: "arrow.right.circle")
                         .font(.system(.largeTitle, design: .rounded))
@@ -62,19 +66,46 @@ struct BottomButtonsView: View {
                 } else {
                     EmptyView()
                 }
-                
-                //                if self.dismissHelpForever {
-                //                    Image(systemName: "questionmark.circle")
-                //                        .font(.system(.largeTitle, design: .rounded))
-                //                        .foregroundColor(Color.gray)
-                //                        .padding([.bottom])
-                //                        .onTapGesture {
-                //                            self.showHelp = true
-                //                    }
-                //                }
-                
             }
         }
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .updating($dragOffset) { value, state, transaction in
+                    state.width = value.translation.width
+                    swipeDirection = value.translation.width.description
+                }
+                .onEnded({ (value) in
+                    if value.translation.width < 0 {
+                        swipeDirection = "left"
+                    } else {
+                        swipeDirection = "right"
+                    }
+                })
+        )
+//        .gesture(
+//            DragGesture()
+//                .onEnded({ (value) in
+//                    if value.translation.width < 0 && self.displayInfo.screenDisplayed != .gameSetup {
+//                        swipeDirection = value.translation.width.description
+//                        withAnimation{
+//                            self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
+//                        }
+//                    } else if value.translation.width > 0 && self.displayInfo.screenDisplayed != .allScores {
+//                        swipeDirection = value.translation.width.description
+//                        if game.needsNameEntry() {
+//                            withAnimation{
+//                                self.showPlayerEntry = true
+//                            }
+//                            self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
+//                        } else {
+//                            withAnimation{
+//                                self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
+//                            }
+//                        }
+//                    }
+//                })
+//        )
     }
 }
 
