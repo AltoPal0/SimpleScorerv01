@@ -38,7 +38,7 @@ struct GameScoreView: View {
                 GameSetupView(showPlayerEntry: self.$showPlayerEntry)
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
                 
-                ScoreCardsGridView( orderedByScores: $orderedByScores)
+                ScoreCardsGridView(orderedByScores: $orderedByScores)
                     .onLongPressGesture {
                         withAnimation {
                             orderedByScores.toggle()
@@ -46,9 +46,11 @@ struct GameScoreView: View {
                     }
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
                 
-                BottomButtonsView(showPlayerEntry: $showPlayerEntry)
                 
-                TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry)
+                
+                TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry, orderByScores: $orderedByScores)
+                
+                BottomButtonsView(showPlayerEntry: $showPlayerEntry)
                 
                 if self.showPlayerEntry {
                     PlayersEntryView(isVisible: self.$showPlayerEntry)
