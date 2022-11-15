@@ -47,7 +47,6 @@ struct BottomButtonsView: View {
                     EmptyView()
                 }
                 Spacer()
-                Text(swipeDirection)
                 if !(self.displayInfo.screenDisplayed == .gameSetup) {
                     Image(systemName: "arrow.right.circle")
                         .font(.system(.largeTitle, design: .rounded))
@@ -68,21 +67,21 @@ struct BottomButtonsView: View {
                 }
             }
         }
-        .contentShape(Rectangle())
-        .gesture(
-            DragGesture(coordinateSpace: .local)
-                .updating($dragOffset) { value, state, transaction in
-                    state.width = value.translation.width
-                    swipeDirection = value.translation.width.description
-                }
-                .onEnded({ (value) in
-                    if value.translation.width < 0 {
-                        swipeDirection = "left"
-                    } else {
-                        swipeDirection = "right"
-                    }
-                })
-        )
+//        .contentShape(Rectangle())
+//        .gesture(
+//            DragGesture(coordinateSpace: .local)
+//                .updating($dragOffset) { value, state, transaction in
+//                    state.width = value.translation.width
+//                    swipeDirection = value.translation.width.description
+//                }
+//                .onEnded({ (value) in
+//                    if value.translation.width < 0 {
+//                        swipeDirection = "left"
+//                    } else {
+//                        swipeDirection = "right"
+//                    }
+//                })
+//        )
 //        .gesture(
 //            DragGesture()
 //                .onEnded({ (value) in
