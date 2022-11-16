@@ -31,9 +31,11 @@ struct GameScoreView: View {
                 } else {
                     Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
                 }
-                
-                AllScoresView_new()
-                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
+//                if displayInfo.screenDisplayed == .allScores {
+                    AllScoresView_new()
+                        .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
+//                        .transition(.slide)
+//                }
                 
                 GameSetupView(showPlayerEntry: self.$showPlayerEntry)
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))

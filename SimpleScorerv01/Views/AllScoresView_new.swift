@@ -204,7 +204,7 @@ struct Cell: View {
     @Binding var scoreEdit : (playerIdx: Int, round: Int, mode: ScoreEditMode)
     
     var body: some View {
-        if game.playerScores[playerIndex].pointsList[optional: round] != nil {
+        if game.playerScores[optional: playerIndex]?.pointsList[optional: round] != nil {
             Text(game.playerScores[playerIndex].pointsList[round].score.description)
                 .onTapGesture(count: 1, perform: {
                     self.showingActionSheet = true
