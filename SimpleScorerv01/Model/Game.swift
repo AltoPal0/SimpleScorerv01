@@ -161,13 +161,14 @@ class Game : ObservableObject {
     func addPointsFor(player : Player, points : Int) {
         
         let nbrOfRounds = self.currentMaxNumberOfRounds()
+        let pIndex = self.indexOf(player: player)!
         
-        if self.playerScores[self.indexOf(player: player)!].pointsList.count == nbrOfRounds {
-            self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: points)
-        } else if self.playerScores[self.indexOf(player: player)!].pointsList.count == (nbrOfRounds - 1) {
-            self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: points)
+        if self.playerScores[pIndex].pointsList.count == nbrOfRounds {
+            self.playerScores[pIndex].addPoints(scoreValue: points)
+        } else if self.playerScores[pIndex].pointsList.count == (nbrOfRounds - 1) {
+            self.playerScores[pIndex].addPoints(scoreValue: points)
         } else {
-            self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: 0)
+            self.playerScores[pIndex].addPoints(scoreValue: 0)
             self.addPointsFor(player: player, points: points)
         }
         
@@ -176,12 +177,12 @@ class Game : ObservableObject {
     
     func addPointsFor(player : Player, points : Int, round : Int) {
         
-        print(round)
+        let pIndex = self.indexOf(player: player)!
         
-        if self.playerScores[self.indexOf(player: player)!].pointsList.count == round {
-            self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: points)
+        if self.playerScores[pIndex].pointsList.count == round {
+            self.playerScores[pIndex].addPoints(scoreValue: points)
         } else {
-            self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: 0)
+            self.playerScores[pIndex].addPoints(scoreValue: 0)
             self.addPointsFor(player: player, points: points, round: round)
         }
         

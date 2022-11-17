@@ -198,56 +198,50 @@ struct Cell: View {
     var round : Int
     
     @State private var showingActionSheet = false
+    @State private var isHighlighted = false
     
     @Binding var showKeypad : Bool
     @Binding var scoreEdit : (playerIdx: Int, round: Int, mode: ScoreEditMode)
     
-    var body: some View {
-        if game.playerScores[optional: playerIndex]?.pointsList[optional: round] != nil {
-            Text(game.playerScores[playerIndex].pointsList[round].score.description)
-                .onTapGesture(count: 1, perform: {
-                    self.showingActionSheet = true
-                })
-                .actionSheet(isPresented: $showingActionSheet) {
-                    ActionSheet(title: Text("Edit score").font(.system(.headline, design: .rounded)), buttons: [
-                        .default(Text("Modify")) {
-                            scoreEdit.playerIdx = playerIndex
-                            scoreEdit.mode = .modification
-                            scoreEdit.round = round
-                            self.showKeypad = true
-                        },
-                        .destructive(Text("Delete")) {
-                            withAnimation {
-                                game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
-                            }
-                        },
-                        .cancel()
-                    ])
-                }
+    var roundExists : Bool {
+        if game.playerScores[optional: playerIndex]?.pointsList[optional: round] != nil  {
+            return true
         } else {
-            Text("•")
-                .onTapGesture(count: 1, perform: {
-                    self.showingActionSheet = true
-                })
-                .actionSheet(isPresented: $showingActionSheet) {
-                    ActionSheet(title: Text("Edit score").font(.system(.headline, design: .rounded)), buttons: [
-                        .default(Text("Modify")) {
-                            scoreEdit.playerIdx = playerIndex
-                            scoreEdit.mode = .addition
-                            scoreEdit.round = round
-                            self.showKeypad = true
-                        },
-                        .destructive(Text("Delete")) {
-                            withAnimation {
-                                game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
-                            }
-                        },
-                        .cancel()
-                    ])
-                }
+            return false
         }
     }
+    
+    var body: some View {
+        
+        Text(roundExists ? game.playerScores[playerIndex].pointsList[round].score.description : "•")
+            .onTapGesture(count: 1, perform: {
+                self.showingActionSheet = true
+            })
+            .actionSheet(isPresented: $showingActionSheet) {
+                ActionSheet(title: Text("Edit score").font(.system(.headline, design: .rounded)), buttons: [
+                    .default(Text("Modify")) {
+                        scoreEdit.playerIdx = playerIndex
+                        if roundExists {
+                            scoreEdit.mode = .modification
+                        } else {
+                            scoreEdit.mode = .addition
+                        }
+                        scoreEdit.round = round
+                        self.showKeypad = true
+                    },
+                    .destructive(Text("Delete")) {
+                        withAnimation {
+                            if roundExists {
+                                game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
+                            }
+                        }
+                    },
+                    .cancel()
+                ])
+            }
+    }
 }
+
 
 struct AllScoresView_new_Previews: PreviewProvider {
     static var previews: some View {
