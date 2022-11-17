@@ -24,7 +24,11 @@ struct ScoreCorrectionView: View {
         if editMode == ScoreEditMode.modification {
             return "\(String(game.playerScores[playerIndex].pointsList[round].score)) ⇢ \(self.sign >= 0 ? "" : "-") \( String(format: "%.0f",abs(pointsScored)))"
         } else {
-            return "\(game.playerScores[playerIndex].totalScore()) \(self.sign >= 0 ? "+" : "-") \(String(format: "%.0f",abs(pointsScored)))"
+            if game.playerScores[playerIndex].pointsList[optional: round] != nil {
+                return "\(game.playerScores[playerIndex].totalScore()) \(self.sign >= 0 ? "+" : "-") \(String(format: "%.0f",abs(pointsScored)))"
+            } else {
+                return " • \(self.sign >= 0 ? "+" : "-") \(String(format: "%.0f",abs(pointsScored)))"
+            }
         }
     }
     
@@ -84,7 +88,12 @@ struct ScoreCorrectionView: View {
                                     sign = 1
                                     pointsScored = 0
                                 } else {
-                                    game.addPointsFor(player: game.playerScores[playerIndex].player, points: Int(pointsScored * sign))
+                                    if game.playerScores[playerIndex].pointsList[optional: round] != nil {
+                                        game.addPointsFor(player: game.playerScores[playerIndex].player, points: Int(pointsScored * sign))
+                                    } else {
+                                        // modification of an empty cell is like addition at specific round
+                                        game.addPointsFor(player: game.playerScores[playerIndex].player, points: Int(pointsScored * sign), round: round)
+                                    }
                                     showKeypad = false
                                     sign = 1
                                     pointsScored = 0

@@ -168,7 +168,6 @@ struct PointsRows: View {
     var playerIndex: Int
     
     @Binding var showKeypad : Bool
-    
     @Binding var scoreEdit : (playerIdx: Int, round: Int, mode: ScoreEditMode)
     
     var body: some View {
@@ -218,7 +217,30 @@ struct Cell: View {
                             self.showKeypad = true
                         },
                         .destructive(Text("Delete")) {
-                            game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
+                            withAnimation {
+                                game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
+                            }
+                        },
+                        .cancel()
+                    ])
+                }
+        } else {
+            Text("•")
+                .onTapGesture(count: 1, perform: {
+                    self.showingActionSheet = true
+                })
+                .actionSheet(isPresented: $showingActionSheet) {
+                    ActionSheet(title: Text("Edit score").font(.system(.headline, design: .rounded)), buttons: [
+                        .default(Text("Modify")) {
+                            scoreEdit.playerIdx = playerIndex
+                            scoreEdit.mode = .addition
+                            scoreEdit.round = round
+                            self.showKeypad = true
+                        },
+                        .destructive(Text("Delete")) {
+                            withAnimation {
+                                game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
+                            }
                         },
                         .cancel()
                     ])

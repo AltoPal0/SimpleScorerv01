@@ -174,6 +174,20 @@ class Game : ObservableObject {
         self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
     }
     
+    func addPointsFor(player : Player, points : Int, round : Int) {
+        
+        print(round)
+        
+        if self.playerScores[self.indexOf(player: player)!].pointsList.count == round {
+            self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: points)
+        } else {
+            self.playerScores[self.indexOf(player: player)!].addPoints(scoreValue: 0)
+            self.addPointsFor(player: player, points: points, round: round)
+        }
+        
+//        self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
+    }
+    
     func deletePointsFor(player : Player, round : Int) {
         let index = self.indexOf(player: player)!
         
