@@ -190,10 +190,10 @@ struct GameSetupView: View {
     }
     
     func moveNextScreen() {
-        self.displayInfo.screenDisplayed = .scoreCards
         if self.game.needsNameEntry() {
             self.showPlayerEntry = true
         }
+        self.displayInfo.screenDisplayed = .scoreCards
     }
     
 }

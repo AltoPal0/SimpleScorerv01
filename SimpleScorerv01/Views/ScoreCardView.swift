@@ -93,7 +93,9 @@ struct ScoreCardView: View {
                                 playerNameView
                             }
                             
-                            ExpandableScoreSection
+                            if !nameEditing {
+                                ExpandableScoreSection
+                            }
 
                         }
                         .frame(height: frameHeight*2/3)
@@ -192,44 +194,51 @@ struct ScoreCardView: View {
                             .minimumScaleFactor(0.1)
                         .foregroundColor(Color .offWhite)
                 } else {
-                    TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {
-                        
-                        
-                        if self.username.count == 0 {
-                            self.showingAlert = true
-                        } else {
-                            
-                            self.nameEditing = false
-                            let index = self.game.playerScores.firstIndex(where: {$0.id == self.playerScore.id})!
-                            self.game.playerScores[index].player.name = self.username.capitalized.trimmingCharacters(in: .whitespacesAndNewlines)
-                            self.game.avatarInitialsForPlayers()
-                            
-                            self.username = ""
-                            self.displayInfo.indexOFTextfieldFocused += 1
-                        }
-                        
-                        
-                    })
-                    .focused($focusedField, equals: .name)
-                    .font(.system(.largeTitle, design: .rounded))
-                    .background(Color.offWhite.opacity(0.6))
-                    .foregroundColor(Color.offWhite)
-                    .foregroundColor(Color .offWhite)
-                    .onTapGesture {
-                        if displayInfo.screenDisplayed == .scoreCards {
-                            self.focusedField = .name
-                        } else {
-                            if game.nbrOfPlayersNeedingNames() - game.indexOfPlayerWithNoName(playerScore: self.playerScore) == 1 {
+                    HStack {
+                        TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {commitName()})
+                        .focused($focusedField, equals: .name)
+                        .font(.system(.largeTitle, design: .rounded))
+                        .background(Color.offWhite.opacity(0.6))
+                        .foregroundColor(Color.offWhite)
+                        .foregroundColor(Color .offWhite)
+                        .onTapGesture {
+                            if displayInfo.screenDisplayed == .scoreCards {
                                 self.focusedField = .name
+                            } else {
+                                if game.nbrOfPlayersNeedingNames() - game.indexOfPlayerWithNoName(playerScore: self.playerScore) == 1 {
+                                    self.focusedField = .name
+                                }
+                                
                             }
-                            
                         }
+                        
+                        Rectangle().fill(Color.offWhite.opacity(0.5))
+                            .border(width: 1, edge: .leading, color: .offWhite)
+                            .overlay(Image(systemName: "checkmark").foregroundColor(Color.white))
+                            .frame(minWidth:70, maxWidth:70, maxHeight: .infinity)
+                            .onTapGesture {commitName()}
+                        
                     }
                 }
             }
         }
         .alert(isPresented: $showingAlert) {
             Alert(title: Text("No name entered"), message: Text("Please enter a name"), dismissButton: .default(Text("OK")))
+        }
+    }
+    
+    func commitName() -> Void {
+        if self.username.count == 0 {
+            self.showingAlert = true
+        } else {
+            
+            self.nameEditing = false
+            let index = self.game.playerScores.firstIndex(where: {$0.id == self.playerScore.id})!
+            self.game.playerScores[index].player.name = self.username.capitalized.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.game.avatarInitialsForPlayers()
+            
+            self.username = ""
+            self.displayInfo.indexOFTextfieldFocused += 1
         }
     }
     
