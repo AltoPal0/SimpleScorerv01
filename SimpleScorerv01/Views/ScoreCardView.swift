@@ -214,7 +214,11 @@ struct ScoreCardView: View {
                         
                         Rectangle().fill(Color.offWhite.opacity(0.5))
                             .border(width: 1, edge: .leading, color: .offWhite)
-                            .overlay(Image(systemName: "checkmark").foregroundColor(Color.white))
+                            .overlay(
+                                Text("✓")
+                                    .font(Font.system(size: 30, design: .rounded))
+                                    .foregroundColor(Color.offWhite)
+                            )
                             .frame(minWidth:70, maxWidth:70, maxHeight: .infinity)
                             .onTapGesture {commitName()}
                         
