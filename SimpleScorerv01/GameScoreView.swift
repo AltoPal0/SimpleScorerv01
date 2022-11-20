@@ -55,7 +55,7 @@ struct GameScoreView: View {
                 BottomButtonsView(showPlayerEntry: $showPlayerEntry)
                 
                 if self.showPlayerEntry {
-                    PlayersEntryView(isVisible: self.$showPlayerEntry)
+                    NameEntryView(isVisible: self.$showPlayerEntry)
                 }
             }
             
