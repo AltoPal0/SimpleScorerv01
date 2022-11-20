@@ -65,8 +65,6 @@ struct EntryView : View {
                 
                 HStack {
                     
-                    Text(self.game.indexOfPlayerWithNoName(playerScore: playerScore).description)
-                    
                     AvatarView(user: playerScore.player)
                         .padding(10)
                         
@@ -110,10 +108,10 @@ struct EntryView : View {
                 focusedCard.wrappedValue = playerScore.player.id
             }
         }
-        .onDisappear{
-            
-            
-        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.offWhite, lineWidth: 1)
+        )
     }
     
     func commitName()  {
