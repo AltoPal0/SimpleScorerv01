@@ -68,7 +68,7 @@ struct TopSwiperView: View {
                                     self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
                                 }
                             } else if value.startLocation.x < swipeAreaSides && self.displayInfo.screenDisplayed != .allScores {
-                                if game.needsNameEntry() {
+                                if game.nbrPlayersUnanmed() > 0 {
                                     withAnimation{
                                         self.showPlayerEntry = true
                                     }

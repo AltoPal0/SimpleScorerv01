@@ -47,17 +47,17 @@ class Game : ObservableObject {
         self.playerScores.remove(at: self.indexOf(player: player)!)
     }
     
-    func needsNameEntry() -> Bool {
+    func nbrPlayersUnanmed() -> Int {
         
-        var allPlayersHaveNames = true
+        var nbrPlayers = 0
         
         for playerScore in self.playerScores {
             if playerScore.player.name == Player.defaultName {
-                allPlayersHaveNames = false
+                nbrPlayers += 1
             }
         }
         
-        return !allPlayersHaveNames && self.playerScores.count > 0
+        return nbrPlayers
     }
     
     func indexOfPlayerWithNoName (playerScore : PlayerScore) -> Int {

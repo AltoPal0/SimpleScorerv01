@@ -84,7 +84,7 @@ struct EntryView : View {
                     Rectangle().fill(Color.clear)
                         .border(width: 1, edge: .leading, color: .offWhite)
                         .overlay(
-                            Text("✓")
+                            Text(self.game.nbrPlayersUnanmed() == 1 ? "✓" : " ⇢")
                                 .foregroundColor(Color.offWhite)
                                 .font(Font.system(size: 30, design: .rounded))
                         )
@@ -121,7 +121,7 @@ struct EntryView : View {
         }
         game.playerScores[index].player.name = username
         
-        if !self.game.needsNameEntry() {
+        if self.game.nbrPlayersUnanmed() == 0 {
             self.entryViewVisible = false
             self.game.avatarInitialsForPlayers()
             AppStoreReviewManager.requestReviewIfAppropriate()

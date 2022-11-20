@@ -31,7 +31,7 @@ struct BottomButtonsView: View {
                         .background(Circle().foregroundColor(Color .clear))
                         .onTapGesture {
                             withAnimation{
-                                if game.needsNameEntry() {
+                                if game.nbrPlayersUnanmed() > 0 {
                                     showPlayerEntry = true
                                 } else {
                                     showPlayerEntry = false
