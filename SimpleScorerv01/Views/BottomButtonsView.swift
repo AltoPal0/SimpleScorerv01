@@ -112,6 +112,6 @@ struct BottomButtonsView_Previews: PreviewProvider {
     static var previews: some View {
         BottomButtonsView(showPlayerEntry: .constant(false))
             .environmentObject(GlobalDisplayInfo())
-            .environmentObject(Game())
+            .environmentObject(Game(withTestEmptyNamePlayers:()))
     }
 }
