@@ -215,7 +215,14 @@ struct Cell: View {
         
         Text(roundExists ? game.playerScores[playerIndex].pointsList[round].score.description : "•")
             .onTapGesture(count: 1, perform: {
-                self.showingActionSheet = true
+                if roundExists {
+                    self.showingActionSheet = true
+                } else {
+                    scoreEdit.playerIdx = playerIndex
+                    scoreEdit.mode = .addition
+                    scoreEdit.round = round
+                    self.showKeypad = true
+                }
             })
             .actionSheet(isPresented: $showingActionSheet) {
                 ActionSheet(title: Text("Edit score").font(.system(.headline, design: .rounded)), buttons: [
