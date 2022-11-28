@@ -69,9 +69,7 @@ struct EntryView : View {
                         .padding(10)
                         
                     TextField(Player.defaultName, text: $username, onCommit:{
-                        withAnimation {
-                            commitName()
-                        }
+                        commitName()
                     })
                         .font(Font.system(size: 40, weight: .semibold, design: .rounded))
                         .foregroundColor(.offWhite)
@@ -90,9 +88,7 @@ struct EntryView : View {
                         )
                         .frame(width: 80, height: self.frameHeight)
                         .onTapGesture {
-                            withAnimation {
-                                commitName()
-                            }
+                            commitName()
                         }
                     
                 }
@@ -102,7 +98,7 @@ struct EntryView : View {
         .frame(width:350, height: self.frameHeight)
         .clipShape(Rectangle()).cornerRadius(14)
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
-        .modifier(cardStackMove(playerScore: playerScore))
+        
         .onAppear{
             if self.game.indexOfPlayerWithNoName(playerScore: playerScore) == 0 {
                 focusedCard.wrappedValue = playerScore.player.id
@@ -112,6 +108,7 @@ struct EntryView : View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(Color.offWhite, lineWidth: 1)
         )
+        .modifier(cardStackMove(playerScore: playerScore))
     }
     
     func commitName()  {
@@ -119,7 +116,9 @@ struct EntryView : View {
         if self.username == "" {
             self.username = "P\(index+1)"
         }
-        game.playerScores[index].player.name = username
+        withAnimation {
+            game.playerScores[index].player.name = username
+        }
         
         if self.game.nbrPlayersUnanmed() == 0 {
             self.entryViewVisible = false
