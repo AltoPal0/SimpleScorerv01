@@ -27,6 +27,15 @@ class Game : ObservableObject {
         return nil
     }
     
+    func indexOf(playerID : UUID) -> Int? {
+        for index in self.playerScores.indices {
+            if self.playerScores[index].player.id == playerID {
+                return index
+            }
+        }
+        return nil
+    }
+    
     func addEmptyPlayer() {
         self.addPlayer(player: Player())
     }
