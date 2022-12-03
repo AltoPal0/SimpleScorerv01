@@ -35,7 +35,9 @@ enum ScreenType : Int, Comparable {
 }
 
 
-
+// Warning : Determines the max numberof players in the app
+// If addition beyond 20, check game.updatePReviousPlayers()
+// Or better update model properly :)
 let gradiants =
     [LinearGradient(Color(hex: 0x00b09b),Color(hex: 0x96c93d)),
      LinearGradient(Color(hex: 0x16A085),Color(hex: 0xF4D03F)),

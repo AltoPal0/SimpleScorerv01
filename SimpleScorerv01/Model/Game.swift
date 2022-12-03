@@ -98,13 +98,33 @@ class Game : ObservableObject {
         return count
     }
     
-    func listNames() -> String {
-        var names = ""
+    func listNames() -> [String] {
+        var names = [String]()
         for playerScore in self.playerScores {
-            names += playerScore.player.name + "\n"
+            names.append(playerScore.player.name)
         }
         
         return names
+    }
+    
+    func updatePreviousPlayers() {
+        let defaultNames = ["P1","P2","P3","P4","P5","P6","P7","P8","P9","P10","P11","P12","P13","P14","P15","P16","P17","P18","P19","P20"]
+        guard var savedPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
+        else {
+            UserDefaults.standard.set(self.listNames(), forKey: "previousPlayers")
+            return
+        }
+
+        for playerScore in self.playerScores {
+            let name = playerScore.player.name
+            if !defaultNames.contains(name) {
+                if savedPlayers.contains(name) {
+                    savedPlayers.remove(at: savedPlayers.firstIndex(of: name)!)
+                }
+                savedPlayers.insert(name, at: 0)
+            }
+        }
+        UserDefaults.standard.set(savedPlayers, forKey: "previousPlayers")
     }
     
     func checkIdenticalName(name : String) -> Bool {

@@ -21,7 +21,7 @@ struct Player: Identifiable {
 
 extension Player {
     
-    static let defaultName = "Name ?"
+    static let defaultName = "New Player"
     
     init() {
         self.name = Player.defaultName

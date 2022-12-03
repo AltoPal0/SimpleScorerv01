@@ -9,8 +9,8 @@
 import SwiftUI
 
 enum Focusable: Hashable {
-  case none
-  case row(id: UUID)
+    case none
+    case row(id: UUID)
 }
 
 struct NameEntryView: View {
@@ -31,14 +31,15 @@ struct NameEntryView: View {
         }
     }
     
-//    @State var previousPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
-    @State var previousPlayers = ["Stephane","Sophie","Chloe"]
+    @State var previousPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
+    //    @State var previousPlayers = ["Stephane","Sophie","Chloe"]
     
     var body: some View {
         ZStack {
             backColor.edgesIgnoringSafeArea(.all).zIndex(-25)
             
             VStack{
+                
                 ZStack{
                     ForEach(game.playerScores) { playerScore in
                         if playerScore.player.name == Player.defaultName {
@@ -48,19 +49,30 @@ struct NameEntryView: View {
                                 focusedCard: $focusedCard,
                                 entryViewVisible: $isVisible
                             )
-                                .padding()
-                                .transition(.slide)
+                            .padding()
+                            .transition(.slide)
                         }
                     }
-                }.frame(maxHeight: .infinity)
+                }
                 
-                Divider().frame(height: 1).background(Color.gray).padding(50)
                 
-                LazyVGrid(columns: gridItemLayout, spacing: 20) {
-                    ForEach(0..<previousPlayers.count, id: \.self) { idx in
-                        previousPlayerView(focusedCard: $focusedCard, name: previousPlayers[idx], entryViewVisible: $isVisible).padding(.horizontal,5)
+                if previousPlayers != nil {
+                    HStack {
+                        ZStack{
+                            Divider().frame(height: 1).background(Color.gray).padding()
+                        }
+                        Text("OR").foregroundColor(.gray)
+                        ZStack {
+                            Divider().frame(height: 1).background(Color.gray).padding()
+                        }
                     }
-                }.frame(maxHeight: .infinity)
+                    
+                    LazyVGrid(columns: gridItemLayout, spacing: 0) {
+                        ForEach(0..<previousPlayers!.count, id: \.self) { idx in
+                            previousPlayerView(focusedCard: $focusedCard, name: previousPlayers![idx], entryViewVisible: $isVisible).padding()
+                        }
+                    }
+                }
             }
         }
     }
@@ -74,65 +86,73 @@ struct previousPlayerView: View {
     @Binding var entryViewVisible : Bool
     
     @State var isSelected = false
+    
     @State var uuid : UUID?
+    @State var grad : LinearGradient?
     
     var body: some View {
-
-        RoundedRectangle(cornerRadius: 14)
-            .stroke(Color.gray, lineWidth: 1)
-            .overlay(
-                Text(name)
-                    .opacity(isSelected ? 0.4 : 1)
-                    .font(Font.system(size: 40, weight: .semibold, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.1)
-                    .foregroundColor(Color.gray)
-                    .padding(10)
-            )
-            .overlay(
-                Text(isSelected ? "✓" : "")
-                    .font(Font.system(size: 40, weight: .semibold, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.1)
-                    .foregroundColor(Color.green)
-            )
-            .frame(height: 60)
-            .onTapGesture {
-                let indexOfPlayer = game.indexOf(playerID: focusedCard.wrappedValue!)!
-                
-                withAnimation {
-                    if isSelected {
-                        let indexOfPlayerUnSelecting = game.indexOf(playerID: self.uuid!)
-                        game.playerScores[indexOfPlayerUnSelecting!].player.name = Player.defaultName
-                    } else {
-                        self.uuid = focusedCard.wrappedValue!
-                        game.playerScores[indexOfPlayer].player.name = name
-                    }
-                    isSelected.toggle()
-                }
-                
-                if self.game.nbrPlayersUnanmed() == 0 {
-                    self.entryViewVisible = false
-                    self.game.avatarInitialsForPlayers()
-                    AppStoreReviewManager.requestReviewIfAppropriate()
+        
+        ZStack {
+            LinearGradient.gradDefault
+            Text(name)
+                .opacity(isSelected ? 0.4 : 1)
+                .font(Font.system(size: 40, weight: .light, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.1)
+                .foregroundColor(Color.offWhite)
+                .padding()
+            
+            Text(isSelected ? "✓" : "")
+                .font(Font.system(size: 40, weight: .semibold, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.1)
+                .foregroundColor(Color.green)
+        }
+        .frame(height: 60)
+        .clipShape(Rectangle()).cornerRadius(14)
+        .onTapGesture {
+            let indexOfPlayer = game.indexOf(playerID: focusedCard.wrappedValue!)!
+            
+            withAnimation {
+                if isSelected {
+                    let indexOfPlayerUnSelecting = game.indexOf(playerID: self.uuid!)
+                    game.playerScores[indexOfPlayerUnSelecting!].player.name = Player.defaultName
                 } else {
-                    DispatchQueue.main.async() {
-                        for pScore in game.playerScores {
-                            if self.game.indexOfPlayerWithNoName(playerScore: pScore) == 0 {
-                                self.focusedCard.wrappedValue = pScore.player.id
-                            }
+                    self.uuid = focusedCard.wrappedValue!
+                    game.playerScores[indexOfPlayer].player.name = name
+                }
+                isSelected.toggle()
+            }
+            
+            if self.game.nbrPlayersUnanmed() == 0 {
+                self.entryViewVisible = false
+                self.game.avatarInitialsForPlayers()
+                game.updatePreviousPlayers()
+                AppStoreReviewManager.requestReviewIfAppropriate()
+            } else {
+                DispatchQueue.main.async() {
+                    for pScore in game.playerScores {
+                        if self.game.indexOfPlayerWithNoName(playerScore: pScore) == 0 {
+                            self.focusedCard.wrappedValue = pScore.player.id
                         }
                     }
-                    
                 }
+                
             }
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.offWhite, lineWidth: 1)
+        )
+        .opacity(isSelected ? 0.5 : 0.8)
+        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
     }
 }
 
 struct EntryView : View {
     
     @EnvironmentObject var game : Game
-
+    
     var playerScore : PlayerScore
     var index : Int
     
@@ -144,44 +164,44 @@ struct EntryView : View {
     
     
     var body: some View {
+        let binding = Binding<String>(get: {
+            self.username
+        }, set: {
+            self.username = $0.capitalized.trimmingCharacters(in: .whitespacesAndNewlines)
+            // do whatever you want here
+        })
         ZStack {
             
             playerScore.player.colorGradient
-            
-            VStack {
+
+            HStack {
+                
+                AvatarView(user: playerScore.player)
+                    .padding(10)
+                
+                TextField(Player.defaultName, text: binding, onCommit:{
+                    self.username = binding.wrappedValue
+                    commitName()
+                })
+                .font(Font.system(size: 40, weight: .semibold, design: .rounded))
+                .foregroundColor(.offWhite)
+                .lineLimit(1)
+                .minimumScaleFactor(0.1)
+                .focused(focusedCard, equals: playerScore.player.id)
                 
                 Spacer()
                 
-                HStack {
-                    
-                    AvatarView(user: playerScore.player)
-                        .padding(10)
-                        
-                    TextField(Player.defaultName, text: $username, onCommit:{
+                Rectangle().fill(Color.clear)
+                    .border(width: 1, edge: .leading, color: .offWhite)
+                    .overlay(
+                        Text(self.game.nbrPlayersUnanmed() == 1 ? "✓" : " ⇢")
+                            .foregroundColor(Color.offWhite)
+                            .font(Font.system(size: 30, design: .rounded))
+                    )
+                    .frame(width: 80, height: self.frameHeight)
+                    .onTapGesture {
                         commitName()
-                    })
-                        .font(Font.system(size: 40, weight: .semibold, design: .rounded))
-                        .foregroundColor(.offWhite)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.1)
-                        .focused(focusedCard, equals: playerScore.player.id)
-                    
-                    Spacer()
-                    
-                    Rectangle().fill(Color.clear)
-                        .border(width: 1, edge: .leading, color: .offWhite)
-                        .overlay(
-                            Text(self.game.nbrPlayersUnanmed() == 1 ? "✓" : " ⇢")
-                                .foregroundColor(Color.offWhite)
-                                .font(Font.system(size: 30, design: .rounded))
-                        )
-                        .frame(width: 80, height: self.frameHeight)
-                        .onTapGesture {
-                            commitName()
-                        }
-                    
-                }
-                Spacer()
+                    }
             }
         }
         .frame(width:350, height: self.frameHeight)
@@ -201,7 +221,7 @@ struct EntryView : View {
     }
     
     func commitName()  {
-
+        
         if self.username == "" {
             self.username = "P\(index+1)"
         }
@@ -213,6 +233,7 @@ struct EntryView : View {
         if self.game.nbrPlayersUnanmed() == 0 {
             self.entryViewVisible = false
             self.game.avatarInitialsForPlayers()
+            self.game.updatePreviousPlayers()
             AppStoreReviewManager.requestReviewIfAppropriate()
         } else {
             DispatchQueue.main.async() {
@@ -239,23 +260,23 @@ struct cardStackMove: ViewModifier {
     
     private func index(for playerScore: PlayerScore) -> Int? {
         guard let index = self.game.playerScores.firstIndex(where: { $0.id == playerScore.id})
-            else {
+        else {
             return 0
         }
         return index
     }
     
     private func zIndex(for playerScore: PlayerScore) -> Double {
-
+        
         guard let cardIndex = indexNoName(for: playerScore) else {
             return 0.0
         }
-
+        
         return -Double(cardIndex)
     }
-
+    
     private func offset(for playerScore: PlayerScore) -> CGSize {
-
+        
         guard let cardIndex = indexNoName(for: playerScore) else {
             return CGSize()
         }
@@ -264,11 +285,11 @@ struct cardStackMove: ViewModifier {
     }
     
     private func scale(for playerScore: PlayerScore) -> CGFloat {
-
+        
         guard let cardIndex = indexNoName(for: playerScore) else {
             return 1
         }
-
+        
         return max(CGFloat(100 - (cardIndex)*10)/100, 10/100)
     }
     
