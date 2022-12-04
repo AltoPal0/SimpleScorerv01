@@ -51,8 +51,7 @@ enum AppStoreReviewManager {
         
         // Has the process been completed several times and the user has not already been prompted for this version?
         if count >= minimumReviewWorthyActionCount && currentVersion != lastVersionPromptedForReview {
-            let twoSecondsFromNow = DispatchTime.now() + 2.0
-            DispatchQueue.main.asyncAfter(deadline: twoSecondsFromNow) {
+            DispatchQueue.main.async() {
                 if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                     SKStoreReviewController.requestReview(in: scene)
                 }

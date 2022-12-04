@@ -101,9 +101,10 @@ struct previousPlayerView: View {
                 Spacer()
                 
                 Button(action: {
-                    
+                    self.slideOpen = false
+                    self.savedPlayers.remove(at: self.savedPlayers.firstIndex(of: name)!)
                     withAnimation {
-                        self.savedPlayers.remove(at: self.savedPlayers.firstIndex(of: name)!)
+                       
                         UserDefaults.standard.set(self.savedPlayers, forKey: "previousPlayers")
                     }
                 }) {
@@ -115,11 +116,8 @@ struct previousPlayerView: View {
                 }
             }
             ZStack {
-                //            LinearGradient.gradDefault
-                //            Rectangle().foregroundColor(.offGray).opacity(0.5)
+                
                 LinearGradient(Color(hex: 0x136a8a),Color(hex: 0x267871))
-                //            LinearGradient(Color(hex: 0x1f4037),Color(hex: 0x99f2c8))
-                //            LinearGradient(Color(hex: 0x8360c3),Color(hex: 0x2ebf91))
                 
                 Text(name)
                     .opacity(game.listNames().contains(name) ? 0.4 : 1)
@@ -143,9 +141,10 @@ struct previousPlayerView: View {
             )
             .offset(slideOpen ? CGSize(width: -60, height: 0) : dragOffset)
             .opacity(game.listNames().contains(name) ? 0.5 : 1)
-            .gesture(
+            .gesture(!game.listNames().contains(name) ?
                 DragGesture(coordinateSpace: .local)
                     .updating($dragOffset) { value, state, transaction in
+                        
                         state.width = value.translation.width
                     }
                     .onEnded({ (value) in
@@ -154,7 +153,7 @@ struct previousPlayerView: View {
                         } else {
                             self.slideOpen = false
                         }
-                    })
+                    }) : nil
             )
             .onTapGesture {
                 if slideOpen {
@@ -190,7 +189,7 @@ struct previousPlayerView: View {
                 }
             }
             .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
-        }
+        }.transition(.scale)
     }
 }
 
