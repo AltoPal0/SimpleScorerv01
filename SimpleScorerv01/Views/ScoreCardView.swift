@@ -200,7 +200,6 @@ struct ScoreCardView: View {
                         .font(.system(.largeTitle, design: .rounded))
                         .background(Color.offWhite.opacity(0.6))
                         .foregroundColor(Color.offWhite)
-                        .foregroundColor(Color .offWhite)
                         .onTapGesture {
                             if displayInfo.screenDisplayed == .scoreCards {
                                 self.focusedField = .name
