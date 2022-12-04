@@ -21,7 +21,7 @@ struct NameEntryView: View {
     
     @FocusState var focusedCard: UUID?
     
-    var gridItemLayout = [GridItem(.adaptive(minimum: 150, maximum: .infinity), spacing: 10)]
+    var gridItemLayout = [GridItem(.adaptive(minimum: 100, maximum: .infinity), spacing: 10)]
     
     var backColor: Color {
         if colorScheme == .dark {
@@ -31,8 +31,8 @@ struct NameEntryView: View {
         }
     }
     
-    @State var previousPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
-    //    @State var previousPlayers = ["Stephane","Sophie","Chloe"]
+    @State var previousPlayers =  UserDefaults.standard.array(forKey: "previousPlayers") as! [String]
+//    @State var previousPlayers = ["Stephane","Sophie","Chloe","Gaby"]
     
     var body: some View {
         ZStack {
@@ -49,7 +49,7 @@ struct NameEntryView: View {
                                 focusedCard: $focusedCard,
                                 entryViewVisible: $isVisible
                             )
-                            .padding()
+                            .padding(.vertical)
                             .transition(.slide)
                         }
                     }
@@ -68,10 +68,13 @@ struct NameEntryView: View {
                     }
                     
                     LazyVGrid(columns: gridItemLayout, spacing: 0) {
-                        ForEach(0..<previousPlayers!.count, id: \.self) { idx in
-                            previousPlayerView(focusedCard: $focusedCard, name: previousPlayers![idx], entryViewVisible: $isVisible).padding()
+                        let maxPrevious = min(9,previousPlayers.count)
+                        ForEach(0..<maxPrevious, id: \.self) { idx in
+                            previousPlayerView(savedPlayers: $previousPlayers, focusedCard: $focusedCard, name: previousPlayers[idx], entryViewVisible: $isVisible)
+                                .padding(.vertical,2)
                         }
                     }
+                    .padding()
                 }
             }
         }
@@ -80,72 +83,114 @@ struct NameEntryView: View {
 
 struct previousPlayerView: View {
     @EnvironmentObject var game : Game
+    @Binding var savedPlayers : [String]
     
     var focusedCard: FocusState<UUID?>.Binding
     var name : String
     @Binding var entryViewVisible : Bool
     
-    @State var isSelected = false
-    
     @State var uuid : UUID?
     @State var grad : LinearGradient?
     
+    @GestureState private var dragOffset = CGSize.zero
+    @State private var slideOpen = false
+    
     var body: some View {
-        
         ZStack {
-            LinearGradient.gradDefault
-            Text(name)
-                .opacity(isSelected ? 0.4 : 1)
-                .font(Font.system(size: 40, weight: .light, design: .rounded))
-                .lineLimit(1)
-                .minimumScaleFactor(0.1)
-                .foregroundColor(Color.offWhite)
-                .padding()
-            
-            Text(isSelected ? "✓" : "")
-                .font(Font.system(size: 40, weight: .semibold, design: .rounded))
-                .lineLimit(1)
-                .minimumScaleFactor(0.1)
-                .foregroundColor(Color.green)
-        }
-        .frame(height: 60)
-        .clipShape(Rectangle()).cornerRadius(14)
-        .onTapGesture {
-            let indexOfPlayer = game.indexOf(playerID: focusedCard.wrappedValue!)!
-            
-            withAnimation {
-                if isSelected {
-                    let indexOfPlayerUnSelecting = game.indexOf(playerID: self.uuid!)
-                    game.playerScores[indexOfPlayerUnSelecting!].player.name = Player.defaultName
-                } else {
-                    self.uuid = focusedCard.wrappedValue!
-                    game.playerScores[indexOfPlayer].player.name = name
+            HStack {
+                Spacer()
+                
+                Button(action: {
+                    
+                    withAnimation {
+                        self.savedPlayers.remove(at: self.savedPlayers.firstIndex(of: name)!)
+                        UserDefaults.standard.set(self.savedPlayers, forKey: "previousPlayers")
+                    }
+                }) {
+                    Image(systemName: "trash.circle")
+                        .font(.system(size: 30, weight: .light, design: .default))
+                        .foregroundColor(Color.offRed)
+                        .contentShape(Rectangle()).frame(width: 60)
+                        .opacity(game.listNames().contains(name) ? 0 : 1)
                 }
-                isSelected.toggle()
             }
-            
-            if self.game.nbrPlayersUnanmed() == 0 {
-                self.entryViewVisible = false
-                self.game.avatarInitialsForPlayers()
-                game.updatePreviousPlayers()
-                AppStoreReviewManager.requestReviewIfAppropriate()
-            } else {
-                DispatchQueue.main.async() {
-                    for pScore in game.playerScores {
-                        if self.game.indexOfPlayerWithNoName(playerScore: pScore) == 0 {
-                            self.focusedCard.wrappedValue = pScore.player.id
+            ZStack {
+                //            LinearGradient.gradDefault
+                //            Rectangle().foregroundColor(.offGray).opacity(0.5)
+                LinearGradient(Color(hex: 0x136a8a),Color(hex: 0x267871))
+                //            LinearGradient(Color(hex: 0x1f4037),Color(hex: 0x99f2c8))
+                //            LinearGradient(Color(hex: 0x8360c3),Color(hex: 0x2ebf91))
+                
+                Text(name)
+                    .opacity(game.listNames().contains(name) ? 0.4 : 1)
+                    .font(Font.system(size: 40, weight: .light, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.1)
+                    .foregroundColor(Color.white)
+                    .padding()
+                
+                Text(game.listNames().contains(name) ? "✓" : "")
+                    .font(Font.system(size: 40, weight: .semibold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.1)
+                    .foregroundColor(Color.green)
+            }
+            .frame(height: 60)
+            .clipShape(Rectangle()).cornerRadius(14)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.offWhite, lineWidth: 1)
+            )
+            .offset(slideOpen ? CGSize(width: -60, height: 0) : dragOffset)
+            .opacity(game.listNames().contains(name) ? 0.5 : 1)
+            .gesture(
+                DragGesture(coordinateSpace: .local)
+                    .updating($dragOffset) { value, state, transaction in
+                        state.width = value.translation.width
+                    }
+                    .onEnded({ (value) in
+                        if value.translation.width < -60 && !slideOpen {
+                            self.slideOpen = true
+                        } else {
+                            self.slideOpen = false
+                        }
+                    })
+            )
+            .onTapGesture {
+                if slideOpen {
+                    self.slideOpen = false
+                } else {
+                    let indexOfPlayer = game.indexOf(playerID: focusedCard.wrappedValue!)!
+                    
+                    withAnimation {
+                        if game.listNames().contains(name) {
+                            let indexOfPlayerUnSelecting = game.playerScores.firstIndex { pScore in
+                                pScore.player.name == name
+                            }
+                            game.playerScores[indexOfPlayerUnSelecting!].player.name = Player.defaultName
+                        } else {
+                            game.playerScores[indexOfPlayer].player.name = name
+                        }
+                    }
+                    
+                    if self.game.nbrPlayersUnanmed() == 0 {
+                        self.entryViewVisible = false
+                        self.game.avatarInitialsForPlayers()
+                        game.updatePreviousPlayers()
+                        AppStoreReviewManager.requestReviewIfAppropriate()
+                    } else {
+                        DispatchQueue.main.async() {
+                            for pScore in game.playerScores {
+                                if self.game.indexOfPlayerWithNoName(playerScore: pScore) == 0 {
+                                    self.focusedCard.wrappedValue = pScore.player.id
+                                }
+                            }
                         }
                     }
                 }
-                
             }
+            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         }
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.offWhite, lineWidth: 1)
-        )
-        .opacity(isSelected ? 0.5 : 0.8)
-        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
     }
 }
 
@@ -173,7 +218,7 @@ struct EntryView : View {
         ZStack {
             
             playerScore.player.colorGradient
-
+            
             HStack {
                 
                 AvatarView(user: playerScore.player)
@@ -207,7 +252,6 @@ struct EntryView : View {
         .frame(width:350, height: self.frameHeight)
         .clipShape(Rectangle()).cornerRadius(14)
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
-        
         .onAppear{
             if self.game.indexOfPlayerWithNoName(playerScore: playerScore) == 0 {
                 focusedCard.wrappedValue = playerScore.player.id
@@ -308,5 +352,6 @@ struct NameEntryView_Previews: PreviewProvider {
     static var previews: some View {
         NameEntryView(isVisible: .constant(true))
             .environmentObject(Game(withTestEmptyNamePlayers: ()))
+        
     }
 }

@@ -38,14 +38,14 @@ enum AppStoreReviewManager {
         count += 1
         UserDefaults.standard.set(count, forKey: UserDefaultsKeys.processCompletedCountKey)
         
-        print("Process completed \(count) time(s)")
+//        print("Process completed \(count) time(s)")
         
         // Get the current bundle version for the app
         let infoDictionaryKey = kCFBundleVersionKey as String
         guard let currentVersion = Bundle.main.object(forInfoDictionaryKey: infoDictionaryKey) as? String
         else { fatalError("Expected to find a bundle version in the info dictionary") }
         
-        print(currentVersion)
+//        print(currentVersion)
         
         let lastVersionPromptedForReview = UserDefaults.standard.string(forKey: UserDefaultsKeys.lastVersionPromptedForReviewKey)
         

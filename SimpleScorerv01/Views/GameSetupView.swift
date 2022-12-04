@@ -145,7 +145,6 @@ struct GameSetupView: View {
                                         .padding(.leading)
                                         .onTapGesture {
                                             let grad = self.displayInfo.gradients.last!
-                                            print(self.displayInfo.gradients.count)
                                             if self.displayInfo.gradients.count > 1 {
                                                 self.displayInfo.gradients.removeLast()
                                             }
@@ -190,6 +189,7 @@ struct GameSetupView: View {
     }
     
     func moveNextScreen() {
+        game.updatePreviousPlayers()
         if self.game.nbrPlayersUnanmed() > 0 {
             self.showPlayerEntry = true
         }

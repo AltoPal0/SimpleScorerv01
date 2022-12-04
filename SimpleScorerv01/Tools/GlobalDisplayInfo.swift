@@ -24,9 +24,9 @@ class GlobalDisplayInfo: ObservableObject {
         self.scoreCardSize = .normal
         
         if Double(nbrPlayers + 1) * cardAera > screenAera {
-            print(nbrPlayers * 325 * 135)
-            print(screenAera)
-            print(cardAera)
+//            print(nbrPlayers * 325 * 135)
+//            print(screenAera)
+//            print(cardAera)
             self.scoreCardSize = .compact
         }
         

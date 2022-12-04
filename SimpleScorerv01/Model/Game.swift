@@ -101,13 +101,16 @@ class Game : ObservableObject {
     func listNames() -> [String] {
         var names = [String]()
         for playerScore in self.playerScores {
-            names.append(playerScore.player.name)
+            if playerScore.player.name != Player.defaultName {
+                names.append(playerScore.player.name)
+            }
         }
         
         return names
     }
     
     func updatePreviousPlayers() {
+        
         let defaultNames = ["P1","P2","P3","P4","P5","P6","P7","P8","P9","P10","P11","P12","P13","P14","P15","P16","P17","P18","P19","P20"]
         guard var savedPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
         else {
@@ -116,15 +119,22 @@ class Game : ObservableObject {
         }
 
         for playerScore in self.playerScores {
+            
             let name = playerScore.player.name
-            if !defaultNames.contains(name) {
+            
+            // Verify it's not P1, P2 ...
+            if !defaultNames.contains(name) && name != Player.defaultName {
+                
+                // We do this to keep it in most rescents
                 if savedPlayers.contains(name) {
                     savedPlayers.remove(at: savedPlayers.firstIndex(of: name)!)
                 }
                 savedPlayers.insert(name, at: 0)
+                
             }
         }
-        UserDefaults.standard.set(savedPlayers, forKey: "previousPlayers")
+        UserDefaults.standard.set(savedPlayers.uniqued(), forKey: "previousPlayers")
+        
     }
     
     func checkIdenticalName(name : String) -> Bool {
@@ -412,6 +422,13 @@ extension Game {
         self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[6]))
         self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[7]))
 
+    }
+}
+
+extension Sequence where Element: Hashable {
+    func uniqued() -> [Element] {
+        var set = Set<Element>()
+        return filter { set.insert($0).inserted }
     }
 }
 
