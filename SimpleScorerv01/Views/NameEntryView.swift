@@ -56,7 +56,7 @@ struct NameEntryView: View {
                 }
                 
                 
-                if previousPlayers != nil {
+                if previousPlayers.count > 0 {
                     HStack {
                         ZStack{
                             Divider().frame(height: 1).background(Color.gray).padding()
