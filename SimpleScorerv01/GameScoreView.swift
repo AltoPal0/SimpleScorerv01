@@ -37,8 +37,7 @@ struct GameScoreView: View {
 //                        .transition(.slide)
 //                }
                 
-                GameSetupView(showPlayerEntry: self.$showPlayerEntry)
-                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
+                
                 
                 ScoreCardsGridView(orderedByScores: $orderedByScores)
                     .onLongPressGesture {
@@ -48,6 +47,8 @@ struct GameScoreView: View {
                     }
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
                 
+                GameSetupView(showPlayerEntry: self.$showPlayerEntry)
+                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
                 
                 
                 TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry, orderByScores: $orderedByScores)

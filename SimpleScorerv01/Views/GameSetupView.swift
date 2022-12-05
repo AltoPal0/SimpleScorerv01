@@ -91,12 +91,13 @@ struct GameSetupView: View {
                     
                     Rectangle().fill(Color.clear).border(width: 1, edge: .leading, color: .offWhite)
                         .contentShape(Rectangle())
-                        .overlay(Text(game.playerScores.count < gradiants.count ? "+" : "•")
+                        .overlay(
+                            Text(game.playerScores.count <= gradiants.count ? "+" : "•")
                             .font(Font.system(size: 40, weight: .light, design: .rounded))
                             .foregroundColor(Color.offWhite))
                         .onTapGesture {
                             let grad = self.displayInfo.gradients.last!
-                            if self.displayInfo.gradients.count > 1 {
+                            if self.displayInfo.gradients.count > 0 {
                                 self.displayInfo.gradients.removeLast()
                                 self.game.addEmptyPlayer(with: grad)
                                 self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
