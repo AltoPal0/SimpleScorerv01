@@ -60,9 +60,10 @@ struct GameSetupView: View {
                     Rectangle().fill(Color.clear).border(width: 1, edge: .trailing, color: .offWhite)
                         .contentShape(Rectangle())
                         .overlay(
-                            Text(game.playerScores.count == 0 ? "•" : "−")
+                            Text(" −")
                                 .font(Font.system(size: 40, weight: .light, design: .rounded))
                                 .foregroundColor(Color.offWhite)
+                                .opacity(game.playerScores.count == 0 ? 0.5 : 1)
                         )
 //                        .padding(.trailing)
                         .onTapGesture {
@@ -92,12 +93,16 @@ struct GameSetupView: View {
                     Rectangle().fill(Color.clear).border(width: 1, edge: .leading, color: .offWhite)
                         .contentShape(Rectangle())
                         .overlay(
-                            Text(game.playerScores.count <= gradiants.count ? "+" : "•")
+                            Text("+ ")
                             .font(Font.system(size: 40, weight: .light, design: .rounded))
-                            .foregroundColor(Color.offWhite))
+                            .foregroundColor(Color.offWhite)
+                            .opacity(self.displayInfo.gradients.count > 0 ? 1 : 0.5)
+                        )
+                            
                         .onTapGesture {
-                            let grad = self.displayInfo.gradients.last!
+                            
                             if self.displayInfo.gradients.count > 0 {
+                                let grad = self.displayInfo.gradients.last!
                                 self.displayInfo.gradients.removeLast()
                                 self.game.addEmptyPlayer(with: grad)
                                 self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)

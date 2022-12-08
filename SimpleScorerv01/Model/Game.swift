@@ -137,6 +137,26 @@ class Game : ObservableObject {
         
     }
     
+    func allPreviousPlayersSelected() -> Bool {
+        guard var savedPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
+        else {
+            return true
+        }
+        
+        for playerScore in self.playerScores {
+            let name = playerScore.player.name
+            if savedPlayers.contains(name) {
+                savedPlayers.remove(at: savedPlayers.firstIndex(of: name)!)
+            }
+        }
+        
+        if savedPlayers.count == 0 {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     func checkIdenticalName(name : String) -> Bool {
         for playerScore in self.playerScores {
             if name.caseInsensitiveCompare(playerScore.player.name) == .orderedSame {

@@ -20,6 +20,7 @@ struct NameEntryView: View {
     @Binding var isVisible : Bool
     
     @FocusState var focusedCard: UUID?
+    @State var indexOfTopPlayer = 0
     
     var gridItemLayout = [GridItem(.adaptive(minimum: 100, maximum: .infinity), spacing: 10)]
     
@@ -47,7 +48,8 @@ struct NameEntryView: View {
                                 playerScore: playerScore,
                                 index: self.game.playerScores.firstIndex(where: {$0.player.id == playerScore.player.id})!,
                                 focusedCard: $focusedCard,
-                                entryViewVisible: $isVisible
+                                entryViewVisible: $isVisible,
+                                indexOfTopPlayer: $indexOfTopPlayer
                             )
                             .padding(.vertical)
                             .transition(.slide)
@@ -56,7 +58,7 @@ struct NameEntryView: View {
                 }
                 
                 
-                if previousPlayers.count > 0 {
+                if previousPlayers.count > 0 && !game.allPreviousPlayersSelected() {
                     HStack {
                         ZStack{
                             Divider().frame(height: 1).background(Color.gray).padding()
@@ -70,7 +72,7 @@ struct NameEntryView: View {
                     LazyVGrid(columns: gridItemLayout, spacing: 0) {
                         let maxPrevious = min(9,previousPlayers.count)
                         ForEach(0..<maxPrevious, id: \.self) { idx in
-                            previousPlayerView(savedPlayers: $previousPlayers, focusedCard: $focusedCard, name: previousPlayers[idx], entryViewVisible: $isVisible)
+                            previousPlayerView(savedPlayers: $previousPlayers, focusedCard: $focusedCard, name: previousPlayers[idx], entryViewVisible: $isVisible, indexOfTopPlayer: $indexOfTopPlayer)
                                 .padding(.vertical,2)
                         }
                     }
@@ -91,6 +93,8 @@ struct previousPlayerView: View {
     
     @State var uuid : UUID?
     @State var grad : LinearGradient?
+    
+    @Binding var indexOfTopPlayer : Int
     
     @GestureState private var dragOffset = CGSize.zero
     @State private var slideOpen = false
@@ -159,7 +163,13 @@ struct previousPlayerView: View {
                 if slideOpen {
                     self.slideOpen = false
                 } else {
-                    let indexOfPlayer = game.indexOf(playerID: focusedCard.wrappedValue!)!
+                    var indexOfPlayer : Int {
+                        if focusedCard.wrappedValue == nil {
+                            return indexOfTopPlayer
+                        } else {
+                           return game.indexOf(playerID: focusedCard.wrappedValue!)!
+                        }
+                    }
                     
                     withAnimation {
                         if game.listNames().contains(name) {
@@ -181,7 +191,12 @@ struct previousPlayerView: View {
                         DispatchQueue.main.async() {
                             for pScore in game.playerScores {
                                 if self.game.indexOfPlayerWithNoName(playerScore: pScore) == 0 {
-                                    self.focusedCard.wrappedValue = pScore.player.id
+                                    self.indexOfTopPlayer = game.indexOf(playerID: pScore.player.id)!
+                                    
+                                    if focusedCard.wrappedValue != nil || game.allPreviousPlayersSelected() {
+                                        self.focusedCard.wrappedValue = pScore.player.id
+                                    }
+                                    
                                 }
                             }
                         }
@@ -192,6 +207,9 @@ struct previousPlayerView: View {
         }.transition(.scale)
     }
 }
+
+
+
 
 struct EntryView : View {
     
@@ -205,6 +223,7 @@ struct EntryView : View {
     @State var username = ""
     var focusedCard: FocusState<UUID?>.Binding
     @Binding var entryViewVisible : Bool
+    @Binding var indexOfTopPlayer : Int
     
     
     var body: some View {
@@ -253,7 +272,8 @@ struct EntryView : View {
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         .onAppear{
             if self.game.indexOfPlayerWithNoName(playerScore: playerScore) == 0 {
-                focusedCard.wrappedValue = playerScore.player.id
+//                focusedCard.wrappedValue = playerScore.player.id
+                self.indexOfTopPlayer = game.indexOf(playerID: playerScore.player.id)!
             }
         }
         .overlay(
