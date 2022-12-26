@@ -143,7 +143,7 @@ struct GameSetupView: View {
     }
     
     func moveNextScreen() {
-        game.updatePreviousPlayers()
+//        game.updatePreviousPlayers()
         if self.game.nbrPlayersUnanmed() > 0 {
             self.showPlayerEntry = true
         }

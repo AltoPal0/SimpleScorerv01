@@ -32,8 +32,8 @@ struct NameEntryView: View {
         }
     }
     
-    @State var previousPlayers =  UserDefaults.standard.array(forKey: "previousPlayers") as! [String]
-//    @State var previousPlayers = ["Stephane","Sophie","Chloe","Gaby"]
+    @State var previousPlayers =  try! JSONDecoder().decode([SavedPlayer].self, from: UserDefaults.standard.data(forKey: "previousPlayers") ?? JSONEncoder().encode([SavedPlayer]()))
+//    @State var previousPlayers = [SavedPlayer(name : "Stephane",counter : 3),SavedPlayer(name : "Sophie",counter : 1),SavedPlayer(name : "Chloe",counter : 1),SavedPlayer(name : "Gaby",counter : 2)]
     
     var body: some View {
         ZStack {
@@ -69,10 +69,10 @@ struct NameEntryView: View {
                         }
                     }
                     
-                    LazyVGrid(columns: gridItemLayout, spacing: 0) {
+                    LazyVGrid(columns: gridItemLayout,alignment: .center, spacing: 0) {
                         let maxPrevious = min(9,previousPlayers.count)
                         ForEach(0..<maxPrevious, id: \.self) { idx in
-                            previousPlayerView(savedPlayers: $previousPlayers, focusedCard: $focusedCard, name: previousPlayers[idx], entryViewVisible: $isVisible, indexOfTopPlayer: $indexOfTopPlayer)
+                            previousPlayerView(savedPlayers: $previousPlayers, focusedCard: $focusedCard, name: previousPlayers[idx].name, entryViewVisible: $isVisible, indexOfTopPlayer: $indexOfTopPlayer)
                                 .padding(.vertical,2)
                         }
                     }
@@ -85,7 +85,7 @@ struct NameEntryView: View {
 
 struct previousPlayerView: View {
     @EnvironmentObject var game : Game
-    @Binding var savedPlayers : [String]
+    @Binding var savedPlayers : [SavedPlayer]
     
     var focusedCard: FocusState<UUID?>.Binding
     var name : String
@@ -106,10 +106,10 @@ struct previousPlayerView: View {
                 
                 Button(action: {
                     self.slideOpen = false
-                    self.savedPlayers.remove(at: self.savedPlayers.firstIndex(of: name)!)
+                    self.savedPlayers.remove(at: self.savedPlayers.firstIndex(where: {$0.name == name})! )
                     withAnimation {
                        
-                        UserDefaults.standard.set(self.savedPlayers, forKey: "previousPlayers")
+                        UserDefaults.standard.set(try! JSONEncoder().encode(savedPlayers), forKey: "previousPlayers")
                     }
                 }) {
                     Image(systemName: "trash.circle")

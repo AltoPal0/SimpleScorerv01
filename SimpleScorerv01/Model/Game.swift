@@ -7,6 +7,13 @@
 //
 
 import SwiftUI
+import Foundation
+
+struct SavedPlayer: Codable {
+    var name: String
+    var counter : Int
+}
+
 
 class Game : ObservableObject {
     
@@ -109,44 +116,71 @@ class Game : ObservableObject {
         return names
     }
     
-    func updatePreviousPlayers() {
-        
+    func createPreviousPlayers() -> [SavedPlayer] {
         let defaultNames = ["P1","P2","P3","P4","P5","P6","P7","P8","P9","P10","P11","P12","P13","P14","P15","P16","P17","P18","P19","P20"]
-        guard var savedPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
+        
+        var names = [SavedPlayer]()
+        for playerScore in self.playerScores {
+            if playerScore.player.name != Player.defaultName && !defaultNames.contains(playerScore.player.name) {
+                names.append(SavedPlayer(name: playerScore.player.name, counter: 1))
+            }
+        }
+        
+        return names
+    }
+    
+    
+    
+    func updatePreviousPlayers() {
+
+        let defaultNames = ["P1","P2","P3","P4","P5","P6","P7","P8","P9","P10","P11","P12","P13","P14","P15","P16","P17","P18","P19","P20"]
+        
+        guard let fetchedData = UserDefaults.standard.data(forKey: "previousPlayers")
         else {
-            UserDefaults.standard.set(self.listNames(), forKey: "previousPlayers")
+            let savedPlayersData = try! JSONEncoder().encode(self.createPreviousPlayers())
+            UserDefaults.standard.set(savedPlayersData, forKey: "previousPlayers")
             return
         }
+        
+        var savedPlayers = try! JSONDecoder().decode([SavedPlayer].self, from: fetchedData)
+        
+        print("before --- ",savedPlayers.description)
 
         for playerScore in self.playerScores {
             
             let name = playerScore.player.name
             
-            // Verify it's not P1, P2 ...
-            if !defaultNames.contains(name) && name != Player.defaultName {
-                
-                // We do this to keep it in most rescents
-                if savedPlayers.contains(name) {
-                    savedPlayers.remove(at: savedPlayers.firstIndex(of: name)!)
+            if let idx = savedPlayers.firstIndex(where: { $0.name == name }) {
+                savedPlayers[idx].counter += 1
+            } else {
+                // Verify it's not P1, P2 ...
+                if !defaultNames.contains(name) && name != Player.defaultName {
+//                    savedPlayers.append(SavedPlayer(name: name, counter: 1))
+                    savedPlayers.insert(SavedPlayer(name: name, counter: 1), at: savedPlayers.lastIndex(where: { $0.counter > 1 }) ?? 0)
                 }
-                savedPlayers.insert(name, at: 0)
-                
             }
         }
-        UserDefaults.standard.set(savedPlayers.uniqued(), forKey: "previousPlayers")
+        
+        let savedPlayersData = try! JSONEncoder().encode(savedPlayers.sorted(by: {$0.counter > $1.counter}))
+        UserDefaults.standard.set(savedPlayersData, forKey: "previousPlayers")
+        
+        
+        print("after ---",savedPlayers.description)
         
     }
     
     func allPreviousPlayersSelected() -> Bool {
-        guard var savedPlayers = UserDefaults.standard.array(forKey: "previousPlayers") as? [String]
+        guard let fetchedData = UserDefaults.standard.data(forKey: "previousPlayers")
         else {
             return true
         }
         
+        var savedPlayers = try! JSONDecoder().decode([SavedPlayer].self, from: fetchedData)
+        
         for playerScore in self.playerScores {
             let name = playerScore.player.name
-            if savedPlayers.contains(name) {
-                savedPlayers.remove(at: savedPlayers.firstIndex(of: name)!)
+            if let idx = savedPlayers.firstIndex(where: { $0.name == name }) {
+                savedPlayers.remove(at: idx)
             }
         }
         
@@ -451,5 +485,8 @@ extension Sequence where Element: Hashable {
         return filter { set.insert($0).inserted }
     }
 }
+
+
+
 
 
