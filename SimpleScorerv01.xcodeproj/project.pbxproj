@@ -13,6 +13,7 @@
 		D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */; };
 		D79069D7292119CF006D418B /* BlocksGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D6292119CF006D418B /* BlocksGridView.swift */; };
 		D79069D929225131006D418B /* TopSwiperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D829225131006D418B /* TopSwiperView.swift */; };
+		D7A42389297A8FCF000398EB /* ReorderableForEach.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A42388297A8FCF000398EB /* ReorderableForEach.swift */; };
 		D7A8F3422928DE2700E95110 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A8F3412928DE2700E95110 /* NameEntryView.swift */; };
 		D7AE4FF328FF14B700678E10 /* ScoreCorrectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */; };
 		D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */; };
@@ -45,6 +46,7 @@
 		D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDisplayInfo.swift; sourceTree = "<group>"; };
 		D79069D6292119CF006D418B /* BlocksGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocksGridView.swift; sourceTree = "<group>"; };
 		D79069D829225131006D418B /* TopSwiperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSwiperView.swift; sourceTree = "<group>"; };
+		D7A42388297A8FCF000398EB /* ReorderableForEach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReorderableForEach.swift; sourceTree = "<group>"; };
 		D7A8F3412928DE2700E95110 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
 		D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCorrectionView.swift; sourceTree = "<group>"; };
 		D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCardsGridView.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 				E8ADADAC25540B3600874D44 /* AppStoreReviewManager.swift */,
 				D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */,
 				D70F1355248E37F9001D3217 /* SATextField.swift */,
+				D7A42388297A8FCF000398EB /* ReorderableForEach.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -323,6 +326,7 @@
 				D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */,
 				E887519A241F99DB0091853F /* SceneDelegate.swift in Sources */,
 				D79069D929225131006D418B /* TopSwiperView.swift in Sources */,
+				D7A42389297A8FCF000398EB /* ReorderableForEach.swift in Sources */,
 				D7AE4FF328FF14B700678E10 /* ScoreCorrectionView.swift in Sources */,
 				D7F35C3728C8DF830007223D /* BottomButtonsView.swift in Sources */,
 				E887519C241F99DB0091853F /* GameScoreView.swift in Sources */,

@@ -15,6 +15,7 @@ struct ScoreCardView: View {
     
     var playerScore : PlayerScore
     var scrollReaderProxy : ScrollViewProxy
+    var noshadow = true
     @Binding var orderByScores : Bool
     
     @State private var pointsScored = CGFloat(0)
@@ -133,7 +134,7 @@ struct ScoreCardView: View {
                     RoundedRectangle(cornerRadius: 14)
                         .stroke(Color.offWhite, lineWidth: 1)
                 )
-                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+                .shadow(color: Color.black.opacity(noshadow ? 0.0 : 0.3), radius: 10, x: 0, y: 10)
                 .offset(slideOpen ? CGSize(width: -120, height: 0) : dragOffset)
             }
             .gesture(
@@ -149,11 +150,11 @@ struct ScoreCardView: View {
                             }
                     })
             ) //drag
-            .onLongPressGesture {
-                withAnimation {
-                    orderByScores.toggle()
-                }
-            }
+//            .onLongPressGesture {
+//                withAnimation {
+//                    orderByScores.toggle()
+//                }
+//            }
             .onTapGesture {
                 
                 if self.slideOpen {

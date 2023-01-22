@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PlayerScore: Identifiable {
+struct PlayerScore: Identifiable, Equatable {
     
     var id = UUID()
     var player: Player
@@ -41,6 +41,10 @@ struct PlayerScore: Identifiable {
     
     mutating func resetScore () {
         pointsList = []
+    }
+    
+    static func ==(lhs: PlayerScore, rhs: PlayerScore) -> Bool {
+        return lhs.id == rhs.id
     }
     
 }

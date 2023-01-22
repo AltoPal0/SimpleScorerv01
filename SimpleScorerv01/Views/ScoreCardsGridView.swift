@@ -24,14 +24,26 @@ struct ScoreCardsGridView: View {
             ScrollView {
                 ScrollViewReader { value in
                     LazyVGrid(columns: gridItemLayout, spacing: 20) {
-                        ForEach(game.playerScores.sorted(by: { pScore1, pScore2 in
+//                        ForEach(game.playerScores.sorted(by: { pScore1, pScore2 in
+//
+//                            pScore1.totalScore() > pScore2.totalScore() && self.orderedByScores
+//                            ||
+//                            game.indexOf(player: pScore1.player)! < game.indexOf(player: pScore2.player)!
+//
+//                        })) { playerScore in
+//                            ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, orderByScores: $orderedByScores).id(playerScore.id)
+//                        }
+                        
+                        ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
                             
                             pScore1.totalScore() > pScore2.totalScore() && self.orderedByScores
                             ||
                             game.indexOf(player: pScore1.player)! < game.indexOf(player: pScore2.player)!
-
+                            
                         })) { playerScore in
                             ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, orderByScores: $orderedByScores).id(playerScore.id)
+                        } moveAction: { from, to in
+                            game.playerScores.move(fromOffsets: from, toOffset: to)
                         }
                     }
                 }
