@@ -15,7 +15,7 @@ struct ScoreCardView: View {
     
     var playerScore : PlayerScore
     var scrollReaderProxy : ScrollViewProxy
-    var noshadow = true
+    var noshadow = false
     @Binding var orderByScores : Bool
     
     @State private var pointsScored = CGFloat(0)

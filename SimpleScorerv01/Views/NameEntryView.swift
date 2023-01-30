@@ -184,6 +184,7 @@ struct previousPlayerView: View {
                         
                     } else {
                         isAboveTrash = false
+                        trashFeedbackPlayed = false
                         withAnimation{
                             isDragging = true
                             
@@ -193,6 +194,7 @@ struct previousPlayerView: View {
                 })
                     .onEnded({ (value) in
                         startFeedbackPlayed = false
+                        trashFeedbackPlayed = false
                         if isAboveTrash {
                             self.savedPlayers.remove(at: self.savedPlayers.firstIndex(where: {$0.name == name})! )
                             UserDefaults.standard.set(try! JSONEncoder().encode(savedPlayers), forKey: "previousPlayers")
@@ -247,7 +249,7 @@ struct previousPlayerView: View {
                 }
             }
             .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
-        }.transition(.scale)
+        }.transition(.asymmetric(insertion: .opacity, removal: .scale))
     }
     
     
