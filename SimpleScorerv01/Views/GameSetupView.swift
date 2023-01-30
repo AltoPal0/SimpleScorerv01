@@ -157,7 +157,9 @@ struct GameSetupView: View {
 struct GameSetupView_Previews: PreviewProvider {
     static var previews: some View {
         
-        GameSetupView(showPlayerEntry: .constant(false)).environmentObject(Game())
+        GameSetupView(showPlayerEntry: .constant(false))
+            .environmentObject(Game())
+            .environmentObject(GlobalDisplayInfo())
     }
 }
 

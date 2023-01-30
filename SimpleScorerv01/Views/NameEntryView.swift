@@ -21,6 +21,8 @@ struct NameEntryView: View {
     
     @FocusState var focusedCard: UUID?
     @State var indexOfTopPlayer = 0
+    @State var screenSize = CGSize.zero
+    @State var isDragging = false
     
     var gridItemLayout = [GridItem(.adaptive(minimum: 100, maximum: .infinity), spacing: 10)]
     
@@ -33,50 +35,64 @@ struct NameEntryView: View {
     }
     
     @State var previousPlayers =  try! JSONDecoder().decode([SavedPlayer].self, from: UserDefaults.standard.data(forKey: "previousPlayers") ?? JSONEncoder().encode([SavedPlayer]()))
-//    @State var previousPlayers = [SavedPlayer(name : "Stephane",counter : 3),SavedPlayer(name : "Sophie",counter : 1),SavedPlayer(name : "Chloe",counter : 1),SavedPlayer(name : "Gaby",counter : 2)]
+    //    @State var previousPlayers = [SavedPlayer(name : "Stephane",counter : 3),SavedPlayer(name : "Sophie",counter : 1),SavedPlayer(name : "Chloe",counter : 1),SavedPlayer(name : "Gaby",counter : 2)]
     
     var body: some View {
-        ZStack {
-            backColor.edgesIgnoringSafeArea(.all).zIndex(-25)
-            
-            VStack{
+        GeometryReader { geometry in
+            ZStack {
+                backColor.edgesIgnoringSafeArea(.all).zIndex(-25)
                 
-                ZStack{
-                    ForEach(game.playerScores) { playerScore in
-                        if playerScore.player.name == Player.defaultName {
-                            EntryView(
-                                playerScore: playerScore,
-                                index: self.game.playerScores.firstIndex(where: {$0.player.id == playerScore.player.id})!,
-                                focusedCard: $focusedCard,
-                                entryViewVisible: $isVisible,
-                                indexOfTopPlayer: $indexOfTopPlayer
-                            )
-                            .padding(.vertical)
-                            .transition(.slide)
-                        }
-                    }
+                if isDragging {
+                    VStack {
+                        Spacer()
+                        
+                        Image(systemName: "trash.circle")
+                            .font(.system(size: 40, weight: .ultraLight, design: .default))
+                            .foregroundColor(Color.offRed)
+                            .contentShape(Rectangle()).frame(width: 60)
+                            .padding()
+                    }.transition(.opacity)
                 }
                 
-                
-                if previousPlayers.count > 0 && !game.allPreviousPlayersSelected() {
-                    HStack {
-                        ZStack{
-                            Divider().frame(height: 1).background(Color.gray).padding()
-                        }
-                        Text("OR").foregroundColor(.gray)
-                        ZStack {
-                            Divider().frame(height: 1).background(Color.gray).padding()
+                VStack{
+                    
+                    ZStack{
+                        ForEach(game.playerScores) { playerScore in
+                            if playerScore.player.name == Player.defaultName {
+                                EntryView(
+                                    playerScore: playerScore,
+                                    index: self.game.playerScores.firstIndex(where: {$0.player.id == playerScore.player.id})!,
+                                    focusedCard: $focusedCard,
+                                    entryViewVisible: $isVisible,
+                                    indexOfTopPlayer: $indexOfTopPlayer
+                                )
+                                .padding(.vertical)
+                                .transition(.slide)
+                            }
                         }
                     }
                     
-                    LazyVGrid(columns: gridItemLayout,alignment: .center, spacing: 0) {
-                        let maxPrevious = min(9,previousPlayers.count)
-                        ForEach(0..<maxPrevious, id: \.self) { idx in
-                            previousPlayerView(savedPlayers: $previousPlayers, focusedCard: $focusedCard, name: previousPlayers[idx].name, entryViewVisible: $isVisible, indexOfTopPlayer: $indexOfTopPlayer)
-                                .padding(.vertical,2)
+                    
+                    if previousPlayers.count > 0 && !game.allPreviousPlayersSelected() {
+                        HStack {
+                            ZStack{
+                                Divider().frame(height: 1).background(Color.gray).padding()
+                            }
+                            Text("OR").foregroundColor(.gray)
+                            ZStack {
+                                Divider().frame(height: 1).background(Color.gray).padding()
+                            }
                         }
+                        
+                        LazyVGrid(columns: gridItemLayout,alignment: .center, spacing: 0) {
+                            let maxPrevious = min(9,previousPlayers.count)
+                            ForEach(0..<maxPrevious, id: \.self) { idx in
+                                previousPlayerView(savedPlayers: $previousPlayers, focusedCard: $focusedCard, name: previousPlayers[idx].name, entryViewVisible: $isVisible, indexOfTopPlayer: $indexOfTopPlayer, geoProxy: geometry, isDragging: $isDragging)
+                                    .padding(.vertical,2)
+                            }
+                        }
+                        .padding()
                     }
-                    .padding()
                 }
             }
         }
@@ -97,31 +113,24 @@ struct previousPlayerView: View {
     @Binding var indexOfTopPlayer : Int
     
     @GestureState private var dragOffset = CGSize.zero
-    @State private var slideOpen = false
+    @State private var isAboveTrash = false
+    @State var geoProxy : GeometryProxy
+    @Binding var isDragging : Bool
+    
+    @State private var startFeedbackPlayed = false
+    @State private var trashFeedbackPlayed = false
     
     var body: some View {
         ZStack {
-            HStack {
-                Spacer()
-                
-                Button(action: {
-                    self.slideOpen = false
-                    self.savedPlayers.remove(at: self.savedPlayers.firstIndex(where: {$0.name == name})! )
-                    withAnimation {
-                       
-                        UserDefaults.standard.set(try! JSONEncoder().encode(savedPlayers), forKey: "previousPlayers")
-                    }
-                }) {
-                    Image(systemName: "trash.circle")
-                        .font(.system(size: 30, weight: .light, design: .default))
-                        .foregroundColor(Color.offRed)
-                        .contentShape(Rectangle()).frame(width: 60)
-                        .opacity(game.listNames().contains(name) ? 0 : 1)
-                }
-            }
+            
             ZStack {
+                if !isAboveTrash {
+                    LinearGradient(Color(hex: 0x136a8a),Color(hex: 0x267871))
+                } else {
+                    LinearGradient(Color(hex: 0xCB356B),Color(hex: 0xBD3F32))
+                }
                 
-                LinearGradient(Color(hex: 0x136a8a),Color(hex: 0x267871))
+//                LinearGradient(Color(hex: 0x136a8a),Color(hex: 0x267871))
                 
                 Text(name)
                     .opacity(game.listNames().contains(name) ? 0.4 : 1)
@@ -141,71 +150,107 @@ struct previousPlayerView: View {
             .clipShape(Rectangle()).cornerRadius(14)
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.offWhite, lineWidth: 1)
+                    .stroke(isAboveTrash ? Color.offRed : Color.offWhite, lineWidth: isAboveTrash ? 2 : 1)
             )
-            .offset(slideOpen ? CGSize(width: -60, height: 0) : dragOffset)
+            .offset(dragOffset)
             .opacity(game.listNames().contains(name) ? 0.5 : 1)
+//            .scaleEffect(isAboveTrash ? 0.8 : 1, anchor: .bottom)
             .gesture(!game.listNames().contains(name) ?
-                DragGesture(coordinateSpace: .local)
-                    .updating($dragOffset) { value, state, transaction in
-                        
-                        state.width = value.translation.width
+                     DragGesture(coordinateSpace: .global)
+                .updating($dragOffset) { value, state, transaction in
+                    state.height = value.translation.height
+                    state.width = value.translation.width
+                    print("\(value.location.y) - \(geoProxy.size.height)")
+                }
+                .onChanged({ value in
+                    if !startFeedbackPlayed {
+                        let impactMed = UIImpactFeedbackGenerator(style: .soft)
+                        impactMed.impactOccurred()
+                        startFeedbackPlayed = true
                     }
+                    if value.location.x > (geoProxy.size.width / 2) - 35
+                        && value.location.x < (geoProxy.size.width / 2) + 35
+                        && value.location.y > (geoProxy.size.height) - 30 {
+                        if !trashFeedbackPlayed {
+                            let impactMed = UIImpactFeedbackGenerator(style: .soft)
+                            impactMed.impactOccurred()
+                            trashFeedbackPlayed = true
+                        }
+                        isAboveTrash = true
+                        withAnimation {
+                            isDragging = true
+                            
+                        }
+                        
+                    } else {
+                        isAboveTrash = false
+                        withAnimation{
+                            isDragging = true
+                            
+                        }
+                    }
+                    
+                })
                     .onEnded({ (value) in
-                        if value.translation.width < -60 && !slideOpen {
-                            self.slideOpen = true
-                        } else {
-                            self.slideOpen = false
+                        startFeedbackPlayed = false
+                        if isAboveTrash {
+                            self.savedPlayers.remove(at: self.savedPlayers.firstIndex(where: {$0.name == name})! )
+                            UserDefaults.standard.set(try! JSONEncoder().encode(savedPlayers), forKey: "previousPlayers")
+                            
+                        }
+                        withAnimation{
+                            isAboveTrash = false
+                            isDragging = false
                         }
                     }) : nil
             )
             .onTapGesture {
-                if slideOpen {
-                    self.slideOpen = false
-                } else {
-                    var indexOfPlayer : Int {
-                        if focusedCard.wrappedValue == nil {
-                            return indexOfTopPlayer
-                        } else {
-                           return game.indexOf(playerID: focusedCard.wrappedValue!)!
-                        }
-                    }
-                    
-                    withAnimation {
-                        if game.listNames().contains(name) {
-                            let indexOfPlayerUnSelecting = game.playerScores.firstIndex { pScore in
-                                pScore.player.name == name
-                            }
-                            game.playerScores[indexOfPlayerUnSelecting!].player.name = Player.defaultName
-                        } else {
-                            game.playerScores[indexOfPlayer].player.name = name
-                        }
-                    }
-                    
-                    if self.game.nbrPlayersUnanmed() == 0 {
-                        self.entryViewVisible = false
-                        self.game.avatarInitialsForPlayers()
-                        game.updatePreviousPlayers()
-                        AppStoreReviewManager.requestReviewIfAppropriate()
+                
+                var indexOfPlayer : Int {
+                    if focusedCard.wrappedValue == nil {
+                        return indexOfTopPlayer
                     } else {
-                        DispatchQueue.main.async() {
-                            for pScore in game.playerScores {
-                                if self.game.indexOfPlayerWithNoName(playerScore: pScore) == 0 {
-                                    self.indexOfTopPlayer = game.indexOf(playerID: pScore.player.id)!
-                                    
-                                    if focusedCard.wrappedValue != nil || game.allPreviousPlayersSelected() {
-                                        self.focusedCard.wrappedValue = pScore.player.id
-                                    }
-                                    
+                        return game.indexOf(playerID: focusedCard.wrappedValue!)!
+                    }
+                }
+                
+                withAnimation {
+                    if game.listNames().contains(name) {
+                        let indexOfPlayerUnSelecting = game.playerScores.firstIndex { pScore in
+                            pScore.player.name == name
+                        }
+                        game.playerScores[indexOfPlayerUnSelecting!].player.name = Player.defaultName
+                    } else {
+                        game.playerScores[indexOfPlayer].player.name = name
+                    }
+                }
+                
+                if self.game.nbrPlayersUnanmed() == 0 {
+                    self.entryViewVisible = false
+                    self.game.avatarInitialsForPlayers()
+                    game.updatePreviousPlayers()
+                    AppStoreReviewManager.requestReviewIfAppropriate()
+                } else {
+                    DispatchQueue.main.async() {
+                        for pScore in game.playerScores {
+                            if self.game.indexOfPlayerWithNoName(playerScore: pScore) == 0 {
+                                self.indexOfTopPlayer = game.indexOf(playerID: pScore.player.id)!
+                                
+                                if focusedCard.wrappedValue != nil || game.allPreviousPlayersSelected() {
+                                    self.focusedCard.wrappedValue = pScore.player.id
                                 }
+                                
                             }
                         }
                     }
+                    
                 }
             }
             .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         }.transition(.scale)
     }
+    
+    
 }
 
 
@@ -272,7 +317,7 @@ struct EntryView : View {
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         .onAppear{
             if self.game.indexOfPlayerWithNoName(playerScore: playerScore) == 0 {
-//                focusedCard.wrappedValue = playerScore.player.id
+                //                focusedCard.wrappedValue = playerScore.player.id
                 self.indexOfTopPlayer = game.indexOf(playerID: playerScore.player.id)!
             }
         }
