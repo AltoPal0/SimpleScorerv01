@@ -22,7 +22,7 @@ struct ScoreCardsGridView: View {
     var body: some View {
         ZStack{
             ScrollView {
-                PullToRefresh(coordinateSpaceName: "pullToRefresh", orderByScores: orderedByScores) {
+                PullToRefresh(coordinateSpaceName: "pullToRefresh") {
                     withAnimation {
                         self.orderedByScores.toggle()
                     }
@@ -53,7 +53,6 @@ struct ScoreCardsGridView: View {
 struct PullToRefresh: View {
 
     var coordinateSpaceName: String
-    @State var orderByScores : Bool
     var onRefresh: ()->Void
 
     @State var needRefresh: Bool = false
@@ -79,7 +78,7 @@ struct PullToRefresh: View {
                 if needRefresh {
                     ProgressView()
                 } else {
-                    Text("⇣").font(.system(.largeTitle, design: .rounded)).foregroundColor(.gray)
+                    Text("⇡↻⇣").font(.system(.largeTitle, design: .rounded)).foregroundColor(.gray)
                 }
                 Spacer()
             }
