@@ -39,12 +39,7 @@ struct GameScoreView: View {
                 
                 
                 
-                ScoreCardsGridView(orderedByScores: $orderedByScores)
-                    .onLongPressGesture {
-                        withAnimation {
-                            orderedByScores.toggle()
-                        }
-                    }
+                ScoreCardsGridView()
                     .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
                 
                 GameSetupView(showPlayerEntry: self.$showPlayerEntry)

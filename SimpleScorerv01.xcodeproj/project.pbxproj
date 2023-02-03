@@ -8,10 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		03E0751782CCBD235923B648 /* Pods_SimpleScorerv01.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 929B9070BB9E9419D6695C73 /* Pods_SimpleScorerv01.framework */; };
-		D70F1356248E37F9001D3217 /* SATextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70F1355248E37F9001D3217 /* SATextField.swift */; };
 		D72849FB28EC999900D564CE /* AllScoresView_new.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72849FA28EC999900D564CE /* AllScoresView_new.swift */; };
 		D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */; };
-		D79069D7292119CF006D418B /* BlocksGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D6292119CF006D418B /* BlocksGridView.swift */; };
 		D79069D929225131006D418B /* TopSwiperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D829225131006D418B /* TopSwiperView.swift */; };
 		D7A42389297A8FCF000398EB /* ReorderableForEach.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A42388297A8FCF000398EB /* ReorderableForEach.swift */; };
 		D7A8F3422928DE2700E95110 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A8F3412928DE2700E95110 /* NameEntryView.swift */; };
@@ -41,10 +39,8 @@
 /* Begin PBXFileReference section */
 		929B9070BB9E9419D6695C73 /* Pods_SimpleScorerv01.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleScorerv01.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1C66F21B8F1DF96253304AA /* Pods-SimpleScorerv01.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleScorerv01.debug.xcconfig"; path = "Target Support Files/Pods-SimpleScorerv01/Pods-SimpleScorerv01.debug.xcconfig"; sourceTree = "<group>"; };
-		D70F1355248E37F9001D3217 /* SATextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SATextField.swift; sourceTree = "<group>"; };
 		D72849FA28EC999900D564CE /* AllScoresView_new.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView_new.swift; sourceTree = "<group>"; };
 		D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDisplayInfo.swift; sourceTree = "<group>"; };
-		D79069D6292119CF006D418B /* BlocksGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocksGridView.swift; sourceTree = "<group>"; };
 		D79069D829225131006D418B /* TopSwiperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSwiperView.swift; sourceTree = "<group>"; };
 		D7A42388297A8FCF000398EB /* ReorderableForEach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReorderableForEach.swift; sourceTree = "<group>"; };
 		D7A8F3412928DE2700E95110 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
@@ -108,7 +104,6 @@
 			children = (
 				E8ADADAC25540B3600874D44 /* AppStoreReviewManager.swift */,
 				D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */,
-				D70F1355248E37F9001D3217 /* SATextField.swift */,
 				D7A42388297A8FCF000398EB /* ReorderableForEach.swift */,
 			);
 			path = Tools;
@@ -191,7 +186,6 @@
 				D7F35C3228C88FFF0007223D /* ScoreCardsGridView.swift */,
 				E897D6C52449B1C900FB214D /* ScoreCardView.swift */,
 				D7AE4FF228FF14B700678E10 /* ScoreCorrectionView.swift */,
-				D79069D6292119CF006D418B /* BlocksGridView.swift */,
 				D79069D829225131006D418B /* TopSwiperView.swift */,
 				D7A8F3412928DE2700E95110 /* NameEntryView.swift */,
 			);
@@ -311,7 +305,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E8245A6C24600FE40057FB45 /* CircleImagePickerView.swift in Sources */,
-				D79069D7292119CF006D418B /* BlocksGridView.swift in Sources */,
 				E88751B1241F9B9A0091853F /* Player.swift in Sources */,
 				D7A8F3422928DE2700E95110 /* NameEntryView.swift in Sources */,
 				E88C328B25488751000EE7AB /* KeyPadView.swift in Sources */,
@@ -319,7 +312,6 @@
 				D72849FB28EC999900D564CE /* AllScoresView_new.swift in Sources */,
 				D7F35C3328C88FFF0007223D /* ScoreCardsGridView.swift in Sources */,
 				E8F648382464014E00F59B7C /* GameSetupView.swift in Sources */,
-				D70F1356248E37F9001D3217 /* SATextField.swift in Sources */,
 				E8875198241F99DB0091853F /* AppDelegate.swift in Sources */,
 				E8B42DA52456DFBB001AE7C2 /* Constants.swift in Sources */,
 				E8ADADAD25540B3600874D44 /* AppStoreReviewManager.swift in Sources */,
@@ -475,18 +467,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleScorerv01/Preview Content\"";
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.StephDev.SimpleScorer;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StephDev.Score2000;
 				PRODUCT_NAME = SimpleScorer;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -501,18 +494,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleScorerv01/Preview Content\"";
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.StephDev.SimpleScorer;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.StephDev.Score2000;
 				PRODUCT_NAME = SimpleScorer;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;

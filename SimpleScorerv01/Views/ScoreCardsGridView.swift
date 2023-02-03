@@ -10,29 +10,25 @@ import SwiftUI
 
 struct ScoreCardsGridView: View {
     
-//    let screenWidth : CGFloat
+    //    let screenWidth : CGFloat
     
     @EnvironmentObject var game : Game
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
-    @Binding var orderedByScores : Bool
+    @State var orderedByScores = false
     
     var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: .infinity), spacing: 20)]
     
     var body: some View {
         ZStack{
             ScrollView {
+                PullToRefresh(coordinateSpaceName: "pullToRefresh", orderByScores: orderedByScores) {
+                    withAnimation {
+                        self.orderedByScores.toggle()
+                    }
+                }
                 ScrollViewReader { value in
                     LazyVGrid(columns: gridItemLayout, spacing: 20) {
-//                        ForEach(game.playerScores.sorted(by: { pScore1, pScore2 in
-//
-//                            pScore1.totalScore() > pScore2.totalScore() && self.orderedByScores
-//                            ||
-//                            game.indexOf(player: pScore1.player)! < game.indexOf(player: pScore2.player)!
-//
-//                        })) { playerScore in
-//                            ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, orderByScores: $orderedByScores).id(playerScore.id)
-//                        }
                         
                         ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
                             
@@ -49,23 +45,56 @@ struct ScoreCardsGridView: View {
                 }
                 .padding(20)
                 
-            }
-//            .refreshable {
-//                withAnimation {
-//                    self.orderedByScores.toggle()
-//                }
-//            }
+            }.coordinateSpace(name: "pullToRefresh")
         }
+    }
+}
+
+struct PullToRefresh: View {
+
+    var coordinateSpaceName: String
+    @State var orderByScores : Bool
+    var onRefresh: ()->Void
+
+    @State var needRefresh: Bool = false
+
+    var body: some View {
+        GeometryReader { geo in
+            if (geo.frame(in: .named(coordinateSpaceName)).midY > 50) {
+                Spacer()
+                    .onAppear {
+                        needRefresh = true
+                    }
+            } else if (geo.frame(in: .named(coordinateSpaceName)).maxY < 10) {
+                Spacer()
+                    .onAppear {
+                        if needRefresh {
+                            needRefresh = false
+                            onRefresh()
+                        }
+                    }
+            }
+            HStack {
+                Spacer()
+                if needRefresh {
+                    ProgressView()
+                } else {
+                    Text("⇣").font(.system(.largeTitle, design: .rounded)).foregroundColor(.gray)
+                }
+                Spacer()
+            }
+        }.padding(.top, -50)
     }
 }
 
 
 
+
 struct ScoreCardsGridView_Previews: PreviewProvider {
     static var previews: some View {
-        ScoreCardsGridView(orderedByScores: .constant(false))
+        ScoreCardsGridView()
             .environmentObject(GlobalDisplayInfo())
             .environmentObject(Game(withTestPlayers: ()))
-//            .previewInterfaceOrientation(.landscapeLeft)
+        //            .previewInterfaceOrientation(.landscapeLeft)
     }
 }
