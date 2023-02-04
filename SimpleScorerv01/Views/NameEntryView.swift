@@ -64,14 +64,14 @@ struct NameEntryView: View {
                                     index: self.game.playerScores.firstIndex(where: {$0.player.id == playerScore.player.id})!,
                                     focusedCard: $focusedCard,
                                     entryViewVisible: $isVisible,
-                                    indexOfTopPlayer: $indexOfTopPlayer
+                                    indexOfTopPlayer: $indexOfTopPlayer,
+                                    numberOfPreviousPlayers: previousPlayers.count
                                 )
                                 .padding(.vertical)
                                 .transition(.slide)
                             }
                         }
                     }
-                    
                     
                     if previousPlayers.count > 0 && !game.allPreviousPlayersSelected() {
                         HStack {
@@ -255,9 +255,6 @@ struct previousPlayerView: View {
     
 }
 
-
-
-
 struct EntryView : View {
     
     @EnvironmentObject var game : Game
@@ -271,6 +268,9 @@ struct EntryView : View {
     var focusedCard: FocusState<UUID?>.Binding
     @Binding var entryViewVisible : Bool
     @Binding var indexOfTopPlayer : Int
+    
+    //Hack
+    @State var numberOfPreviousPlayers : Int
     
     
     var body: some View {
@@ -319,7 +319,9 @@ struct EntryView : View {
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         .onAppear{
             if self.game.indexOfPlayerWithNoName(playerScore: playerScore) == 0 {
-                //                focusedCard.wrappedValue = playerScore.player.id
+                if numberOfPreviousPlayers == 0 {
+                    focusedCard.wrappedValue = playerScore.player.id
+                }
                 self.indexOfTopPlayer = game.indexOf(playerID: playerScore.player.id)!
             }
         }
