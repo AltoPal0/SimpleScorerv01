@@ -56,6 +56,7 @@ struct PullToRefresh: View {
     var onRefresh: ()->Void
 
     @State var needRefresh: Bool = false
+    @State private var degrees = 0.0
 
     var body: some View {
         GeometryReader { geo in
@@ -63,6 +64,9 @@ struct PullToRefresh: View {
                 Spacer()
                     .onAppear {
                         needRefresh = true
+                        withAnimation{
+                            degrees = degrees + 180
+                        }
                     }
             } else if (geo.frame(in: .named(coordinateSpaceName)).maxY < 10) {
                 Spacer()
@@ -76,7 +80,9 @@ struct PullToRefresh: View {
             HStack {
                 Spacer()
                 if needRefresh {
-                    ProgressView()
+//                    ProgressView()
+                    Text("⇡↻⇣").font(.system(.largeTitle, design: .rounded)).foregroundColor(.gray)
+                        .rotationEffect(.degrees(degrees))
                 } else {
                     Text("⇡↻⇣").font(.system(.largeTitle, design: .rounded)).foregroundColor(.gray)
                 }
