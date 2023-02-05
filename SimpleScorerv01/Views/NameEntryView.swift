@@ -59,7 +59,7 @@ struct NameEntryView: View {
                     ZStack{
                         ForEach(game.playerScores) { playerScore in
                             if playerScore.player.name == Player.defaultName {
-                                EntryView(
+                                NameCardView(
                                     playerScore: playerScore,
                                     index: self.game.playerScores.firstIndex(where: {$0.player.id == playerScore.player.id})!,
                                     focusedCard: $focusedCard,
@@ -255,7 +255,7 @@ struct previousPlayerView: View {
     
 }
 
-struct EntryView : View {
+struct NameCardView : View {
     
     @EnvironmentObject var game : Game
     

@@ -16,7 +16,6 @@ struct ScoreCardView: View {
     var playerScore : PlayerScore
     var scrollReaderProxy : ScrollViewProxy
     var noshadow = false
-    @Binding var orderByScores : Bool
     
     @State private var pointsScored = CGFloat(0)
     @State private var sign = CGFloat(1)
@@ -371,7 +370,7 @@ struct ScoreCardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ScrollViewReader { proxy in
-                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy, orderByScores: .constant(false))
+                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy)
     //                    .previewLayout(.sizeThatFits)
                         .padding(.horizontal, 15)
                         .padding(.bottom,15)
