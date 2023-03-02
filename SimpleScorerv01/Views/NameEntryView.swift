@@ -21,7 +21,6 @@ struct NameEntryView: View {
     
     @FocusState var focusedCard: UUID?
     @State var indexOfTopPlayer = 0
-    @State var screenSize = CGSize.zero
     @State var isDragging = false
     
     var gridItemLayout = [GridItem(.adaptive(minimum: 100, maximum: .infinity), spacing: 10)]

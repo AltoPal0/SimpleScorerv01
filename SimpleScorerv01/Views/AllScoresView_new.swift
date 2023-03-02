@@ -14,9 +14,8 @@ enum ScoreEditMode {
     addition
 }
 
-var columnWidth: CGFloat = 80
+var columnWidth: CGFloat = 60
 var rowHeight: CGFloat = 80
-
 
 struct AllScoresView_new: View {
     
@@ -36,7 +35,7 @@ struct AllScoresView_new: View {
                         //background colors
                         HStack {
                             ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                ColumnBack(player: game.playerScores[idx].player).padding(.horizontal,2)
+                                ColumnBack(player: game.playerScores[idx].player, width: columnWidth).padding(.horizontal,2)
                             }
                         }
                         .frame(maxHeight: scrollViewContentSize.height + 180)
@@ -59,7 +58,7 @@ struct AllScoresView_new: View {
                             ScrollView([.vertical]) {
                                 HStack{
                                     ForEach(0..<game.playerScores.count, id: \.self) { playerIndex in
-                                        PointsRows(maxNbrOfRounds: $game.maxNbrOfRounds, pointList: game.playerScores[playerIndex].pointsList, playerIndex: playerIndex, showKeypad: $showKeypad, scoreEdit: $scoreEdit)
+                                        PointsRows(maxNbrOfRounds: $game.maxNbrOfRounds, pointList: game.playerScores[playerIndex].pointsList, playerIndex: playerIndex, showKeypad: $showKeypad, scoreEdit: $scoreEdit, width: columnWidth)
                                             .padding(.horizontal,2)
                                         
                                     }.background(
@@ -77,7 +76,7 @@ struct AllScoresView_new: View {
                             // Totals
                             HStack {
                                 ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                    TotalRows(totalScore: game.playerScores[idx].totalScore(), playerIndex: idx, showKeyPad: $showKeypad, scoreEdit: $scoreEdit)
+                                    TotalRows(totalScore: game.playerScores[idx].totalScore(), playerIndex: idx, showKeyPad: $showKeypad, scoreEdit: $scoreEdit, width: columnWidth)
                                         .frame(maxHeight: rowHeight)
                                         .padding(.horizontal,2)
                                 }
@@ -85,7 +84,7 @@ struct AllScoresView_new: View {
                         }
                     }
                     .frame(minWidth: geometry.size.width)
-                    .padding(.vertical, 25)
+                    .padding(.bottom, 25)
                 }
             }
             if showKeypad {
@@ -105,7 +104,7 @@ struct AllScoresView_new: View {
 
 struct ColumnBack: View {
     var player : Player
-    
+    var width : CGFloat
     var body: some View {
         ZStack {
             player.colorGradient.frame(width: columnWidth)
@@ -136,6 +135,8 @@ struct TotalRows: View {
     var playerIndex : Int
     @Binding var showKeyPad : Bool
     @Binding var scoreEdit : (playerIdx: Int, round: Int, mode: ScoreEditMode)
+    
+    var width : CGFloat
     
     var body: some View {
         LazyHGrid(
@@ -170,6 +171,8 @@ struct PointsRows: View {
     @Binding var showKeypad : Bool
     @Binding var scoreEdit : (playerIdx: Int, round: Int, mode: ScoreEditMode)
     
+    var width : CGFloat
+    
     var body: some View {
         LazyHGrid(
             rows: Array(
@@ -184,7 +187,7 @@ struct PointsRows: View {
                     .frame(width: columnWidth)
                     .padding(.vertical, 0)
                     .overlay(
-                        Cell(playerIndex: playerIndex, round: round, showKeypad: $showKeypad, scoreEdit: $scoreEdit)
+                        Cell(playerIndex: playerIndex, round: round, showKeypad: $showKeypad, scoreEdit: $scoreEdit, width: columnWidth)
                             .foregroundColor(Color.white)
                     )
             }
@@ -203,6 +206,8 @@ struct Cell: View {
     @Binding var showKeypad : Bool
     @Binding var scoreEdit : (playerIdx: Int, round: Int, mode: ScoreEditMode)
     
+    var width : CGFloat?
+    
     var roundExists : Bool {
         if game.playerScores[optional: playerIndex]?.pointsList[optional: round] != nil  {
             return true
@@ -214,9 +219,12 @@ struct Cell: View {
     var body: some View {
         
         Text(roundExists ? game.playerScores[playerIndex].pointsList[round].score.description : "•")
+            .contentShape(Rectangle()).frame(width: .infinity)
             .onTapGesture(count: 1, perform: {
                 if roundExists {
-                    self.showingActionSheet = true
+                    withAnimation{
+                        self.showingActionSheet = true
+                    }
                 } else {
                     scoreEdit.playerIdx = playerIndex
                     scoreEdit.mode = .addition
@@ -246,6 +254,7 @@ struct Cell: View {
                     .cancel()
                 ])
             }
+            
     }
 }
 

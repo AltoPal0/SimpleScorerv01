@@ -17,6 +17,9 @@ struct ScoreCardView: View {
     var scrollReaderProxy : ScrollViewProxy
     var noshadow = false
     
+    @Binding var indexForEditView : Int
+    @Binding var displayEditView : Bool
+    
     @State private var pointsScored = CGFloat(0)
     @State private var sign = CGFloat(1)
     @State private var scoreEditing = false
@@ -65,10 +68,12 @@ struct ScoreCardView: View {
                     }
                     
                     Button(action: {
-                        self.focusedField = .name
-                        self.nameEditing = true
+                        self.indexForEditView = game.indexOf(player: self.playerScore.player)!
+                        withAnimation {
+                            self.displayEditView = true
+                        }
                         self.slideOpen = false
-                        self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
+//                        self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                     }) {
                         Image(systemName: "pencil.circle")
                             .font(.system(size: 45, weight: .light, design: .default))
@@ -148,12 +153,7 @@ struct ScoreCardView: View {
                                 self.slideOpen = false
                             }
                     })
-            ) //drag
-//            .onLongPressGesture {
-//                withAnimation {
-//                    orderByScores.toggle()
-//                }
-//            }
+            ) 
             .onTapGesture {
                 
                 if self.slideOpen {
@@ -177,11 +177,6 @@ struct ScoreCardView: View {
                     }
                 }
             } //tap
-            
-        
-        
-            
-        
     }
     
     var playerNameView: some View {
@@ -370,7 +365,7 @@ struct ScoreCardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ScrollViewReader { proxy in
-                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy)
+                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy, indexForEditView: .constant(0), displayEditView: .constant(false))
     //                    .previewLayout(.sizeThatFits)
                         .padding(.horizontal, 15)
                         .padding(.bottom,15)

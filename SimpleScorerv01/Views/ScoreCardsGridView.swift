@@ -24,6 +24,9 @@ struct ScoreCardsGridView: View {
     
     @State var orderedBy = OrderBy.players
     
+    @State var displayEditView = false
+    @State var idxForEditView = 0
+    
     var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: .infinity), spacing: 20)]
     
     var body: some View {
@@ -50,7 +53,7 @@ struct ScoreCardsGridView: View {
                             game.indexOf(player: pScore1.player)! < game.indexOf(player: pScore2.player)!
                             
                         })) { playerScore in
-                            ScoreCardView(playerScore:playerScore, scrollReaderProxy: value).id(playerScore.id)
+                            ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, indexForEditView: $idxForEditView, displayEditView: $displayEditView ).id(playerScore.id)
                         } moveAction: { from, to in
                             game.playerScores.move(fromOffsets: from, toOffset: to)
                         }
@@ -59,7 +62,16 @@ struct ScoreCardsGridView: View {
                 .padding(20)
                 
             }.coordinateSpace(name: "pullToRefresh")
+            
+//            if displayEditView {
+//                EditView(playerIdx: idxForEditView, displayEditView: $displayEditView)
+//                    .transition(.move(edge: .leading))
+//                    .zIndex(50)
+//            }
         }
+        .sheet(isPresented: $displayEditView) {
+                    EditView(playerIdx: idxForEditView, displayEditView: $displayEditView)
+                }
     }
 }
 
