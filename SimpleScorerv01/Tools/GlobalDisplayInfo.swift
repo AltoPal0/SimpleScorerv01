@@ -14,6 +14,7 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var indexOFTextfieldFocused : Int = 1000
     @Published var gradients = gradiants.shuffled()
     @Published var scoreCardSize = CardSize.compact
+    @Published var showBottomButtons = true
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         

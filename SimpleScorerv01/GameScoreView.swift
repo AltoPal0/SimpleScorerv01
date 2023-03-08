@@ -47,8 +47,9 @@ struct GameScoreView: View {
                 
                 
                 TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry, orderByScores: $orderedByScores)
-                
-                BottomButtonsView(showPlayerEntry: $showPlayerEntry)
+                if self.displayInfo.showBottomButtons {
+                    BottomButtonsView(showPlayerEntry: $showPlayerEntry)
+                }
                 
                 if self.showPlayerEntry {
                     NameEntryView(isVisible: self.$showPlayerEntry)

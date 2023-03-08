@@ -60,6 +60,7 @@ struct ScoreCardView: View {
                             self.game.removePlayer(player: self.playerScore.player)
                             self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                         }
+                        self.displayInfo.showBottomButtons = true
                     }) {
                         Image(systemName: "trash.circle")
                             .font(.system(size: 45, weight: .light, design: .default))
@@ -73,9 +74,10 @@ struct ScoreCardView: View {
                             self.displayEditView = true
                         }
                         self.slideOpen = false
+                        self.displayInfo.showBottomButtons = true
 //                        self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                     }) {
-                        Image(systemName: "pencil.circle")
+                        Image(systemName: "square.and.pencil.circle")
                             .font(.system(size: 45, weight: .light, design: .default))
                             .foregroundColor(Color.gray)
                             .contentShape(Rectangle()).frame(height: self.frameHeight*2/3)
@@ -149,18 +151,20 @@ struct ScoreCardView: View {
                     .onEnded({ (value) in
                             if value.translation.width < -100 && !self.scoreEditing && !slideOpen {
                                 self.slideOpen = true
+                                self.displayInfo.showBottomButtons = false
                             } else {
                                 self.slideOpen = false
+                                self.displayInfo.showBottomButtons = true
                             }
                     })
             ) 
             .onTapGesture {
                 
                 if self.slideOpen {
-                   
                     withAnimation(.easeInOut(duration: 0.25)) {
                         self.slideOpen = false
                     }
+                    displayInfo.showBottomButtons = true
                 }
                 else {
                     self.scoreEditing = true
@@ -173,6 +177,12 @@ struct ScoreCardView: View {
                             withAnimation {
                                 self.scrollReaderProxy.scrollTo(self.playerScore.id)
                             }
+                            if self.showKeyPad == true {
+                                self.displayInfo.showBottomButtons = false
+                            } else {
+                                self.displayInfo.showBottomButtons = true
+                            }
+                            
                         }
                     }
                 }
@@ -260,6 +270,7 @@ struct ScoreCardView: View {
                     }
                     .frame(minWidth:20, maxWidth:20, maxHeight: .infinity)
                     .onTapGesture {
+                        self.displayInfo.showBottomButtons = true
                         self.pointsScored = 0
                         self.sign = 1
                         self.scoreEditing = false
@@ -288,6 +299,7 @@ struct ScoreCardView: View {
                             .overlay(Image(systemName: "checkmark").foregroundColor(Color.white))
                             .frame(minWidth:70, maxWidth:70, maxHeight: .infinity)
                             .onTapGesture {
+                                self.displayInfo.showBottomButtons = true
                                 self.game.addPointsFor(player: self.playerScore.player, points: Int(String(format: "%.0f",abs(self.pointsScored) * sign))!)
                                 self.pointsScored = 0
                                 self.sign = 1
