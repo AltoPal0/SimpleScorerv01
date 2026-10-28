@@ -18,10 +18,6 @@ struct HistoryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("HISTORY")
-                .font(Font.system(size: 15, weight: .light, design: .rounded))
-                .foregroundColor(.gray)
-                .padding([.horizontal, .top], 20)
 
             if records.isEmpty {
                 Spacer()
