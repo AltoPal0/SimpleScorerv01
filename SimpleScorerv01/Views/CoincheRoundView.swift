@@ -22,9 +22,6 @@ struct CoincheRoundView: View {
 
     // Card points of the taking team, typed on the keypad
     @State private var pointsEntered = false
-    @State private var showKeypad = false
-    @State private var typedPoints = CGFloat(0)
-    @State private var sign = CGFloat(1)
 
     // The deal with the house rules of the players
     var fullDeal : CoincheDeal {
@@ -74,48 +71,21 @@ struct CoincheRoundView: View {
             }
 
             RoundSection(title: "Points of \(game.coincheTeamName(deal.takerTeam))") {
-                HStack {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(pointsText)
-                            .font(Font.system(size: 50, weight: .bold, design: .rounded))
-                            .foregroundColor(.gray)
-                        if pointsEntered && !deal.takerIsCapot {
-                            Text("defense \(162 - deal.takerPoints)")
-                                .font(Font.system(size: 15, weight: .light, design: .rounded))
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    Spacer()
-                    ChoiceChip(label: showKeypad ? "Done" : "Add score", isSelected: !showKeypad) {
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            showKeypad.toggle()
-                        }
-                    }
-                }
-
-                if showKeypad {
-                    KeyPadView(valueDisplayed: Binding(
-                        get: { typedPoints },
-                        set: { value in
-                            typedPoints = min(value, 162)
-                            deal.takerPoints = Int(typedPoints)
-                            deal.takerIsCapot = false
-                            pointsEntered = true
-                        }),
-                               sign: $sign,
-                               extraKey: "Capot",
-                               onExtraKey: {
-                        typedPoints = 0
-                        deal.takerPoints = 162
-                        deal.takerIsCapot = true
-                        pointsEntered = true
-                    })
-                    .frame(height: 200)
-                    .cornerRadius(14)
-                    .transition(.opacity)
+                PointsKeypadEntry(text: pointsText,
+                                  caption: pointsEntered && !deal.takerIsCapot ? "defense \(162 - deal.takerPoints)" : nil,
+                                  maximum: 162,
+                                  extraKey: "Capot",
+                                  onExtraKey: {
+                    deal.takerPoints = 162
+                    deal.takerIsCapot = true
+                    pointsEntered = true
+                }) { points in
+                    deal.takerPoints = points
+                    deal.takerIsCapot = false
+                    pointsEntered = true
                 }
             }
-
+            
             if game.options.coincheBelote {
                 RoundSection(title: "Belote · Rebelote") {
                     ChoiceChips(items: [-1, 0, 1], selection: $belote, minimumWidth: 100) { $0 < 0 ? "—" : game.coincheTeamName($0) }

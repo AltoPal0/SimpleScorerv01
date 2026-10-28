@@ -73,6 +73,20 @@ struct GameScoreView: View {
             }
             
         }
+        .alert("\(self.displayInfo.gameToRequest ?? "") isn't in \(AppConfig.appName) yet",
+               isPresented: Binding(
+                get: { self.displayInfo.gameToRequest != nil },
+                set: { if !$0 { self.displayInfo.gameToRequest = nil } }),
+               presenting: self.displayInfo.gameToRequest) { name in
+            Button("Ask for it") {
+                Task { await GameRequests.request(game: name) }
+            }
+            Button("Not now", role: .cancel) {
+                GameRequests.markOffered(name)
+            }
+        } message: { _ in
+            Text("Ask for its own score sheet and get a notification when it's ready. Meanwhile, scores are entered freely.")
+        }
         .sheet(isPresented: Binding(
             get: { self.displayInfo.roundEntryPlayerID != nil },
             set: { if !$0 { self.displayInfo.roundEntryPlayerID = nil } })) {

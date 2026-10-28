@@ -59,6 +59,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 RecordedPlayer(name: "Marc", initials: "M", gradientIndex: 9, points: [], total: 102),
                 RecordedPlayer(name: "Eva", initials: "Ev", gradientIndex: 17, points: [], total: 77)])
             displayInfo.screenDisplayed = .history
+            // -demoShareImage writes the shared image of the last game in the temporary folder
+            if arguments.contains("-demoShareImage"),
+               let record = try? store.container.mainContext.fetch(FetchDescriptor<GameRecord>(sortBy: [SortDescriptor(\.date, order: .reverse)])).first,
+               let data = ShareCardView.image(for: record)?.pngData() {
+                try? data.write(to: FileManager.default.temporaryDirectory.appendingPathComponent("share.png"))
+                print(ShareCardView.message(for: record))
+            }
         }
         // -demoRecord scores a point through the real game, which saves it in the history
         if arguments.contains("-demoRecord"), let player = game.playerScores.first?.player {

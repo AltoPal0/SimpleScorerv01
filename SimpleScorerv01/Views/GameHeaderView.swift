@@ -71,7 +71,7 @@ struct GameOptionsView: View {
         case .coinche:
             let options = game.options
             var rules = options.coincheScoring == .announced
-                ? "A contract made scores the contract announced, × 2 when coinchée, × 4 when surcoinchée. A contract down gives 160 to the other team, × 2 or × 4 as well."
+                ? "A contract made scores the contract announced, × 2 when coinchée, × 4 when surcoinchée. A contract down gives 160 to the other team, 250 for a capot, × 2 or × 4 as well."
                 : "A contract made scores the contract plus the card points rounded to the ten. Coinchée made : 160 + contract × 2 or × 4. A contract down gives 160 + contract to the other team."
             rules += options.coincheDefenseScores ? " The defense scores its card points." : " Only the taking team scores."
             rules += options.coincheBelote ? " Belote +20 to its holder." : " Belote is not counted."

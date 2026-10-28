@@ -13,6 +13,7 @@ struct GameEntryView: View {
 
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
 
     @State private var gameName = ""
     @State private var recentGames = RecentGames.load()
@@ -167,8 +168,12 @@ struct GameEntryView: View {
     // An empty name plays with the universal score entry
     func choose(name: String) {
         fieldFocused = false
+        let rules = GameLibrary.rules(named: name)
         withAnimation {
-            game.choose(rules: GameLibrary.rules(named: name))
+            game.choose(rules: rules)
+        }
+        if GameRequests.shouldOffer(rules) {
+            displayInfo.gameToRequest = rules.name
         }
     }
 }
@@ -273,5 +278,6 @@ struct GameEntryView_Previews: PreviewProvider {
     static var previews: some View {
         GameEntryView()
             .environmentObject(Game(withTestPlayers: ()))
+            .environmentObject(GlobalDisplayInfo())
     }
 }

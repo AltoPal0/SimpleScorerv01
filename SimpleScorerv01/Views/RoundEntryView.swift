@@ -325,37 +325,58 @@ struct ChoiceList<Item: Hashable>: View {
     }
 }
 
-// A value set with − / + and a slider, for card points
-struct PointsDial: View {
-    @Binding var value : Int
-    var range : ClosedRange<Int>
-    var caption : String
-
+// Card points typed on the keypad of the cards, behind an "Add score" button
+struct PointsKeypadEntry: View {
+    var text : String
+    var caption : String?
+    var maximum : Int
+    // Replaces the ＋∕− key, e.g. the capot of Coinche
+    var extraKey : String = ""
+    var onExtraKey : () -> Void = {}
+    var onValue : (Int) -> Void
+    
+    @State private var showKeypad = false
+    @State private var typedPoints = CGFloat(0)
+    @State private var sign = CGFloat(1)
+    
     var body: some View {
-        VStack(spacing: 6) {
-            HStack {
-                ChoiceChip(label: "−", isSelected: false) {
-                    value = max(range.lowerBound, value - 1)
-                }
-                Spacer()
-                VStack(spacing: 0) {
-                    Text("\(value)")
-                        .font(Font.system(size: 50, weight: .bold, design: .rounded))
-                        .foregroundColor(.gray)
+        HStack {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(text)
+                    .font(Font.system(size: 50, weight: .bold, design: .rounded))
+                    .foregroundColor(.gray)
+                if let caption = caption {
                     Text(caption)
                         .font(Font.system(size: 15, weight: .light, design: .rounded))
                         .foregroundColor(.gray)
                 }
-                Spacer()
-                ChoiceChip(label: "+", isSelected: false) {
-                    value = min(range.upperBound, value + 1)
+            }
+            Spacer()
+            ChoiceChip(label: showKeypad ? "Done" : "Add score", isSelected: !showKeypad) {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showKeypad.toggle()
                 }
             }
-            Slider(value: Binding(
-                get: { Double(value) },
-                set: { value = Int($0.rounded()) }),
-                   in: Double(range.lowerBound)...Double(range.upperBound))
-            .tint(Color(hex: 0xf5af19))
+        }
+        
+        if showKeypad {
+            KeyPadView(valueDisplayed: Binding(
+                get: { typedPoints },
+                set: { value in
+                    typedPoints = min(value, CGFloat(maximum))
+                    onValue(Int(typedPoints))
+                }),
+                       sign: $sign,
+                       extraKey: extraKey,
+                       onExtraKey: {
+                // No extra key for this game : the key stays blank and inactive
+                guard !extraKey.isEmpty else { return }
+                typedPoints = 0
+                onExtraKey()
+            })
+            .frame(height: 200)
+            .cornerRadius(14)
+            .transition(.opacity)
         }
     }
 }

@@ -66,6 +66,14 @@ struct GameRecordCard: View {
                     .font(Font.system(size: 15, weight: .light, design: .rounded))
                     .foregroundColor(.gray)
                     .lineLimit(1)
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 20, weight: .light))
+                    .foregroundColor(.gray)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        ShareSheet.share(record: record)
+                    }
             }
 
             // Players ranked, the winner first with the crown

@@ -77,7 +77,8 @@ struct CoincheDeal {
             taker = contract * multiplier
             defense = defenseScores ? roundedDefensePoints : 0
         case (.announced, false):
-            defense = 160 * multiplier
+            // A capot down costs its stake of 250
+            defense = (contract == Coinche.capot ? Coinche.capot : 160) * multiplier
         case (.pointsMade, true) where multiplier > 1:
             taker = (takerIsCapot ? Coinche.capot : 160) + contract * multiplier
         case (.pointsMade, true):

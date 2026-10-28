@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6E90A700E6D541EE923765DF /* GameRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE7EAAE233A6BDAFE64E89A /* GameRequests.swift */; };
+		F4D6583E458D829E13DA582C /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C13396BF6F16282B0D473 /* ShareCardView.swift */; };
+		F6653F2E7FE830A5A8704766 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B04DCFBEBA5F54E311E79E8 /* AppConfig.swift */; };
 		314AFFC5A3391E68E8C92C44 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC12CA7465D29EAB3F45D84 /* HistoryView.swift */; };
 		2F6F383DC9DDF7E18CF19BAA /* GameRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BDFEE6396FCDA1037E40E39 /* GameRecord.swift */; };
 		40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */; };
@@ -49,6 +52,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		08A967C17733121B1E457908 /* SimpleScorerv01.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SimpleScorerv01.entitlements; sourceTree = "<group>"; };
+		CCE7EAAE233A6BDAFE64E89A /* GameRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRequests.swift; sourceTree = "<group>"; };
+		EC2C13396BF6F16282B0D473 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
+		0B04DCFBEBA5F54E311E79E8 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		1AC12CA7465D29EAB3F45D84 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		1BDFEE6396FCDA1037E40E39 /* GameRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRecord.swift; sourceTree = "<group>"; };
 		A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHeaderView.swift; sourceTree = "<group>"; };
@@ -134,6 +141,7 @@
 		E8875196241F99DB0091853F /* SimpleScorerv01 */ = {
 			isa = PBXGroup;
 			children = (
+				08A967C17733121B1E457908 /* SimpleScorerv01.entitlements */,
 				D7C03BAD246EE9D50006FB9F /* Tools */,
 				E88751B9241FA2370091853F /* Data */,
 				E88751B6241F9E2B0091853F /* Resources */,
@@ -160,6 +168,7 @@
 		E88751AB241F99F90091853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				CCE7EAAE233A6BDAFE64E89A /* GameRequests.swift */,
 				1BDFEE6396FCDA1037E40E39 /* GameRecord.swift */,
 				5BEF257C391AD56DAFFD01AC /* GameOptions.swift */,
 				74AFB240BD37054D39B79C6B /* GameScoring.swift */,
@@ -175,6 +184,7 @@
 		E88751B2241F9CB20091853F /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
+				0B04DCFBEBA5F54E311E79E8 /* AppConfig.swift */,
 				E8875197241F99DB0091853F /* AppDelegate.swift */,
 				E8875199241F99DB0091853F /* SceneDelegate.swift */,
 			);
@@ -184,6 +194,7 @@
 		E88751B3241F9DE90091853F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				EC2C13396BF6F16282B0D473 /* ShareCardView.swift */,
 				1AC12CA7465D29EAB3F45D84 /* HistoryView.swift */,
 				A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */,
 				0B1A82C89664921FB888DC23 /* MolkkyPadView.swift */,
@@ -294,6 +305,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E90A700E6D541EE923765DF /* GameRequests.swift in Sources */,
+				F4D6583E458D829E13DA582C /* ShareCardView.swift in Sources */,
+				F6653F2E7FE830A5A8704766 /* AppConfig.swift in Sources */,
 				314AFFC5A3391E68E8C92C44 /* HistoryView.swift in Sources */,
 				2F6F383DC9DDF7E18CF19BAA /* GameRecord.swift in Sources */,
 				40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */,
@@ -468,6 +482,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_ENTITLEMENTS = SimpleScorerv01/SimpleScorerv01.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleScorerv01/Preview Content\"";
@@ -495,6 +510,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_ENTITLEMENTS = SimpleScorerv01/SimpleScorerv01.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleScorerv01/Preview Content\"";

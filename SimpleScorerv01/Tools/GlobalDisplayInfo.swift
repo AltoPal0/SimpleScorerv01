@@ -18,6 +18,8 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var showBottomButtons = true
     // Player tapped to enter a whole round (deal, mène) : the round entry sheet is shown when set
     @Published var roundEntryPlayerID : UUID?
+    // Game typed by the players and missing from the library : they are offered to ask for it
+    @Published var gameToRequest : String?
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         

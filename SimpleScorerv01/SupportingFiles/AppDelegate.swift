@@ -7,9 +7,10 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -18,7 +19,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        if let bundleID = Bundle.main.bundleIdentifier {
 //            UserDefaults.standard.removePersistentDomain(forName: bundleID)
 //        }
+        
+        UNUserNotificationCenter.current().delegate = self
+        // Keeps the device token fresh once the player accepted the notifications
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            if settings.authorizationStatus == .authorized {
+                DispatchQueue.main.async {
+                    application.registerForRemoteNotifications()
+                }
+            } else {
+                Task { await GameRequests.sendPending() }
+            }
+        }
         return true
+    }
+    
+    // MARK: Notifications
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        GameRequests.didRegister(deviceToken: deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        // The requests still reach the backend, without notification
+        Task { await GameRequests.sendPending() }
+    }
+    
+    // "Your game is in" also shows while the app is open
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .sound]
     }
 
     // MARK: UISceneSession Lifecycle

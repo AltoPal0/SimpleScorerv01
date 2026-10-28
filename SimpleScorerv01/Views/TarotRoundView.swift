@@ -16,6 +16,7 @@ struct TarotRoundView: View {
     var onConfirm : ([UUID : Int]) -> Void
 
     @State private var deal = TarotDeal()
+    @State private var pointsEntered = false
     // 5 players : the called king, the taker himself when he plays alone
     @State private var partnerID : UUID
 
@@ -68,7 +69,12 @@ struct TarotRoundView: View {
             }
 
             RoundSection(title: "Attack points") {
-                PointsDial(value: $deal.points, range: 0...91, caption: pointsCaption)
+                PointsKeypadEntry(text: pointsEntered ? "\(deal.points)" : "—",
+                                  caption: pointsEntered ? pointsCaption : "needs \(deal.required)",
+                                  maximum: 91) { points in
+                    deal.points = points
+                    pointsEntered = true
+                }
             }
 
             RoundSection(title: "Petit au bout") {
@@ -92,9 +98,10 @@ struct TarotRoundView: View {
                 }
             }
         } preview: {
-            RoundPreview(points: points, caption: deal.isMade ? "Contract made" : "Contract down")
+            RoundPreview(points: pointsEntered ? points : [:],
+                         caption: pointsEntered ? (deal.isMade ? "Contract made" : "Contract down") : nil)
         } confirm: {
-            ConfirmBar(isEnabled: true) {
+            ConfirmBar(isEnabled: pointsEntered) {
                 onConfirm(points)
             }
         }
