@@ -124,7 +124,7 @@ struct CaboRoundView: View {
                 }
             }
 
-            RoundSection(title: "Kamikaze · two 12 and two 13") {
+            RoundSection(title: "Kamikaze · \(game.options.caboKamikazeHand)") {
                 ChoiceChips(items: [nil] + game.playerScores.map { Optional($0.player.id) },
                             selection: $kamikazeID, minimumWidth: 80) { id in
                     game.playerScores.first { $0.player.id == id }?.player.name ?? "—"

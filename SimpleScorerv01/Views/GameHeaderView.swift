@@ -100,7 +100,7 @@ struct GameOptionsView: View {
         case .gangOfFour:
             return "The player out of cards ends the round. The others score the cards left : 1 point each up to 7 cards, × 2 from 8, × 3 from 11, × 4 from 14 (16 cards = 64). The game ends at 100, the lowest score wins. The direction of play changes every round."
         case .cabo:
-            return "Each player scores the total of their hand. Calling Cabo scores 0 with the lowest hand, otherwise the hand + 10 (a tie is not enough). Kamikaze (two 12 and two 13) : 0, and 50 for everyone else. Exactly 100 brings a player back to 50, once. The game ends over 100, the lowest score wins."
+            return "Each player scores the total of their hand. Calling Cabo scores 0 with the lowest hand, otherwise the hand + 10 (a tie is not enough). Kamikaze (\(game.options.caboKamikazeHand)) : 0, and 50 for everyone else. Exactly 100 brings a player back to 50, once. The game ends over 100, the lowest score wins."
         case .universal:
             if let rules = game.rules, rules.isInLibrary {
                 return "\(rules.name) needs \(rules.playerCountHint) : scores are entered freely."
@@ -163,6 +163,14 @@ struct GameOptionsView: View {
                         if game.activeKind == .tarot {
                             RoundSection(title: "Petit au bout by the defense") {
                                 ChoiceChips(items: [false, true], selection: $game.options.tarotPetitDefense, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
+                            }
+                        }
+                        
+                        if game.activeKind == .cabo {
+                            RoundSection(title: "Kamikaze hand") {
+                                ChoiceList(items: [true, false], selection: $game.options.caboKamikazeFourKings) {
+                                    $0 ? "Four kings · 54 cards deck" : "Two 12 and two 13 · Cabo deck"
+                                }
                             }
                         }
                         
