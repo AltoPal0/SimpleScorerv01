@@ -27,15 +27,16 @@ struct AvatarView: View {
                 .resizable()
                 .scaledToFit()
             } else if user.name != Player.defaultName {
-                Text(user.initials)
-                    .fontWeight(.regular)
-                    .font(.system(.largeTitle, design: .rounded))
-                    .scaledToFill()
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                    .foregroundColor(Color.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                    .padding(10)
+                // Initials grow with the avatar : bigger cards on iPad
+                GeometryReader { geo in
+                    Text(user.initials)
+                        .font(.system(size: max(1, geo.size.height * 0.5), weight: .regular, design: .rounded))
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .foregroundColor(Color.white)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
+                .padding(10)
             } else {
                 Image(systemName: "keyboard")
                     .font(.system(size: 30, weight: .light, design: .default))

@@ -67,7 +67,8 @@ struct TopSwiperView: View {
                                 withAnimation{
                                     self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
                                 }
-                            } else if value.startLocation.x < swipeAreaSides && self.displayInfo.screenDisplayed != .allScores {
+                            } else if value.startLocation.x < swipeAreaSides && self.displayInfo.screenDisplayed != .allScores
+                                        && !(self.displayInfo.isDualLayout && self.displayInfo.screenDisplayed == .scoreCards) {
                                 // Back on the scores with players to name : ask their names first
                                 if game.nbrPlayersUnanmed() > 0 && self.displayInfo.screenDisplayed == .gameSetup {
                                     withAnimation{

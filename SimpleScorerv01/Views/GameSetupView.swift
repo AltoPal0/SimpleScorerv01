@@ -43,7 +43,7 @@ struct GameSetupView: View {
                         self.showingActionSheet = true
                     }
                     .actionSheet(isPresented: $showingActionSheet) {
-                        ActionSheet(title: Text("This will reset all scores to 0").font(.system(.headline, design: .rounded)), buttons: self.resetButtons())
+                        ActionSheet(title: Text("Reset").font(.system(.headline, design: .rounded)), buttons: self.resetButtons())
                     }
                 
                 
@@ -144,29 +144,24 @@ struct GameSetupView: View {
     }
     
     // Same game again or another one : changing the game also starts from 0
+    // Reset scores : same players, same game, scores back to 0. Reset all : as when the app starts
     func resetButtons() -> [ActionSheet.Button] {
-        var buttons = [ActionSheet.Button]()
-        if let rules = self.game.rules {
-            buttons.append(.default(Text("New game of \(rules.displayName)")) {
-                self.reset(keepingGame: true)
-            })
-            buttons.append(.default(Text("Change game")) {
-                self.reset(keepingGame: false)
-            })
-        } else {
-            buttons.append(.default(Text("OK")) {
-                self.reset(keepingGame: false)
-            })
-        }
-        buttons.append(.cancel())
-        return buttons
-    }
-    
-    func reset(keepingGame: Bool) {
-        self.game.resetScores(keepingGame: keepingGame)
-        if game.playerScores.count > 0 {
-            self.moveNextScreen()
-        }
+        [
+            .default(Text("Reset scores")) {
+                self.game.resetScores(keepingGame: true)
+                if game.playerScores.count > 0 {
+                    self.moveNextScreen()
+                }
+            },
+            .destructive(Text("Reset all")) {
+                withAnimation {
+                    self.game.resetAll()
+                    self.displayInfo.gradientIndices = Array(gradiants.indices).shuffled()
+                    self.displayInfo.setSizeAndScroll(nbrPlayers: 0)
+                }
+            },
+            .cancel(),
+        ]
     }
     
     func moveNextScreen() {

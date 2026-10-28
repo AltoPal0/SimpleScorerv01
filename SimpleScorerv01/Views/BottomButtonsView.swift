@@ -24,7 +24,8 @@ struct BottomButtonsView: View {
         VStack {
             Spacer()
             HStack {
-                if self.displayInfo.screenDisplayed == .history || (!(self.displayInfo.screenDisplayed == .allScores) && !(game.playerScores.count == 0)) {
+                if self.displayInfo.screenDisplayed == .history || (!(self.displayInfo.screenDisplayed == .allScores) && !(game.playerScores.count == 0)
+                    && !(self.displayInfo.isDualLayout && self.displayInfo.screenDisplayed == .scoreCards)) {
                     Image(systemName: "arrow.left.circle")
                         .font(.system(.largeTitle, design: .rounded))
                         .foregroundColor(colorScheme == .dark ? Color.gray : Color.gray)

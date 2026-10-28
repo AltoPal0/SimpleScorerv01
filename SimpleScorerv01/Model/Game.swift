@@ -75,6 +75,14 @@ class Game : ObservableObject {
             && Molkky.consecutiveMisses(playerScore.pointsList.map { $0.score }) >= Molkky.missesToBeOut
     }
 
+    // Mölkky : players still in the game who played fewer turns than this one
+    func playersYetToPlay(before playerScore : PlayerScore) -> [PlayerScore] {
+        guard activeKind == .molkky else { return [] }
+        return playerScores.filter {
+            $0.id != playerScore.id && !isEliminated($0) && $0.pointsList.count < playerScore.pointsList.count
+        }
+    }
+
     // Points still needed to reach the target, nil for games without target
     func remaining(for playerScore : PlayerScore) -> Int? {
         guard let target = target else { return nil }
@@ -455,6 +463,14 @@ class Game : ObservableObject {
         return playerScores[playerScores.firstIndex(where: {$0.id == playerScore.id})!]
     }
     
+    // No players and no game, as when the app starts : the game played stays in the history
+    func resetAll() {
+        self.recordID = nil
+        self.playerScores = []
+        self.maxNbrOfRounds = 0
+        self.rules = nil
+    }
+
     // keepingGame : a new game of the same game, otherwise the players are asked which game they play
     func resetScores (keepingGame : Bool) {
         // The game ends : its history entry stays as it is

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6F6E380DCBCC3DF4221E61ED /* CardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5226305D8DC2236578A88643 /* CardLayout.swift */; };
 		6E90A700E6D541EE923765DF /* GameRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE7EAAE233A6BDAFE64E89A /* GameRequests.swift */; };
 		F4D6583E458D829E13DA582C /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C13396BF6F16282B0D473 /* ShareCardView.swift */; };
 		F6653F2E7FE830A5A8704766 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B04DCFBEBA5F54E311E79E8 /* AppConfig.swift */; };
@@ -52,6 +53,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5226305D8DC2236578A88643 /* CardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardLayout.swift; sourceTree = "<group>"; };
 		08A967C17733121B1E457908 /* SimpleScorerv01.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SimpleScorerv01.entitlements; sourceTree = "<group>"; };
 		CCE7EAAE233A6BDAFE64E89A /* GameRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRequests.swift; sourceTree = "<group>"; };
 		EC2C13396BF6F16282B0D473 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 		D7C03BAD246EE9D50006FB9F /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				5226305D8DC2236578A88643 /* CardLayout.swift */,
 				E8ADADAC25540B3600874D44 /* AppStoreReviewManager.swift */,
 				D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */,
 				D7A42388297A8FCF000398EB /* ReorderableForEach.swift */,
@@ -305,6 +308,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F6E380DCBCC3DF4221E61ED /* CardLayout.swift in Sources */,
 				6E90A700E6D541EE923765DF /* GameRequests.swift in Sources */,
 				F4D6583E458D829E13DA582C /* ShareCardView.swift in Sources */,
 				F6653F2E7FE830A5A8704766 /* AppConfig.swift in Sources */,

@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-// Top of the scores screens : the game played and its options
+// Top of the scores screens : the game played and its options, discreet like the arrows at the bottom
 struct GameHeaderView: View {
 
     @EnvironmentObject var game : Game
@@ -22,14 +22,14 @@ struct GameHeaderView: View {
                 .font(Font.system(size: 30, weight: .semibold, design: .rounded))
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
-                .foregroundColor(.offWhite)
+                .foregroundColor(.gray)
 
             Spacer()
 
             if game.rules?.isInLibrary == true {
                 Image(systemName: "gearshape")
                     .font(.system(size: 24, weight: .light))
-                    .foregroundColor(.offWhite)
+                    .foregroundColor(.gray)
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -39,11 +39,11 @@ struct GameHeaderView: View {
         }
         .padding(.horizontal, 20)
         .frame(height: GameHeaderView.height)
-        .background(
-            LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: UnitPoint(x: 0, y: 0.2), endPoint: UnitPoint(x: 1, y: 0.8))
-                .ignoresSafeArea(edges: .top)
-        )
-        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 0.5)
+        }
         .sheet(isPresented: $showOptions) {
             GameOptionsView()
                 .environmentObject(game)
@@ -77,7 +77,8 @@ struct GameOptionsView: View {
             rules += options.coincheBelote ? " Belote +20 to its holder." : " Belote is not counted."
             return rules + " With 4 players, 1st & 3rd play against 2nd & 4th."
         case .tarot:
-            return "French federation scoring : 25 + difference, times the contract (×1, ×2, ×4, ×6). Petit au bout ±10 × contract, poignée 20 / 30 / 40 to the winning side. Chelem not counted."
+            let petit = game.options.tarotPetitDefense ? "Petit au bout ±10 × contract, for the attack or the defense" : "Petit au bout +10 × contract, for the attack only"
+            return "French federation scoring : 25 + difference, times the contract (×1, ×2, ×4, ×6). \(petit). Poignée 20 / 30 / 40 to the winning side. Chelem not counted."
         case .scrabble:
             return "Enter the points of each word. The +50 key adds the bonus for playing all 7 tiles."
         case .uno:
@@ -142,6 +143,12 @@ struct GameOptionsView: View {
                             }
                             RoundSection(title: "Belote · Rebelote +20") {
                                 ChoiceChips(items: [false, true], selection: $game.options.coincheBelote, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
+                            }
+                        }
+                        
+                        if game.activeKind == .tarot {
+                            RoundSection(title: "Petit au bout by the defense") {
+                                ChoiceChips(items: [false, true], selection: $game.options.tarotPetitDefense, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
                             }
                         }
                         

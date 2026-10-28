@@ -78,7 +78,8 @@ struct TarotRoundView: View {
             }
 
             RoundSection(title: "Petit au bout") {
-                ChoiceChips(items: [TarotDeal.Side.none, .attack, .defense], selection: $deal.petitAuBout, minimumWidth: 100) {
+                ChoiceChips(items: game.options.tarotPetitDefense ? [TarotDeal.Side.none, .attack, .defense] : [TarotDeal.Side.none, .attack],
+                            selection: $deal.petitAuBout, minimumWidth: 100) {
                     switch $0 {
                     case .none: return "—"
                     case .attack: return "Attack"

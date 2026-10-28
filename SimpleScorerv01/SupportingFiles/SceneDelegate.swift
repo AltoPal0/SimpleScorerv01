@@ -43,6 +43,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 displayInfo.roundEntryPlayerID = game.playerScores.first?.player.id
             }
         }
+        // -demoColumns opens the columns of scores
+        if arguments.contains("-demoColumns") {
+            displayInfo.screenDisplayed = .allScores
+        }
         // -demoHistory adds sample games to the history and opens it
         if arguments.contains("-demoHistory") {
             let store = HistoryStore.shared

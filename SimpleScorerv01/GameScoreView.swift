@@ -28,8 +28,19 @@ struct GameScoreView: View {
         self.game.rules != nil && self.displayInfo.screenDisplayed < .gameSetup && !self.showPlayerEntry
     }
     
+    // Width of the columns of scores : 60 per column, its padding and the spacing
+    func columnsWidth() -> CGFloat {
+        CGFloat(self.game.playerScores.count) * 72 + 40
+    }
+    
+    // Enough room for the columns next to the cards (iPad)
+    func isDual(width: CGFloat) -> Bool {
+        width >= 900 && !self.game.playerScores.isEmpty && columnsWidth() <= width * 0.45
+    }
+    
     var body: some View {
         GeometryReader { geometry in
+            let dual = self.isDual(width: geometry.size.width)
             ZStack {
                 if colorScheme == .dark {
                     Color.midnightBlue.edgesIgnoringSafeArea(.all).zIndex(-1)
@@ -44,11 +55,20 @@ struct GameScoreView: View {
                     }
                     
                     ZStack {
-                        AllScoresView_new()
-                            .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
-                        
-                        ScoreCardsGridView()
+                        if dual {
+                            HStack(spacing: 0) {
+                                AllScoresView_new()
+                                    .frame(width: self.columnsWidth())
+                                ScoreCardsGridView()
+                            }
                             .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
+                        } else {
+                            AllScoresView_new()
+                                .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
+                            
+                            ScoreCardsGridView()
+                                .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
+                        }
                         
                         GameSetupView(showPlayerEntry: self.$showPlayerEntry)
                             .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
@@ -58,6 +78,8 @@ struct GameScoreView: View {
                     }
                 }
                 .animation(.easeInOut(duration: 0.3), value: self.showGameHeader)
+                .onAppear { self.updateDualLayout(dual) }
+                .onChange(of: dual) { self.updateDualLayout(dual) }
                 
                 TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry, orderByScores: $orderedByScores)
                 if self.displayInfo.showBottomButtons {
@@ -96,6 +118,16 @@ struct GameScoreView: View {
                         .environmentObject(self.displayInfo)
                 }
             }
+    }
+}
+
+extension GameScoreView {
+    func updateDualLayout(_ dual: Bool) {
+        self.displayInfo.isDualLayout = dual
+        // The columns are already next to the cards
+        if dual && self.displayInfo.screenDisplayed == .allScores {
+            self.displayInfo.screenDisplayed = .scoreCards
+        }
     }
 }
 

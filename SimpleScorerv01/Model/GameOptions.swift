@@ -21,6 +21,8 @@ struct GameOptions: Codable, Equatable {
     var coincheScoring = CoincheDeal.Scoring.announced
     var coincheDefenseScores = false
     var coincheBelote = false
+    // Tarot : the defense can score the petit au bout, often luck so off by default
+    var tarotPetitDefense = false
     
     init() {}
     
@@ -33,6 +35,7 @@ struct GameOptions: Codable, Equatable {
         coincheScoring = try container.decodeIfPresent(CoincheDeal.Scoring.self, forKey: .coincheScoring) ?? .announced
         coincheDefenseScores = try container.decodeIfPresent(Bool.self, forKey: .coincheDefenseScores) ?? false
         coincheBelote = try container.decodeIfPresent(Bool.self, forKey: .coincheBelote) ?? false
+        tarotPetitDefense = try container.decodeIfPresent(Bool.self, forKey: .tarotPetitDefense) ?? false
     }
 
     // Targets the players can pick, empty when the game has no target to change
@@ -46,7 +49,7 @@ struct GameOptions: Codable, Equatable {
     }
 
     static func hasOptions(_ kind: GameKind) -> Bool {
-        kind == .molkky || kind == .uno || kind == .coinche || !targets(for: kind).isEmpty
+        kind == .molkky || kind == .uno || kind == .coinche || kind == .tarot || !targets(for: kind).isEmpty
     }
 
     static func key(for rules: GameRules) -> String {

@@ -20,6 +20,8 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var roundEntryPlayerID : UUID?
     // Game typed by the players and missing from the library : they are offered to ask for it
     @Published var gameToRequest : String?
+    // Large screens : the columns of scores and the cards side by side, the columns screen alone is skipped
+    @Published var isDualLayout = false
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         

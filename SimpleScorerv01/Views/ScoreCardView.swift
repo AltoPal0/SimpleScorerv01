@@ -12,6 +12,9 @@ struct ScoreCardView: View {
     
     @EnvironmentObject var game : Game
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
+    // Bigger cards on iPad, same proportions : every size of the card follows this scale
+    @Environment(\.cardScale) var scale
+    @Environment(\.cardNames) var cardNames
     
     var playerScore : PlayerScore
     var scrollReaderProxy : ScrollViewProxy
@@ -24,12 +27,12 @@ struct ScoreCardView: View {
     @State private var sign = CGFloat(1)
     @State private var scoreEditing = false
     @State private var showKeyPad = false
+    @State private var molkkyAlert : MolkkyAlert?
     
     @State private var nameEditing = false
     @State private var username = ""
     
-    let frameHeight = CGFloat(135)
-    @State private var maxWidth = CGSize.zero
+    var frameHeight: CGFloat { 135 * scale }
     @State private var showBottomBar = false
     @State private var slideOpen = false
     @State private var showingAlert = false
@@ -41,7 +44,9 @@ struct ScoreCardView: View {
     
     @FocusState private var focusedField: Field?
     
-    @GestureState private var dragOffset = CGSize.zero
+    // Released, the card springs back in place with a light bounce, as in iOS
+    static let slideSpring = Animation.spring(response: 0.35, dampingFraction: 0.7)
+    @GestureState(resetTransaction: Transaction(animation: ScoreCardView.slideSpring)) private var dragOffset = CGSize.zero
 //    @State private var dragOffset = CGSize(width: -180, height: 0)
     
 //    var index : Int
@@ -65,7 +70,7 @@ struct ScoreCardView: View {
                         self.displayInfo.showBottomButtons = true
                     }) {
                         Image(systemName: "trash.circle")
-                            .font(.system(size: 45, weight: .light, design: .default))
+                            .font(.system(size: 45 * scale, weight: .light, design: .default))
                             .foregroundColor(Color.offRed)
                             .contentShape(Rectangle()).frame(height: self.frameHeight*2/3)
                     }
@@ -80,7 +85,7 @@ struct ScoreCardView: View {
 //                        self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                     }) {
                         Image(systemName: "square.and.pencil.circle")
-                            .font(.system(size: 45, weight: .light, design: .default))
+                            .font(.system(size: 45 * scale, weight: .light, design: .default))
                             .foregroundColor(Color.gray)
                             .contentShape(Rectangle()).frame(height: self.frameHeight*2/3)
                     }
@@ -118,6 +123,7 @@ struct ScoreCardView: View {
                                     .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
                                     .padding([.horizontal,.bottom],3)
                                     .disabled(self.dragOffset.width != 0)
+                                    .font(.system(size: 20 * scale, design: .rounded))
                             } else if self.showKeyPad {
                                 KeyPadView(valueDisplayed: $pointsScored, sign: $sign,
                                            extraKey: self.game.activeKind == .scrabble ? "+50" : nil,
@@ -126,19 +132,19 @@ struct ScoreCardView: View {
                                     .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
                                     .padding([.horizontal,.bottom],3)
                                     .disabled(self.dragOffset.width != 0)
+                                    .font(.system(size: 20 * scale, design: .rounded))
                             }
                             else {
                                 ScoringBottomBarTools
                                     .frame(height: frameHeight/3)
+                                    .font(.system(size: 20 * scale))
                                     .disabled(self.dragOffset.width != 0)
                             }
                         }
                     }
-                    .frame(maxWidth: maxWidth.width)
                 }
                 .background(GeometryReader { geo -> Color in
                     DispatchQueue.main.async {
-                            maxWidth = geo.size
                             if geo.frame(in: .global).maxY > UIScreen.main.bounds.maxY {
                                 self.isOverflowingScreen = true
                             } else {
@@ -153,28 +159,30 @@ struct ScoreCardView: View {
                         .stroke(Color.offWhite, lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(noshadow ? 0.0 : 0.3), radius: 10, x: 0, y: 10)
-                .offset(slideOpen ? CGSize(width: -120, height: 0) : dragOffset)
-                .opacity(self.game.isEliminated(self.playerScore) ? 0.4 : 1)
+                .offset(x: cardOffset)
             }
-            .gesture(
-                DragGesture(coordinateSpace: .local)
+            // Simultaneous and horizontal only : the list keeps scrolling and pulling to change the order
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 15, coordinateSpace: .local)
                     .updating($dragOffset) { value, state, transaction in
-                        state.width = value.translation.width
+                        if !self.scoreEditing && abs(value.translation.width) > abs(value.translation.height) {
+                            state.width = value.translation.width
+                        }
                     }
                     .onEnded({ (value) in
-                            if value.translation.width < -100 && !self.scoreEditing && !slideOpen {
-                                self.slideOpen = true
-                                self.displayInfo.showBottomButtons = false
-                            } else {
-                                self.slideOpen = false
-                                self.displayInfo.showBottomButtons = true
-                            }
+                        guard !self.scoreEditing, abs(value.translation.width) > abs(value.translation.height) else { return }
+                        // Where the card would stop with its speed : a quick flick is enough
+                        let end = (self.slideOpen ? self.openOffset : 0) + value.predictedEndTranslation.width
+                        withAnimation(ScoreCardView.slideSpring) {
+                            self.slideOpen = end < self.openOffset / 2
+                        }
+                        self.displayInfo.showBottomButtons = !self.slideOpen
                     })
             ) 
             .onTapGesture {
                 
                 if self.slideOpen {
-                    withAnimation(.easeInOut(duration: 0.25)) {
+                    withAnimation(ScoreCardView.slideSpring) {
                         self.slideOpen = false
                     }
                     displayInfo.showBottomButtons = true
@@ -182,39 +190,87 @@ struct ScoreCardView: View {
                 else if self.game.entersRounds {
                     self.displayInfo.roundEntryPlayerID = self.playerScore.player.id
                 }
-                else if !self.game.isEliminated(self.playerScore) {
-                    self.scoreEditing = true
-                    if self.game.activeKind == .molkky {
-                        self.showKeyPad = true
-                    } else if self.displayInfo.scoreCardSize == .compact {
-                            self.showKeyPad.toggle()
-                    }
-                    self.showBottomBar = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                        if self.isOverflowingScreen {
-                            withAnimation {
-                                self.scrollReaderProxy.scrollTo(self.playerScore.id)
-                            }
-                            if self.showKeyPad == true {
-                                self.displayInfo.showBottomButtons = false
-                            } else {
-                                self.displayInfo.showBottomButtons = true
-                            }
-                            
-                        }
-                    }
+                else if self.game.isEliminated(self.playerScore) {
+                    self.molkkyAlert = .eliminated
+                }
+                else if !self.scoreEditing && !self.game.playersYetToPlay(before: self.playerScore).isEmpty {
+                    // Mölkky : everyone plays the same number of turns
+                    self.molkkyAlert = .alreadyPlayed
+                }
+                else {
+                    self.startScoreEntry()
                 }
             } //tap
+            .alert(self.molkkyAlertTitle, isPresented: Binding(
+                get: { self.molkkyAlert != nil },
+                set: { if !$0 { self.molkkyAlert = nil } })) {
+                    if self.molkkyAlert == .eliminated {
+                        Button("Keep playing") {
+                            // Changes the house rule : nobody is out after 3 misses anymore
+                            self.game.options.molkkyMissesOut = false
+                            self.startScoreEntry()
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } else {
+                        Button("OK") {
+                            self.startScoreEntry()
+                        }
+                    }
+                } message: {
+                    Text(self.molkkyAlertMessage)
+                }
+    }
+    
+    enum MolkkyAlert {
+        case alreadyPlayed, eliminated
+    }
+    
+    var molkkyAlertTitle: String {
+        self.molkkyAlert == .eliminated
+            ? "\(self.playerScore.player.name) is out after 3 misses"
+            : "\(self.playerScore.player.name) already played this turn"
+    }
+    
+    var molkkyAlertMessage: String {
+        if self.molkkyAlert == .eliminated {
+            return "Let \(self.playerScore.player.name) keep playing? Players won't be out after 3 misses anymore."
+        }
+        let names = self.game.playersYetToPlay(before: self.playerScore).map { $0.player.name }
+        return "Still to play : \(names.joined(separator: ", "))."
+    }
+    
+    func startScoreEntry() {
+        self.scoreEditing = true
+        if self.game.activeKind == .molkky {
+            self.showKeyPad = true
+        } else if self.displayInfo.scoreCardSize == .compact {
+                self.showKeyPad.toggle()
+        }
+        self.showBottomBar = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            if self.isOverflowingScreen {
+                withAnimation {
+                    self.scrollReaderProxy.scrollTo(self.playerScore.id)
+                }
+                if self.showKeyPad == true {
+                    self.displayInfo.showBottomButtons = false
+                } else {
+                    self.displayInfo.showBottomButtons = true
+                }
+                
+            }
+        }
     }
     
     var playerNameView: some View {
         Group {
             if !scoreEditing {
                 if !self.nameEditing && self.playerScore.player.name != Player.defaultName {
-                    Text(self.playerScore.player.name)
-                        .font(Font.system(size: 40, weight: .semibold, design: .rounded))
+                    // Same size for every name, the longest ones end with a "."
+                    Text(self.cardNames.names[self.playerScore.player.id] ?? self.playerScore.player.name)
+                        .font(Font.system(size: self.cardNames.fontSize, weight: .semibold, design: .rounded))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.1)
+                            .minimumScaleFactor(0.9)
                         .foregroundColor(Color .offWhite)
                 } else {
                     HStack {
@@ -268,6 +324,21 @@ struct ScoreCardView: View {
         }
     }
     
+    // Slid open, the card uncovers the delete and edit buttons
+    var openOffset: CGFloat { -120 * scale }
+    
+    // Follows the finger, with resistance beyond the closed and open positions
+    var cardOffset: CGFloat {
+        let offset = (slideOpen ? openOffset : 0) + dragOffset.width
+        if offset > 0 {
+            return offset / 4
+        }
+        if offset < openOffset {
+            return openOffset + (offset - openOffset) / 4
+        }
+        return offset
+    }
+    
     func commitPoints(_ points: Int) {
         self.displayInfo.showBottomButtons = true
         self.game.addPointsFor(player: self.playerScore.player, points: points)
@@ -286,7 +357,7 @@ struct ScoreCardView: View {
             return Text(Image(systemName: "crown.fill"))
         }
         if self.game.isEliminated(self.playerScore) {
-            return Text("OUT")
+            return nil
         }
         if self.game.activeKind == .molkky {
             let misses = Molkky.consecutiveMisses(self.playerScore.pointsList.map { $0.score })
@@ -315,11 +386,12 @@ struct ScoreCardView: View {
                     
                     VStack {
                         Image(systemName: "xmark").foregroundColor(Color.white)
+                            .font(.system(size: 17 * scale))
                             .padding()
                             .contentShape(Rectangle())
                         Spacer()
                     }
-                    .frame(minWidth:20, maxWidth:20, maxHeight: .infinity)
+                    .frame(minWidth:20 * scale, maxWidth:20 * scale, maxHeight: .infinity)
                     .onTapGesture {
                         self.displayInfo.showBottomButtons = true
                         self.pointsScored = 0
@@ -339,7 +411,7 @@ struct ScoreCardView: View {
                 if scoreEditing {
                     
                     Text("\(self.game.total(for: self.playerScore)) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
-                        .font(Font.system(size: 25, weight: .bold, design: .rounded))
+                        .font(Font.system(size: 25 * scale, weight: .bold, design: .rounded))
                         .minimumScaleFactor(0.5)
                         .lineLimit(2)
                         .foregroundColor(Color .offWhite)
@@ -347,26 +419,26 @@ struct ScoreCardView: View {
                         
                     Rectangle().fill(Color.offWhite.opacity(0.5))
                             .border(width: 1, edge: .leading, color: .offWhite)
-                            .overlay(Image(systemName: "checkmark").foregroundColor(Color.white))
-                            .frame(minWidth:70, maxWidth:70, maxHeight: .infinity)
+                            .overlay(Image(systemName: "checkmark").foregroundColor(Color.white).font(.system(size: 17 * scale)))
+                            .frame(minWidth:70 * scale, maxWidth:70 * scale, maxHeight: .infinity)
                             .onTapGesture {
                                 self.commitPoints(Int(String(format: "%.0f",abs(self.pointsScored) * sign))!)
                         }
                 } else {
                     VStack(alignment: .trailing, spacing: 0) {
-                        Text("\(self.game.total(for: self.playerScore))")
-                            .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
+                        Text(self.game.isEliminated(self.playerScore) ? "✕" : "\(self.game.total(for: self.playerScore))")
+                            .font(Font.system(size: (self.scoreEditing ? 25 : 50) * scale, weight: .bold, design: .rounded))
                             .minimumScaleFactor(0.2)
                             .lineLimit(1)
                             .foregroundColor(Color .offWhite)
                         if let caption = self.gameCaption {
                             caption
-                                .font(Font.system(size: 15, weight: .semibold, design: .rounded))
+                                .font(Font.system(size: 15 * scale, weight: .semibold, design: .rounded))
                                 .lineLimit(1)
                                 .foregroundColor(Color .offWhite)
                         }
                     }
-                    .padding(.horizontal,self.scoreEditing ? 0 : 20)
+                    .padding(.horizontal,self.scoreEditing ? 0 : 20 * scale)
                 }
             }
             

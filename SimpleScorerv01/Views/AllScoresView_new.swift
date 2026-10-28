@@ -87,6 +87,8 @@ struct AllScoresView_new: View {
                     .padding(.bottom, 25)
                 }
             }
+            // Room between the game header and the top of the columns
+            .padding(.top, 16)
             if showKeypad {
                 VStack {
                     Spacer()

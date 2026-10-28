@@ -14,6 +14,22 @@ enum OrderBy {
     scoreUp ,
     scoreDown ,
     players
+    
+    var next: OrderBy {
+        switch self {
+        case .scoreUp : return .scoreDown
+        case .scoreDown : return .players
+        case .players : return .scoreUp
+        }
+    }
+    
+    var label: String {
+        switch self {
+        case .scoreUp : return "Highest first"
+        case .scoreDown : return "Lowest first"
+        case .players : return "Table order"
+        }
+    }
 }
 
 struct ScoreCardsGridView: View {
@@ -29,23 +45,56 @@ struct ScoreCardsGridView: View {
     @State private var draggedCard : PlayerScore?
     @State private var cardMoved = false
     @State var idxForEditView = 0
+    // Short message naming the new order after a pull
+    @State private var orderToast : String?
     
-    var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: .infinity), spacing: 20)]
+    func showOrderToast() {
+        let order = orderedBy
+        withAnimation {
+            orderToast = order.label
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            // A newer pull keeps its own message
+            if orderedBy == order {
+                withAnimation {
+                    orderToast = nil
+                }
+            }
+        }
+    }
+    
+    // Cards of the round games never show the bottom bar
+    var baseCardHeight: CGFloat {
+        game.entersRounds || displayInfo.scoreCardSize == .compact ? 90 : 135
+    }
+    
+    func layout(in size: CGSize) -> CardLayout {
+        // Room for the bottom arrows and the New round button
+        let reserved = CGFloat(70) + (game.entersRounds ? 100 : 0)
+        return CardLayout.compute(width: size.width, height: size.height - reserved,
+                                  players: game.playerScores.count, baseCardHeight: baseCardHeight)
+    }
+    
+    // Same font for every name : what is left once the avatar and the widest total have their room
+    func cardNames(for layout: CardLayout) -> CardNames {
+        let scale = layout.scale
+        let avatar = 135 * scale * 2 / 3
+        let widestTotal = game.playerScores
+            .map { CardNames.width(of: "\(game.total(for: $0))", size: 50 * scale, weight: .bold) }
+            .max() ?? 0
+        return CardNames.compute(players: game.playerScores.map { $0.player },
+                                 availableWidth: layout.cardWidth - avatar - widestTotal - 40 * scale - 10,
+                                 scale: scale)
+    }
     
     var body: some View {
+        GeometryReader { geometry in
+        let layout = self.layout(in: geometry.size)
         ZStack{
             ScrollView {
-                PullToRefresh(coordinateSpaceName: "pullToRefresh") {
-                    withAnimation {
-                        switch orderedBy {
-                        case .scoreUp : orderedBy = .scoreDown
-                        case .scoreDown : orderedBy = .players
-                        case .players : orderedBy = .scoreUp
-                        }
-                    }
-                }
                 ScrollViewReader { value in
-                    LazyVGrid(columns: gridItemLayout, spacing: 20) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
+                              spacing: CardLayout.spacing) {
                         
                         ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
                             
@@ -62,7 +111,10 @@ struct ScoreCardsGridView: View {
                         }
                     }
                 }
-                .padding(20)
+                .environment(\.cardScale, layout.scale)
+                .environment(\.cardNames, cardNames(for: layout))
+                .padding(.vertical, CardLayout.spacing)
+                .frame(maxWidth: .infinity)
 
                 // Games scoring all the players at once : the round is entered for the whole table
                 if game.entersRounds, let firstPlayer = game.playerScores.first?.player {
@@ -75,7 +127,13 @@ struct ScoreCardsGridView: View {
                 }
 
             }
-            .coordinateSpace(name: "pullToRefresh")
+            // Pulling down changes the order of the cards, not a real refresh
+            .refreshable {
+                withAnimation {
+                    orderedBy = orderedBy.next
+                }
+                showOrderToast()
+            }
             .onDrop(of: [UTType.text], delegate: DropResetDelegate {
                 withAnimation {
                     draggedCard = nil
@@ -83,11 +141,27 @@ struct ScoreCardsGridView: View {
                 }
             })
             
+            if let toast = orderToast {
+                VStack {
+                    Text(toast)
+                        .font(Font.system(size: 17, weight: .semibold, design: .rounded))
+                        .foregroundColor(.offWhite)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(Capsule().fill(Color.black.opacity(0.6)))
+                        .padding(.top, 12)
+                    Spacer()
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+                .allowsHitTesting(false)
+            }
+            
 //            if displayEditView {
 //                EditView(playerIdx: idxForEditView, displayEditView: $displayEditView)
 //                    .transition(.move(edge: .leading))
 //                    .zIndex(50)
 //            }
+        }
         }
         .sheet(isPresented: $displayEditView) {
                     EditView(playerIdx: idxForEditView, displayEditView: $displayEditView)
@@ -99,21 +173,17 @@ struct NewRoundButton: View {
     var action : () -> Void
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 14)
-            .fill(LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: UnitPoint(x: 0.2, y: 0.2), endPoint: UnitPoint(x: 0.8, y: 0.8)))
-            .overlay(
-                Text("NEW ROUND")
-                    .fontWeight(.semibold)
-                    .font(.system(.title, design: .rounded))
-                    .foregroundColor(Color .offWhite)
-            )
+        // Discreet like the arrows at the bottom : the scores stay the main thing
+        Label("New round", systemImage: "plus.circle")
+            .font(.system(.title2, design: .rounded))
+            .foregroundColor(.gray)
+            // Just the width of its label
+            .padding(.horizontal, 24)
+            .frame(height: 52)
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.offWhite, lineWidth: 1)
+                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
             )
-            .frame(maxWidth: 600)
-            .frame(height: 80)
-            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
             .contentShape(Rectangle())
             .onTapGesture {
                 UIImpactFeedbackGenerator(style: .soft).impactOccurred()
@@ -121,51 +191,6 @@ struct NewRoundButton: View {
             }
     }
 }
-
-struct PullToRefresh: View {
-
-    var coordinateSpaceName: String
-    var onRefresh: ()->Void
-
-    @State var needRefresh: Bool = false
-    @State private var degrees = 0.0
-
-    var body: some View {
-        GeometryReader { geo in
-            if (geo.frame(in: .named(coordinateSpaceName)).midY > 50) {
-                Spacer()
-                    .onAppear {
-                        needRefresh = true
-                        withAnimation{
-                            degrees = degrees + 180
-                        }
-                    }
-            } else if (geo.frame(in: .named(coordinateSpaceName)).maxY < 10) {
-                Spacer()
-                    .onAppear {
-                        if needRefresh {
-                            needRefresh = false
-                            onRefresh()
-                        }
-                    }
-            }
-            HStack {
-                Spacer()
-                if needRefresh {
-//                    ProgressView()
-                    Text("⇡↻⇣").font(.system(.largeTitle, design: .rounded)).foregroundColor(.gray)
-                        .rotationEffect(.degrees(degrees))
-                } else {
-                    Text("⇡↻⇣").font(.system(.largeTitle, design: .rounded)).foregroundColor(.gray)
-                }
-                Spacer()
-            }
-        }.padding(.top, -50)
-    }
-}
-
-
-
 
 struct ScoreCardsGridView_Previews: PreviewProvider {
     static var previews: some View {

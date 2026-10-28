@@ -165,46 +165,144 @@ struct PetanqueRoundView: View {
 // MARK: - Shared components
 
 struct RoundEntryLayout<Content: View, Preview: View, Confirm: View>: View {
-
+    
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
-
+    
     var title : String
     @ViewBuilder var content : Content
     @ViewBuilder var preview : Preview
     @ViewBuilder var confirm : Confirm
-
+    
+    // Keypad asked by a PointsKeypadEntry, shown at the bottom like the keyboard of iOS
+    @State private var keypad : KeypadRequest?
+    @State private var typedPoints = CGFloat(0)
+    @State private var sign = CGFloat(1)
+    
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text(title)
-                    .font(.system(.largeTitle, design: .rounded))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.gray)
-                Spacer()
-                Image(systemName: "xmark")
-                    .font(.system(size: 22, weight: .light))
-                    .foregroundColor(.gray)
-                    .padding()
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        displayInfo.roundEntryPlayerID = nil
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                HStack {
+                    Text(title)
+                        .font(.system(.largeTitle, design: .rounded))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.gray)
+                    Spacer()
+                    Image(systemName: "xmark")
+                        .font(.system(size: 22, weight: .light))
+                        .foregroundColor(.gray)
+                        .padding()
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            displayInfo.roundEntryPlayerID = nil
+                        }
+                }
+                .padding([.horizontal, .top])
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        content
                     }
-            }
-            .padding([.horizontal, .top])
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    content
+                    .padding()
+                }
+                
+                VStack(spacing: 12) {
+                    preview
+                    confirm
                 }
                 .padding()
             }
-
-            VStack(spacing: 12) {
-                preview
-                confirm
+            .environment(\.presentKeypad) { request in
+                typedPoints = 0
+                withAnimation(KeypadPanel.spring) {
+                    keypad = request
+                }
             }
-            .padding()
+            
+            if let keypad = keypad {
+                KeypadPanel(request: keypad, typedPoints: $typedPoints, sign: $sign) {
+                    withAnimation(KeypadPanel.spring) {
+                        self.keypad = nil
+                    }
+                }
+                .transition(.move(edge: .bottom))
+                .zIndex(1)
+            }
         }
+    }
+}
+
+// What a PointsKeypadEntry needs from the keypad
+struct KeypadRequest {
+    var maximum : Int
+    // Replaces the ＋∕− key, e.g. the capot of Coinche, empty for none
+    var extraKey : String
+    var onExtraKey : () -> Void
+    var onValue : (Int) -> Void
+}
+
+private struct PresentKeypadKey: EnvironmentKey {
+    static let defaultValue : (KeypadRequest) -> Void = { _ in }
+}
+
+extension EnvironmentValues {
+    var presentKeypad : (KeypadRequest) -> Void {
+        get { self[PresentKeypadKey.self] }
+        set { self[PresentKeypadKey.self] = newValue }
+    }
+}
+
+// The keypad of the cards, over the bottom of the screen, framed by the gradient of the app
+struct KeypadPanel: View {
+    static let spring = Animation.spring(response: 0.35, dampingFraction: 0.85)
+    
+    var request : KeypadRequest
+    @Binding var typedPoints : CGFloat
+    @Binding var sign : CGFloat
+    var onDone : () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Text("Done")
+                    .font(Font.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: onDone)
+            }
+            
+            KeyPadView(valueDisplayed: Binding(
+                get: { typedPoints },
+                set: { value in
+                    typedPoints = min(value, CGFloat(request.maximum))
+                    request.onValue(Int(typedPoints))
+                }),
+                       sign: $sign,
+                       extraKey: request.extraKey,
+                       onExtraKey: {
+                // No extra key for this game : the key stays blank and inactive
+                guard !request.extraKey.isEmpty else { return }
+                typedPoints = 0
+                request.onExtraKey()
+            })
+            .font(.system(size: 24, design: .rounded))
+            .frame(height: 240)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .padding([.horizontal, .bottom], 8)
+        }
+        .background(
+            UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20)
+                .fill(Color.offWhite)
+                .ignoresSafeArea(edges: .bottom)
+        )
+        .overlay(
+            UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20)
+                .stroke(LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: .leading, endPoint: .trailing).opacity(0.5), lineWidth: 2)
+                .ignoresSafeArea(edges: .bottom)
+        )
+        .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: -5)
     }
 }
 
@@ -325,8 +423,10 @@ struct ChoiceList<Item: Hashable>: View {
     }
 }
 
-// Card points typed on the keypad of the cards, behind an "Add score" button
+// Card points behind an "Add score" button : the keypad comes up at the bottom of the screen
 struct PointsKeypadEntry: View {
+    @Environment(\.presentKeypad) var presentKeypad
+    
     var text : String
     var caption : String?
     var maximum : Int
@@ -334,10 +434,6 @@ struct PointsKeypadEntry: View {
     var extraKey : String = ""
     var onExtraKey : () -> Void = {}
     var onValue : (Int) -> Void
-    
-    @State private var showKeypad = false
-    @State private var typedPoints = CGFloat(0)
-    @State private var sign = CGFloat(1)
     
     var body: some View {
         HStack {
@@ -352,31 +448,9 @@ struct PointsKeypadEntry: View {
                 }
             }
             Spacer()
-            ChoiceChip(label: showKeypad ? "Done" : "Add score", isSelected: !showKeypad) {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    showKeypad.toggle()
-                }
+            ChoiceChip(label: "Add score", isSelected: true) {
+                presentKeypad(KeypadRequest(maximum: maximum, extraKey: extraKey, onExtraKey: onExtraKey, onValue: onValue))
             }
-        }
-        
-        if showKeypad {
-            KeyPadView(valueDisplayed: Binding(
-                get: { typedPoints },
-                set: { value in
-                    typedPoints = min(value, CGFloat(maximum))
-                    onValue(Int(typedPoints))
-                }),
-                       sign: $sign,
-                       extraKey: extraKey,
-                       onExtraKey: {
-                // No extra key for this game : the key stays blank and inactive
-                guard !extraKey.isEmpty else { return }
-                typedPoints = 0
-                onExtraKey()
-            })
-            .frame(height: 200)
-            .cornerRadius(14)
-            .transition(.opacity)
         }
     }
 }
