@@ -17,6 +17,23 @@ struct GameOptions: Codable, Equatable {
     var molkkyMissesOut = true
     // Uno : each player scores the cards left in his own hand and the lowest score wins
     var unoLowestWins = false
+    // Coinche
+    var coincheScoring = CoincheDeal.Scoring.announced
+    var coincheDefenseScores = false
+    var coincheBelote = false
+    
+    init() {}
+    
+    // Options saved by an older version lack the newer keys : they keep their default
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        target = try container.decodeIfPresent(Int.self, forKey: .target)
+        molkkyMissesOut = try container.decodeIfPresent(Bool.self, forKey: .molkkyMissesOut) ?? true
+        unoLowestWins = try container.decodeIfPresent(Bool.self, forKey: .unoLowestWins) ?? false
+        coincheScoring = try container.decodeIfPresent(CoincheDeal.Scoring.self, forKey: .coincheScoring) ?? .announced
+        coincheDefenseScores = try container.decodeIfPresent(Bool.self, forKey: .coincheDefenseScores) ?? false
+        coincheBelote = try container.decodeIfPresent(Bool.self, forKey: .coincheBelote) ?? false
+    }
 
     // Targets the players can pick, empty when the game has no target to change
     static func targets(for kind: GameKind) -> [Int] {
@@ -29,7 +46,7 @@ struct GameOptions: Codable, Equatable {
     }
 
     static func hasOptions(_ kind: GameKind) -> Bool {
-        kind == .molkky || kind == .uno || !targets(for: kind).isEmpty
+        kind == .molkky || kind == .uno || kind == .coinche || !targets(for: kind).isEmpty
     }
 
     static func key(for rules: GameRules) -> String {

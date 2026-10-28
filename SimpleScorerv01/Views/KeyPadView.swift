@@ -50,8 +50,9 @@ struct KeyPadRow: View {
 struct KeyPadView: View {
     @Binding var valueDisplayed: CGFloat
     @Binding var sign : CGFloat
-    // Replaces the ＋∕− key, e.g. the 50 points bonus of Scrabble
-    var bonusKey : Int? = nil
+    // Replaces the ＋∕− key : the 50 points bonus of Scrabble, the capot of Coinche
+    var extraKey : String? = nil
+    var onExtraKey : (() -> Void)? = nil
     
 
     var body: some View {
@@ -59,7 +60,7 @@ struct KeyPadView: View {
             KeyPadRow(keys: ["1", "2", "3"])
             KeyPadRow(keys: ["4", "5", "6"])
             KeyPadRow(keys: ["7", "8", "9"])
-            KeyPadRow(keys: [bonusKey.map { "+\($0)" } ?? "＋∕−", "0", "⌫"])
+            KeyPadRow(keys: [extraKey ?? "＋∕−", "0", "⌫"])
         }.environment(\.keyPadButtonAction, self.keyWasPressed(_:))
     }
 
@@ -69,8 +70,8 @@ struct KeyPadView: View {
         case "＋∕−" :
             sign = -sign
             
-        case _ where bonusKey != nil && key == "+\(bonusKey!)" :
-            valueDisplayed += CGFloat(bonusKey!)
+        case _ where key == extraKey :
+            onExtraKey?()
             
         case "⌫" :
             valueDisplayed = (valueDisplayed / 10).rounded(.towardZero)

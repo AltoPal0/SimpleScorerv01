@@ -19,7 +19,8 @@ enum ScreenType : Int, Comparable {
     case
     allScores = 0,
     scoreCards = 1,
-    gameSetup = 2
+    gameSetup = 2,
+    history = 3
     
     public static func < (a: ScreenType, b: ScreenType) -> Bool {
         return a.rawValue < b.rawValue

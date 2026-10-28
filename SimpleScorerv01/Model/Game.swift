@@ -30,6 +30,10 @@ class Game : ObservableObject {
         }
     }
 
+    // History entry of the game being played, created with its first points
+    private var recordID : UUID?
+    private var recordDate = Date()
+
     // MARK: - Game choice
     func choose(rules : GameRules) {
         self.rules = rules
@@ -105,6 +109,41 @@ class Game : ObservableObject {
             .joined(separator: " & ")
     }
 
+    // MARK: - History
+    func recordHistory() {
+        let hasPoints = playerScores.contains { !$0.pointsList.isEmpty }
+
+        MainActor.assumeIsolated {
+            guard hasPoints else {
+                // Every point was deleted : the game is no longer worth keeping
+                if let recordID = recordID {
+                    HistoryStore.shared.delete(id: recordID)
+                    self.recordID = nil
+                }
+                return
+            }
+
+            if recordID == nil {
+                recordID = UUID()
+                recordDate = Date()
+            }
+            HistoryStore.shared.save(
+                id: recordID!,
+                gameName: rules?.displayName ?? GameRules.universal.displayName,
+                gameID: rules?.id ?? GameRules.universal.id,
+                date: recordDate,
+                lowestScoreWins: lowestScoreWins,
+                players: playerScores.map { playerScore in
+                    RecordedPlayer(
+                        name: playerScore.player.name,
+                        initials: playerScore.player.initials,
+                        gradientIndex: playerScore.player.gradientIndex,
+                        points: playerScore.pointsList.map { $0.score },
+                        total: total(for: playerScore))
+                })
+        }
+    }
+
     // A whole round at once : every player gets his points, 0 when absent from the dictionary
     func addRound(points : [UUID : Int]) {
         let round = self.currentMaxNumberOfRounds()
@@ -117,6 +156,7 @@ class Game : ObservableObject {
         }
 
         self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
+        self.recordHistory()
     }
 
     // MARK: - Player functins
@@ -146,9 +186,9 @@ class Game : ObservableObject {
         self.addPlayer(player: Player())
     }
     
-    func addEmptyPlayer(with gradient : LinearGradient) {
+    func addEmptyPlayer(withGradientIndex gradientIndex : Int) {
         var player = Player()
-        player.colorGradient = gradient
+        player.gradientIndex = gradientIndex
         self.addPlayer(player: player)
     }
     
@@ -368,6 +408,7 @@ class Game : ObservableObject {
         }
         
         self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
+        self.recordHistory()
     }
     
     func addPointsFor(player : Player, points : Int, round : Int) {
@@ -380,6 +421,7 @@ class Game : ObservableObject {
             self.playerScores[pIndex].addPoints(scoreValue: 0)
             self.addPointsFor(player: player, points: points, round: round)
         }
+        self.recordHistory()
         
 //        self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
     }
@@ -399,26 +441,33 @@ class Game : ObservableObject {
         }
         
         self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
+        self.recordHistory()
     }
     
     func modifyPointsFor(player : Player, round : Int, points : Int) {
         let index = self.indexOf(player: player)!
         
         self.playerScores[index].modifyScore(newScore: points, forRound: round)
+        self.recordHistory()
     }
     
     func findScore(playerScore: PlayerScore) -> PlayerScore {
         return playerScores[playerScores.firstIndex(where: {$0.id == playerScore.id})!]
     }
     
-    func resetScores () {
+    // keepingGame : a new game of the same game, otherwise the players are asked which game they play
+    func resetScores (keepingGame : Bool) {
+        // The game ends : its history entry stays as it is
+        self.recordID = nil
+
         for (index, _) in playerScores.enumerated() {
             playerScores[index].resetScore()
         }
 
         self.maxNbrOfRounds = 0
-        // A new game starts : ask again which game is played
-        self.rules = nil
+        if !keepingGame {
+            self.rules = nil
+        }
         
     }
     
@@ -461,21 +510,21 @@ class Game : ObservableObject {
     
     func addTestPlayers (){
         
-        //        self.addPlayer(player: Player(name: "Steph", photoImage: UIImage(named: "steph-test"), colorGradient: gradiants[0]))
-        //        self.addPlayer(player: Player(name: "Sof", photoImage: UIImage(named: "vertical"), colorGradient: gradiants[1]))
-        //        self.addPlayer(player: Player(name: "Chloé", photoImage: UIImage(named: "chloe"), colorGradient: gradiants[3]))
-        //        self.addPlayer(player: Player(name: "Gaby", photoImage: UIImage(named: "gaby"), colorGradient: gradiants[4]))
+        //        self.addPlayer(player: Player(name: "Steph", photoImage: UIImage(named: "steph-test"), gradientIndex: 0))
+        //        self.addPlayer(player: Player(name: "Sof", photoImage: UIImage(named: "vertical"), gradientIndex: 1))
+        //        self.addPlayer(player: Player(name: "Chloé", photoImage: UIImage(named: "chloe"), gradientIndex: 3))
+        //        self.addPlayer(player: Player(name: "Gaby", photoImage: UIImage(named: "gaby"), gradientIndex: 4))
         //
-        self.addPlayer(player: Player(name: "Emma", initials: "Em",  colorGradient: gradiants[Int.random(in: 1 ..< 5)]))
-        self.addPlayer(player: Player(name: "Marc", initials: "M",  colorGradient: gradiants[Int.random(in: 5 ..< 10)]))
-        self.addPlayer(player: Player(name: "Mat", initials: "Mt",  colorGradient: gradiants[Int.random(in: 10 ..< 15)]))
-        self.addPlayer(player: Player(name: "Eva", initials: "Ev",  colorGradient: gradiants[Int.random(in: 15 ..< 20)]))
-        self.addPlayer(player: Player(name: "Louis", initials: "Lo",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-        self.addPlayer(player: Player(name: "Zoe", initials: "Z",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-//        self.addPlayer(player: Player(name: "Gabriel", initials: "G",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-//        self.addPlayer(player: Player(name: "Emily", initials: "El",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-//        self.addPlayer(player: Player(name: "Chris", initials: "C",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
-//        self.addPlayer(player: Player(name: "Steve", initials: "S",  colorGradient: gradiants[Int.random(in: 1 ..< 20)]))
+        self.addPlayer(player: Player(name: "Emma", initials: "Em",  gradientIndex: Int.random(in: 1 ..< 5)))
+        self.addPlayer(player: Player(name: "Marc", initials: "M",  gradientIndex: Int.random(in: 5 ..< 10)))
+        self.addPlayer(player: Player(name: "Mat", initials: "Mt",  gradientIndex: Int.random(in: 10 ..< 15)))
+        self.addPlayer(player: Player(name: "Eva", initials: "Ev",  gradientIndex: Int.random(in: 15 ..< 20)))
+        self.addPlayer(player: Player(name: "Louis", initials: "Lo",  gradientIndex: Int.random(in: 1 ..< 20)))
+        self.addPlayer(player: Player(name: "Zoe", initials: "Z",  gradientIndex: Int.random(in: 1 ..< 20)))
+//        self.addPlayer(player: Player(name: "Gabriel", initials: "G",  gradientIndex: Int.random(in: 1 ..< 20)))
+//        self.addPlayer(player: Player(name: "Emily", initials: "El",  gradientIndex: Int.random(in: 1 ..< 20)))
+//        self.addPlayer(player: Player(name: "Chris", initials: "C",  gradientIndex: Int.random(in: 1 ..< 20)))
+//        self.addPlayer(player: Player(name: "Steve", initials: "S",  gradientIndex: Int.random(in: 1 ..< 20)))
         
         //        self.addEmptyPlayer(with: gradiants[Int.random(in: 0 ..< 5)])
         //        self.addEmptyPlayer(with: gradiants[Int.random(in: 5 ..< 10)])
@@ -572,13 +621,13 @@ extension Game {
     
     convenience init(withTestEmptyNamePlayers: Void) {
         self.init()
-        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[1]))
-        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[2]))
-        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[3]))
-        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[4]))
-        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[5]))
-        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[6]))
-        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  colorGradient: gradiants[7]))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  gradientIndex: 1))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  gradientIndex: 2))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  gradientIndex: 3))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  gradientIndex: 4))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  gradientIndex: 5))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  gradientIndex: 6))
+        self.addPlayer(player: Player(name: Player.defaultName, initials: "",  gradientIndex: 7))
 
     }
 }

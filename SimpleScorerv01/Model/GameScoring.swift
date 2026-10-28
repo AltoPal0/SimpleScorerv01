@@ -22,59 +22,81 @@ enum Molkky {
 }
 
 // MARK: - Coinche
-// "Points faits" scoring : 162 card points per deal (dix de der included), 250 for a capot
+// 162 card points per deal (dix de der included), 250 for a capot
 
 struct CoincheDeal {
-
+    
+    enum Scoring: String, Codable {
+        // The taking team scores the contract announced, a contract down gives 160 to the other team
+        case announced
+        // The contract plus the card points rounded to the ten
+        case pointsMade
+    }
+    
     static let contracts = [80, 90, 100, 110, 120, 130, 140, 150, 160, Coinche.capot]
-
+    
     var takerTeam = 0
     var contract = 80
     // 1, 2 when coinchée, 4 when surcoinchée
     var multiplier = 1
     // Card points of the taking team, the defense has the rest of the 162
-    var takerPoints = 81
+    var takerPoints = 0
     var takerIsCapot = false
-    // Team holding belote-rebelote : +20 whatever the result of the contract
+    // Team holding belote-rebelote, +20 when the players count it
     var beloteTeam: Int?
-
+    
+    // House rules
+    var scoring = Scoring.announced
+    var defenseScores = false
+    var countsBelote = false
+    
+    var beloteBonus: (taker: Int, defense: Int) {
+        guard countsBelote, let beloteTeam = beloteTeam else { return (0, 0) }
+        return beloteTeam == takerTeam ? (20, 0) : (0, 20)
+    }
+    
     var isMade: Bool {
         if contract == Coinche.capot {
             return takerIsCapot
         }
-        return takerIsCapot || takerPoints + (beloteTeam == takerTeam ? 20 : 0) >= contract
+        return takerIsCapot || takerPoints + beloteBonus.taker >= contract
     }
-
+    
+    // Card points left to the defense, rounded to the ten so that the two teams share 160
+    var roundedDefensePoints: Int {
+        takerIsCapot ? 0 : 160 - min(160, Int((Double(takerPoints) / 10).rounded()) * 10)
+    }
+    
     // Points scored by team 0 and team 1
     func teamScores() -> [Int] {
         var taker = 0
         var defense = 0
-
-        if !isMade {
-            defense = 160 + contract * multiplier
-        } else if multiplier > 1 {
+        
+        switch (scoring, isMade) {
+        case (.announced, true):
+            taker = contract * multiplier
+            defense = defenseScores ? roundedDefensePoints : 0
+        case (.announced, false):
+            defense = 160 * multiplier
+        case (.pointsMade, true) where multiplier > 1:
             taker = (takerIsCapot ? Coinche.capot : 160) + contract * multiplier
-        } else if takerIsCapot {
-            taker = Coinche.capot + contract
-        } else {
-            // Card points rounded to the ten, the two teams still share 160
-            let rounded = min(160, Int((Double(takerPoints) / 10).rounded()) * 10)
-            taker = rounded + contract
-            defense = 160 - rounded
+        case (.pointsMade, true):
+            taker = (takerIsCapot ? Coinche.capot : 160 - roundedDefensePoints) + contract
+            defense = defenseScores ? roundedDefensePoints : 0
+        case (.pointsMade, false):
+            defense = 160 + contract * multiplier
         }
-
-        var scores = takerTeam == 0 ? [taker, defense] : [defense, taker]
-        if let beloteTeam = beloteTeam {
-            scores[beloteTeam] += 20
-        }
-        return scores
+        
+        taker += beloteBonus.taker
+        defense += beloteBonus.defense
+        return takerTeam == 0 ? [taker, defense] : [defense, taker]
     }
 }
 
 enum Coinche {
     static let capot = 250
     static let target = 2000
-
+    
     // With 4 players, partners sit face to face : 1st & 3rd against 2nd & 4th
     static func team(ofPlayerAt index: Int) -> Int {
         index % 2

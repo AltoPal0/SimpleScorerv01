@@ -200,10 +200,9 @@ struct GameChoiceView: View {
         ZStack {
             if isAboveTrash {
                 LinearGradient(Color(hex: 0xCB356B),Color(hex: 0xBD3F32))
-            } else if choice.isRecent {
-                LinearGradient(Color(hex: 0x136a8a),Color(hex: 0x267871))
             } else {
-                LinearGradient(Color(hex: 0xf12711),Color(hex: 0xf5af19))
+                // Same gradient as the previous players
+                LinearGradient(Color(hex: 0x136a8a),Color(hex: 0x267871))
             }
             
             VStack(spacing: 0) {

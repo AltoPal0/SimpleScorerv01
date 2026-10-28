@@ -63,12 +63,13 @@ struct TopSwiperView: View {
                             state.width = value.translation.width
                         }
                         .onEnded({ (value) in
-                            if value.startLocation.x > (geo.size.width - swipeAreaSides) && self.displayInfo.screenDisplayed != .gameSetup {
+                            if value.startLocation.x > (geo.size.width - swipeAreaSides) && self.displayInfo.screenDisplayed != .history {
                                 withAnimation{
                                     self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
                                 }
                             } else if value.startLocation.x < swipeAreaSides && self.displayInfo.screenDisplayed != .allScores {
-                                if game.nbrPlayersUnanmed() > 0 {
+                                // Back on the scores with players to name : ask their names first
+                                if game.nbrPlayersUnanmed() > 0 && self.displayInfo.screenDisplayed == .gameSetup {
                                     withAnimation{
                                         self.showPlayerEntry = true
                                     }

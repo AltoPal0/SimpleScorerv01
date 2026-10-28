@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftUI
+import SwiftData
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -42,6 +43,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 displayInfo.roundEntryPlayerID = game.playerScores.first?.player.id
             }
         }
+        // -demoHistory adds sample games to the history and opens it
+        if arguments.contains("-demoHistory") {
+            let store = HistoryStore.shared
+            store.save(id: UUID(), gameName: "Tarot", gameID: "tarot", date: Date().addingTimeInterval(-3600), lowestScoreWins: false, players: [
+                RecordedPlayer(name: "Emma", initials: "Em", gradientIndex: 2, points: [], total: 312),
+                RecordedPlayer(name: "Marc", initials: "M", gradientIndex: 9, points: [], total: -104),
+                RecordedPlayer(name: "Mat", initials: "Mt", gradientIndex: 12, points: [], total: -58),
+                RecordedPlayer(name: "Eva", initials: "Ev", gradientIndex: 17, points: [], total: -150)])
+            store.save(id: UUID(), gameName: "Mölkky", gameID: "molkky", date: Date().addingTimeInterval(-86400 - 7200), lowestScoreWins: false, players: [
+                RecordedPlayer(name: "Louis", initials: "Lo", gradientIndex: 4, points: [], total: 50),
+                RecordedPlayer(name: "Zoe", initials: "Z", gradientIndex: 14, points: [], total: 37)])
+            store.save(id: UUID(), gameName: "Skyjo", gameID: "custom.skyjo", date: Date().addingTimeInterval(-86400 * 9), lowestScoreWins: false, players: [
+                RecordedPlayer(name: "Emma", initials: "Em", gradientIndex: 2, points: [], total: 41),
+                RecordedPlayer(name: "Marc", initials: "M", gradientIndex: 9, points: [], total: 102),
+                RecordedPlayer(name: "Eva", initials: "Ev", gradientIndex: 17, points: [], total: 77)])
+            displayInfo.screenDisplayed = .history
+        }
+        // -demoRecord scores a point through the real game, which saves it in the history
+        if arguments.contains("-demoRecord"), let player = game.playerScores.first?.player {
+            game.addPointsFor(player: player, points: 7)
+            displayInfo.screenDisplayed = .history
+        }
         #endif
         let contentView = GameScoreView()
         
@@ -51,7 +74,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.rootViewController = UIHostingController(
                 rootView: contentView
                     .environmentObject(displayInfo)
-                    .environmentObject(game))
+                    .environmentObject(game)
+                    .modelContainer(HistoryStore.shared.container))
             self.window = window
             window.makeKeyAndVisible()
         }

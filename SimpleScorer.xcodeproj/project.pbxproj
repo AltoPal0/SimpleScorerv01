@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		314AFFC5A3391E68E8C92C44 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC12CA7465D29EAB3F45D84 /* HistoryView.swift */; };
+		2F6F383DC9DDF7E18CF19BAA /* GameRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BDFEE6396FCDA1037E40E39 /* GameRecord.swift */; };
 		40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */; };
 		18ED0AC794191FBFEB3A51F5 /* GameOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEF257C391AD56DAFFD01AC /* GameOptions.swift */; };
 		7EE4E6DE9FEC64EFFD507330 /* MolkkyPadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1A82C89664921FB888DC23 /* MolkkyPadView.swift */; };
@@ -47,6 +49,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1AC12CA7465D29EAB3F45D84 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		1BDFEE6396FCDA1037E40E39 /* GameRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRecord.swift; sourceTree = "<group>"; };
 		A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHeaderView.swift; sourceTree = "<group>"; };
 		5BEF257C391AD56DAFFD01AC /* GameOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOptions.swift; sourceTree = "<group>"; };
 		0B1A82C89664921FB888DC23 /* MolkkyPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MolkkyPadView.swift; sourceTree = "<group>"; };
@@ -156,6 +160,7 @@
 		E88751AB241F99F90091853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				1BDFEE6396FCDA1037E40E39 /* GameRecord.swift */,
 				5BEF257C391AD56DAFFD01AC /* GameOptions.swift */,
 				74AFB240BD37054D39B79C6B /* GameScoring.swift */,
 				A02E4ED99C639E82FE72BA8B /* RecentGames.swift */,
@@ -179,6 +184,7 @@
 		E88751B3241F9DE90091853F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1AC12CA7465D29EAB3F45D84 /* HistoryView.swift */,
 				A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */,
 				0B1A82C89664921FB888DC23 /* MolkkyPadView.swift */,
 				F3978E48DE0DE4E3E14C429F /* TarotRoundView.swift */,
@@ -288,6 +294,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				314AFFC5A3391E68E8C92C44 /* HistoryView.swift in Sources */,
+				2F6F383DC9DDF7E18CF19BAA /* GameRecord.swift in Sources */,
 				40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */,
 				18ED0AC794191FBFEB3A51F5 /* GameOptions.swift in Sources */,
 				7EE4E6DE9FEC64EFFD507330 /* MolkkyPadView.swift in Sources */,

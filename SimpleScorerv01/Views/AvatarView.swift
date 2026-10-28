@@ -71,15 +71,15 @@ struct CircleImage_Previews: PreviewProvider {
     static var previews: some View {
         
         Group {
-            AvatarView(user: Player(name: "Stephane", initials: "St", photoImage: UIImage(named: "vertical"), colorGradient: gradiants[0]))
+            AvatarView(user: Player(name: "Stephane", initials: "St", photoImage: UIImage(named: "vertical"), gradientIndex: 0))
                 .background(Color.orangeEnd)
                 .previewLayout(.fixed(width: 50, height: 50))
             
-            AvatarView(user: Player(name: "Stephane", initials: "St", photoImage: UIImage(named: "steph-test"), colorGradient: gradiants[0]))
+            AvatarView(user: Player(name: "Stephane", initials: "St", photoImage: UIImage(named: "steph-test"), gradientIndex: 0))
             .background(Color.orangeEnd)
             .previewLayout(.fixed(width: 200, height: 300))
             
-            AvatarView(user: Player(name: "Karim", initials: "Wm", colorGradient: gradiants[0]))    
+            AvatarView(user: Player(name: "Karim", initials: "Wm", gradientIndex: 0))    
             .background(Color.orangeEnd)
             .previewLayout(.fixed(width: 40, height: 40))
             

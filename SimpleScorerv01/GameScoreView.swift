@@ -25,7 +25,7 @@ struct GameScoreView: View {
     
     // The game played stays on top of the scores screens
     var showGameHeader: Bool {
-        self.game.rules != nil && self.displayInfo.screenDisplayed != .gameSetup && !self.showPlayerEntry
+        self.game.rules != nil && self.displayInfo.screenDisplayed < .gameSetup && !self.showPlayerEntry
     }
     
     var body: some View {
@@ -52,6 +52,9 @@ struct GameScoreView: View {
                         
                         GameSetupView(showPlayerEntry: self.$showPlayerEntry)
                             .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
+                        
+                        HistoryView()
+                            .modifier(cubeRotation(dragOffset: $dragOffset, screen: .history, screenWidth: geometry.size.width))
                     }
                 }
                 .animation(.easeInOut(duration: 0.3), value: self.showGameHeader)
@@ -63,7 +66,7 @@ struct GameScoreView: View {
                 
                 if self.showPlayerEntry {
                     NameEntryView(isVisible: self.$showPlayerEntry)
-                } else if self.game.needsGameChoice() && self.displayInfo.screenDisplayed != .gameSetup {
+                } else if self.game.needsGameChoice() && self.displayInfo.screenDisplayed < .gameSetup {
                     GameEntryView()
                         .transition(.opacity)
                 }

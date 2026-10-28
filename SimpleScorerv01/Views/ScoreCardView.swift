@@ -55,7 +55,9 @@ struct ScoreCardView: View {
                     Spacer()
                     
                     Button(action: {
-                        self.displayInfo.gradients.append(self.playerScore.player.colorGradient)
+                        if let index = self.playerScore.player.gradientIndex {
+                            self.displayInfo.gradientIndices.append(index)
+                        }
                         withAnimation {
                             self.game.removePlayer(player: self.playerScore.player)
                             self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
@@ -117,7 +119,9 @@ struct ScoreCardView: View {
                                     .padding([.horizontal,.bottom],3)
                                     .disabled(self.dragOffset.width != 0)
                             } else if self.showKeyPad {
-                                KeyPadView(valueDisplayed: $pointsScored, sign: $sign, bonusKey: self.game.activeKind == .scrabble ? 50 : nil)
+                                KeyPadView(valueDisplayed: $pointsScored, sign: $sign,
+                                           extraKey: self.game.activeKind == .scrabble ? "+50" : nil,
+                                           onExtraKey: { self.pointsScored += 50 })
                                     .frame(height: frameHeight*4/3)
                                     .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
                                     .padding([.horizontal,.bottom],3)
@@ -424,7 +428,7 @@ struct ScoreCardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ScrollViewReader { proxy in
-                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", colorGradient: LinearGradient.gradDefault), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy, indexForEditView: .constant(0), displayEditView: .constant(false))
+                ScoreCardView(playerScore: PlayerScore(player: Player(name: "Stephane", initials: "St", gradientIndex: nil), pointsList: [Points(score: 1000, round: 0)]),scrollReaderProxy: proxy, indexForEditView: .constant(0), displayEditView: .constant(false))
     //                    .previewLayout(.sizeThatFits)
                         .padding(.horizontal, 15)
                         .padding(.bottom,15)

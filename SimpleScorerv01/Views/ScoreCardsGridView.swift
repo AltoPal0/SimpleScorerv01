@@ -63,7 +63,17 @@ struct ScoreCardsGridView: View {
                     }
                 }
                 .padding(20)
-                
+
+                // Games scoring all the players at once : the round is entered for the whole table
+                if game.entersRounds, let firstPlayer = game.playerScores.first?.player {
+                    NewRoundButton {
+                        displayInfo.roundEntryPlayerID = firstPlayer.id
+                    }
+                    .padding(.horizontal, 20)
+                    // Room for the bottom arrows
+                    .padding(.bottom, 80)
+                }
+
             }
             .coordinateSpace(name: "pullToRefresh")
             .onDrop(of: [UTType.text], delegate: DropResetDelegate {
@@ -82,6 +92,33 @@ struct ScoreCardsGridView: View {
         .sheet(isPresented: $displayEditView) {
                     EditView(playerIdx: idxForEditView, displayEditView: $displayEditView)
                 }
+    }
+}
+
+struct NewRoundButton: View {
+    var action : () -> Void
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 14)
+            .fill(LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: UnitPoint(x: 0.2, y: 0.2), endPoint: UnitPoint(x: 0.8, y: 0.8)))
+            .overlay(
+                Text("NEW ROUND")
+                    .fontWeight(.semibold)
+                    .font(.system(.title, design: .rounded))
+                    .foregroundColor(Color .offWhite)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.offWhite, lineWidth: 1)
+            )
+            .frame(maxWidth: 600)
+            .frame(height: 80)
+            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                action()
+            }
     }
 }
 

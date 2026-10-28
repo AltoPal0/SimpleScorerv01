@@ -69,7 +69,13 @@ struct GameOptionsView: View {
         case .molkky:
             return "Exactly 50 to win. Going over 50 sends you back to 25."
         case .coinche:
-            return "Points faits : a contract made scores the contract plus the card points rounded to the ten, the defense keeps its points. Coinchée made : 160 + contract × 2 or × 4. Contract down : the defense scores 160 + contract. Belote +20 to its holder. With 4 players, 1st & 3rd play against 2nd & 4th."
+            let options = game.options
+            var rules = options.coincheScoring == .announced
+                ? "A contract made scores the contract announced, × 2 when coinchée, × 4 when surcoinchée. A contract down gives 160 to the other team, × 2 or × 4 as well."
+                : "A contract made scores the contract plus the card points rounded to the ten. Coinchée made : 160 + contract × 2 or × 4. A contract down gives 160 + contract to the other team."
+            rules += options.coincheDefenseScores ? " The defense scores its card points." : " Only the taking team scores."
+            rules += options.coincheBelote ? " Belote +20 to its holder." : " Belote is not counted."
+            return rules + " With 4 players, 1st & 3rd play against 2nd & 4th."
         case .tarot:
             return "French federation scoring : 25 + difference, times the contract (×1, ×2, ×4, ×6). Petit au bout ±10 × contract, poignée 20 / 30 / 40 to the winning side. Chelem not counted."
         case .scrabble:
@@ -125,6 +131,20 @@ struct GameOptionsView: View {
                             }
                         }
 
+                        if game.activeKind == .coinche {
+                            RoundSection(title: "Scoring") {
+                                ChoiceList(items: [CoincheDeal.Scoring.announced, .pointsMade], selection: $game.options.coincheScoring) {
+                                    $0 == .announced ? "Contract announced" : "Contract + card points"
+                                }
+                            }
+                            RoundSection(title: "Defense card points") {
+                                ChoiceChips(items: [false, true], selection: $game.options.coincheDefenseScores, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
+                            }
+                            RoundSection(title: "Belote · Rebelote +20") {
+                                ChoiceChips(items: [false, true], selection: $game.options.coincheBelote, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
+                            }
+                        }
+                        
                         if game.activeKind == .uno {
                             RoundSection(title: "Scoring") {
                                 ChoiceList(items: [false, true], selection: $game.options.unoLowestWins) {

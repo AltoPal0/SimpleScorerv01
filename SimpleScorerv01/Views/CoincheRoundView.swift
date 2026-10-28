@@ -20,12 +20,22 @@ struct CoincheRoundView: View {
     // Belote holder as a chip : nil, team 0 or team 1
     @State private var belote = -1
 
+    // Card points of the taking team, typed on the keypad
+    @State private var pointsEntered = false
+    @State private var showKeypad = false
+    @State private var typedPoints = CGFloat(0)
+    @State private var sign = CGFloat(1)
+
+    // The deal with the house rules of the players
     var fullDeal : CoincheDeal {
         var deal = deal
         deal.beloteTeam = belote < 0 ? nil : belote
+        deal.scoring = game.options.coincheScoring
+        deal.defenseScores = game.options.coincheDefenseScores
+        deal.countsBelote = game.options.coincheBelote
         return deal
     }
-    
+
     var teamScores : [Int] {
         fullDeal.teamScores()
     }
@@ -37,6 +47,11 @@ struct CoincheRoundView: View {
             points[playerScore.player.id] = teamScores[game.coincheTeam(of: playerScore)]
         }
         return points
+    }
+
+    var pointsText : String {
+        if deal.takerIsCapot { return "Capot" }
+        return pointsEntered ? "\(deal.takerPoints)" : "—"
     }
 
     var body: some View {
@@ -59,20 +74,58 @@ struct CoincheRoundView: View {
             }
 
             RoundSection(title: "Points of \(game.coincheTeamName(deal.takerTeam))") {
-                ChoiceChips(items: [false, true], selection: $deal.takerIsCapot, minimumWidth: 150) { $0 ? "Capot" : "Card points" }
-                if !deal.takerIsCapot {
-                    PointsDial(value: $deal.takerPoints, range: 0...162,
-                               caption: "defense \(162 - deal.takerPoints)")
+                HStack {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(pointsText)
+                            .font(Font.system(size: 50, weight: .bold, design: .rounded))
+                            .foregroundColor(.gray)
+                        if pointsEntered && !deal.takerIsCapot {
+                            Text("defense \(162 - deal.takerPoints)")
+                                .font(Font.system(size: 15, weight: .light, design: .rounded))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    Spacer()
+                    ChoiceChip(label: showKeypad ? "Done" : "Add score", isSelected: !showKeypad) {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            showKeypad.toggle()
+                        }
+                    }
+                }
+
+                if showKeypad {
+                    KeyPadView(valueDisplayed: Binding(
+                        get: { typedPoints },
+                        set: { value in
+                            typedPoints = min(value, 162)
+                            deal.takerPoints = Int(typedPoints)
+                            deal.takerIsCapot = false
+                            pointsEntered = true
+                        }),
+                               sign: $sign,
+                               extraKey: "Capot",
+                               onExtraKey: {
+                        typedPoints = 0
+                        deal.takerPoints = 162
+                        deal.takerIsCapot = true
+                        pointsEntered = true
+                    })
+                    .frame(height: 200)
+                    .cornerRadius(14)
+                    .transition(.opacity)
                 }
             }
 
-            RoundSection(title: "Belote · Rebelote") {
-                ChoiceChips(items: [-1, 0, 1], selection: $belote, minimumWidth: 100) { $0 < 0 ? "—" : game.coincheTeamName($0) }
+            if game.options.coincheBelote {
+                RoundSection(title: "Belote · Rebelote") {
+                    ChoiceChips(items: [-1, 0, 1], selection: $belote, minimumWidth: 100) { $0 < 0 ? "—" : game.coincheTeamName($0) }
+                }
             }
         } preview: {
-            RoundPreview(points: points, caption: fullDeal.isMade ? "Contract made" : "Contract down")
+            RoundPreview(points: pointsEntered ? points : [:],
+                         caption: pointsEntered ? (fullDeal.isMade ? "Contract made" : "Contract down") : nil)
         } confirm: {
-            ConfirmBar(isEnabled: true) {
+            ConfirmBar(isEnabled: pointsEntered) {
                 onConfirm(points)
             }
         }

@@ -12,7 +12,8 @@ class GlobalDisplayInfo: ObservableObject {
     
     @Published var screenDisplayed = ScreenType.gameSetup
     @Published var indexOFTextfieldFocused : Int = 1000
-    @Published var gradients = gradiants.shuffled()
+    // Gradients still free for new players, as indices in the gradiants palette
+    @Published var gradientIndices = Array(gradiants.indices).shuffled()
     @Published var scoreCardSize = CardSize.compact
     @Published var showBottomButtons = true
     // Player tapped to enter a whole round (deal, mène) : the round entry sheet is shown when set

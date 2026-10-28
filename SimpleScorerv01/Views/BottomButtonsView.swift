@@ -24,13 +24,17 @@ struct BottomButtonsView: View {
         VStack {
             Spacer()
             HStack {
-                if !(self.displayInfo.screenDisplayed == .allScores)  && !(game.playerScores.count == 0)  {
+                if self.displayInfo.screenDisplayed == .history || (!(self.displayInfo.screenDisplayed == .allScores) && !(game.playerScores.count == 0)) {
                     Image(systemName: "arrow.left.circle")
                         .font(.system(.largeTitle, design: .rounded))
                         .foregroundColor(colorScheme == .dark ? Color.gray : Color.gray)
                         .background(Circle().foregroundColor(Color .clear))
                         .onTapGesture {
                             withAnimation{
+                                if self.displayInfo.screenDisplayed == .history {
+                                    self.displayInfo.screenDisplayed = .gameSetup
+                                    return
+                                }
                                 if game.nbrPlayersUnanmed() > 0 {
                                     showPlayerEntry = true
                                 } else {
@@ -47,7 +51,7 @@ struct BottomButtonsView: View {
                     EmptyView()
                 }
                 Spacer()
-                if !(self.displayInfo.screenDisplayed == .gameSetup) {
+                if !(self.displayInfo.screenDisplayed == .history) {
                     Image(systemName: "arrow.right.circle")
                         .font(.system(.largeTitle, design: .rounded))
                         .foregroundColor(Color.gray)
@@ -57,8 +61,10 @@ struct BottomButtonsView: View {
                             withAnimation{
                                 if self.displayInfo.screenDisplayed == .allScores {
                                     self.displayInfo.screenDisplayed = .scoreCards
-                                } else {
+                                } else if self.displayInfo.screenDisplayed == .scoreCards {
                                     self.displayInfo.screenDisplayed = .gameSetup
+                                } else {
+                                    self.displayInfo.screenDisplayed = .history
                                 }
                             }
                         }.padding()

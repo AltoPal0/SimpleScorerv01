@@ -43,15 +43,7 @@ struct GameSetupView: View {
                         self.showingActionSheet = true
                     }
                     .actionSheet(isPresented: $showingActionSheet) {
-                        ActionSheet(title: Text("This will reset all scores to 0").font(.system(.headline, design: .rounded)), buttons: [
-                            .default(Text("OK")) {
-                                self.game.resetScores()
-                                if game.playerScores.count > 0 {
-                                    self.moveNextScreen()
-                                }
-                            },
-                            .cancel()
-                        ])
+                        ActionSheet(title: Text("This will reset all scores to 0").font(.system(.headline, design: .rounded)), buttons: self.resetButtons())
                     }
                 
                 
@@ -68,7 +60,9 @@ struct GameSetupView: View {
 //                        .padding(.trailing)
                         .onTapGesture {
                             if self.game.playerScores.count > 0 {
-                                self.displayInfo.gradients.append((self.game.playerScores.last?.player.colorGradient)!)
+                                if let index = self.game.playerScores.last?.player.gradientIndex {
+                                    self.displayInfo.gradientIndices.append(index)
+                                }
                                 self.game.removeLastPlayer()
                                 self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                             }
@@ -96,15 +90,13 @@ struct GameSetupView: View {
                             Text("+ ")
                             .font(Font.system(size: 40, weight: .light, design: .rounded))
                             .foregroundColor(Color.offWhite)
-                            .opacity(self.displayInfo.gradients.count > 0 ? 1 : 0.5)
+                            .opacity(self.displayInfo.gradientIndices.count > 0 ? 1 : 0.5)
                         )
                             
                         .onTapGesture {
                             
-                            if self.displayInfo.gradients.count > 0 {
-                                let grad = self.displayInfo.gradients.last!
-                                self.displayInfo.gradients.removeLast()
-                                self.game.addEmptyPlayer(with: grad)
+                            if let index = self.displayInfo.gradientIndices.popLast() {
+                                self.game.addEmptyPlayer(withGradientIndex: index)
                                 self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
                             }
                         }
@@ -149,6 +141,32 @@ struct GameSetupView: View {
                 .padding()
         )
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+    }
+    
+    // Same game again or another one : changing the game also starts from 0
+    func resetButtons() -> [ActionSheet.Button] {
+        var buttons = [ActionSheet.Button]()
+        if let rules = self.game.rules {
+            buttons.append(.default(Text("New game of \(rules.displayName)")) {
+                self.reset(keepingGame: true)
+            })
+            buttons.append(.default(Text("Change game")) {
+                self.reset(keepingGame: false)
+            })
+        } else {
+            buttons.append(.default(Text("OK")) {
+                self.reset(keepingGame: false)
+            })
+        }
+        buttons.append(.cancel())
+        return buttons
+    }
+    
+    func reset(keepingGame: Bool) {
+        self.game.resetScores(keepingGame: keepingGame)
+        if game.playerScores.count > 0 {
+            self.moveNextScreen()
+        }
     }
     
     func moveNextScreen() {
