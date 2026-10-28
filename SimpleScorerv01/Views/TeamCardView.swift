@@ -38,7 +38,6 @@ struct TeamCardView: View {
                 }
                 .padding(.leading, 6 * scale)
                 .frame(height: rowHeight)
-                .background(playerScore.player.colorGradient)
                 .overlay(alignment: .bottom) {
                     if index == 0 {
                         Rectangle().fill(Color.offWhite.opacity(0.6)).frame(height: 0.5)
@@ -46,6 +45,8 @@ struct TeamCardView: View {
                 }
             }
         }
+        // One color for the team : the gradient of its first player, as its column
+        .background(team.first?.player.colorGradient)
         // One score for the team, over both lines
         .overlay(alignment: .trailing) {
             if let first = team.first {

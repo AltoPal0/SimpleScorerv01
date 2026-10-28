@@ -36,7 +36,8 @@ struct ColumnMetrics {
         headerHeight + pointsHeight + totalHeight
     }
     
-    static func compute(width: CGFloat, height: CGFloat, players: Int, rounds: Int) -> ColumnMetrics {
+    // avatarsPerColumn : 2 for the Coinche teams, side by side, so a lower header
+    static func compute(width: CGFloat, height: CGFloat, players: Int, rounds: Int, avatarsPerColumn: Int = 1) -> ColumnMetrics {
         guard players > 0, width > 0, height > 0 else { return ColumnMetrics() }
         
         let fitting = (width - spacing * CGFloat(players - 1)) / CGFloat(players)
@@ -45,7 +46,7 @@ struct ColumnMetrics {
         
         var metrics = ColumnMetrics(
             width: columnWidth,
-            headerHeight: columnWidth + 10,
+            headerHeight: (columnWidth - 14) / CGFloat(avatarsPerColumn) + 14,
             totalHeight: columnWidth * 0.9,
             rowHeight: columnWidth / 2)
         
@@ -103,15 +104,16 @@ struct AllScoresView_new: View {
                     width: geometry.size.width - 2 * AllScoresView_new.sideMargin,
                     height: geometry.size.height - AllScoresView_new.margin - AllScoresView_new.bottomRoom,
                     players: columns.count,
-                    rounds: game.maxNbrOfRounds)
+                    rounds: game.maxNbrOfRounds,
+                    avatarsPerColumn: columns.first?.count ?? 1)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     VStack(spacing: 0) {
                         // Initials
                         HStack(spacing: ColumnMetrics.spacing) {
                             ForEach(columns, id: \.self) { column in
-                                // Partners one above the other
-                                VStack(spacing: 2) {
+                                // Partners side by side, smaller
+                                HStack(spacing: 2) {
                                     ForEach(column, id: \.self) { idx in
                                         AvatarView(user: game.playerScores[idx].player)
                                     }
