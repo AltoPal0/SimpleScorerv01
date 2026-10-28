@@ -12,7 +12,8 @@ struct TarotRoundView: View {
 
     @EnvironmentObject var game : Game
 
-    @State var takerID : UUID
+    // nil until chosen when the round was opened by New round
+    @State var takerID : UUID?
     var onConfirm : ([UUID : Int]) -> Void
 
     @State private var deal = TarotDeal()
@@ -20,17 +21,25 @@ struct TarotRoundView: View {
     // 5 players : the partner is easily forgotten, the taker alone is confirmed first
     @State private var confirmsPlayingAlone = false
     // 5 players : the called king, the taker when playing alone
-    @State private var partnerID : UUID
+    @State private var partnerID : UUID?
+    @State private var missesTaker = false
     // Petit au bout, poignée and misères, in a panel over the bottom of the screen
     @State private var showExtras = false
     @State private var misereIDs = Set<UUID>()
 
-    init(takerID: UUID, onConfirm: @escaping ([UUID : Int]) -> Void) {
+    init(takerID: UUID?, onConfirm: @escaping ([UUID : Int]) -> Void) {
         self._takerID = State(initialValue: takerID)
         self._partnerID = State(initialValue: takerID)
         self.onConfirm = onConfirm
     }
 
+    // The avatars show no selection while nobody is chosen
+    static let nobody = UUID()
+    
+    func choice(_ id: Binding<UUID?>) -> Binding<UUID> {
+        Binding(get: { id.wrappedValue ?? TarotRoundView.nobody }, set: { id.wrappedValue = $0 })
+    }
+    
     var takerName : String {
         game.playerScores.first { $0.player.id == takerID }?.player.name ?? ""
     }
@@ -40,9 +49,10 @@ struct TarotRoundView: View {
     }
 
     var points : [UUID : Int] {
+        guard let takerID = takerID else { return [:] }
         var deal = deal
         deal.taker = game.indexOf(playerID: takerID) ?? 0
-        deal.partner = isFivePlayers ? game.indexOf(playerID: partnerID) : nil
+        deal.partner = isFivePlayers ? partnerID.flatMap { game.indexOf(playerID: $0) } : nil
         deal.miseres = misereIDs.compactMap { game.indexOf(playerID: $0) }
 
         let scores = deal.scores(playerCount: game.playerScores.count)
@@ -83,12 +93,12 @@ struct TarotRoundView: View {
         ZStack(alignment: .bottom) {
             RoundEntryLayout(title: "Tarot") {
                 RoundSection(title: "Taker") {
-                    PlayerPickRow(players: game.playerScores, selected: $takerID)
+                    PlayerPickRow(players: game.playerScores, selected: choice($takerID))
                 }
 
                 if isFivePlayers {
                     RoundSection(title: "Called king") {
-                        PlayerPickRow(players: game.playerScores, selected: $partnerID)
+                        PlayerPickRow(players: game.playerScores, selected: choice($partnerID))
                     }
                 }
 
@@ -122,10 +132,12 @@ struct TarotRoundView: View {
                 .frame(maxWidth: .infinity)
             } preview: {
                 RoundPreview(points: pointsEntered ? points : [:],
-                             caption: pointsEntered ? (deal.isMade ? "Contract made" : "Contract down") : nil)
+                             caption: pointsEntered && takerID != nil ? (deal.isMade ? "Contract made" : "Contract down") : nil)
             } confirm: {
                 ConfirmBar(isEnabled: pointsEntered) {
-                    if isFivePlayers && partnerID == takerID {
+                    if takerID == nil {
+                        missesTaker = true
+                    } else if isFivePlayers && partnerID == takerID {
                         confirmsPlayingAlone = true
                     } else {
                         onConfirm(points)
@@ -144,6 +156,11 @@ struct TarotRoundView: View {
                 .transition(.move(edge: .bottom))
                 .zIndex(1)
             }
+        }
+        .alert("Who took?", isPresented: $missesTaker) {
+            Button("OK") {}
+        } message: {
+            Text("Choose the taker before saving the deal.")
         }
         .alert("\(takerName) plays alone?", isPresented: $confirmsPlayingAlone) {
             Button("Plays alone") {

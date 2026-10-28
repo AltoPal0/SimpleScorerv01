@@ -156,6 +156,7 @@ struct ScoreCardsGridView: View {
                 // Games scoring all the players at once : the round is entered for the whole table
                 if game.entersRounds, let firstPlayer = game.playerScores.first?.player {
                     NewRoundButton {
+                        displayInfo.roundEntryPreselects = false
                         displayInfo.roundEntryPlayerID = firstPlayer.id
                     }
                     .padding(.horizontal, 20)

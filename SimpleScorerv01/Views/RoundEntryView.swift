@@ -24,7 +24,7 @@ struct RoundEntryView: View {
 
             switch game.activeKind {
             case .tarot:
-                TarotRoundView(takerID: playerID, onConfirm: confirm)
+                TarotRoundView(takerID: displayInfo.roundEntryPreselects ? playerID : nil, onConfirm: confirm)
             case .coinche:
                 CoincheRoundView(playerID: playerID, onConfirm: confirm)
             case .uno:

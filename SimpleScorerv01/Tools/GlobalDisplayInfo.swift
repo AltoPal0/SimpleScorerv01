@@ -17,7 +17,15 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var scoreCardSize = CardSize.compact
     @Published var showBottomButtons = true
     // Player tapped to enter a whole round (deal, mène) : the round entry sheet is shown when set
-    @Published var roundEntryPlayerID : UUID?
+    @Published var roundEntryPlayerID : UUID? {
+        didSet {
+            if roundEntryPlayerID == nil {
+                roundEntryPreselects = true
+            }
+        }
+    }
+    // false when opened by New round : no player was chosen, the taker of Tarot starts empty
+    var roundEntryPreselects = true
     // Game typed by the players and missing from the library : they are offered to ask for it
     @Published var gameToRequest : String?
     // Large screens : the columns of scores and the cards side by side, the columns screen alone is skipped
