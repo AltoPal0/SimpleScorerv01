@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Xcode — données utilisateur et build
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+build/
+DerivedData/
+*.moved-aside
+*.hmap
+
+# Archives / exports App Store
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcarchive
+SimpleScorerv01/Tools/Score2000 */
+
+# CocoaPods (régénérable via `pod install`)
+Pods/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
