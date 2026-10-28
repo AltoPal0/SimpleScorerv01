@@ -43,6 +43,7 @@
 		E887519A241F99DB0091853F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8875199241F99DB0091853F /* SceneDelegate.swift */; };
 		E887519C241F99DB0091853F /* GameScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E887519B241F99DB0091853F /* GameScoreView.swift */; };
 		E887519E241F99DC0091853F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E887519D241F99DC0091853F /* Assets.xcassets */; };
+		A1B2C3D4E5F60718293A4B5D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* PrivacyInfo.xcprivacy */; };
 		E88751A1241F99DC0091853F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E88751A0241F99DC0091853F /* Preview Assets.xcassets */; };
 		E88751A4241F99DC0091853F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E88751A2241F99DC0091853F /* LaunchScreen.storyboard */; };
 		E88751B1241F9B9A0091853F /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88751B0241F9B9A0091853F /* Player.swift */; };
@@ -97,6 +98,7 @@
 		E88751A0241F99DC0091853F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E88751A3241F99DC0091853F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E88751A5241F99DC0091853F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E88751B0241F9B9A0091853F /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		E88751B4241F9E000091853F /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
 		E88C328A25488751000EE7AB /* KeyPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPadView.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				E887519D241F99DC0091853F /* Assets.xcassets */,
 				E88751A2241F99DC0091853F /* LaunchScreen.storyboard */,
 				E88751A5241F99DC0091853F /* Info.plist */,
+				A1B2C3D4E5F60718293A4B5C /* PrivacyInfo.xcprivacy */,
 				E887519F241F99DC0091853F /* Preview Content */,
 				E88751B2241F9CB20091853F /* SupportingFiles */,
 			);
@@ -306,6 +309,7 @@
 				E88751A4241F99DC0091853F /* LaunchScreen.storyboard in Resources */,
 				E88751A1241F99DC0091853F /* Preview Assets.xcassets in Resources */,
 				E887519E241F99DC0091853F /* Assets.xcassets in Resources */,
+				A1B2C3D4E5F60718293A4B5D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -500,7 +504,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_ENTITLEMENTS = SimpleScorerv01/SimpleScorerv01.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleScorerv01/Preview Content\"";
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
@@ -512,7 +516,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.StephDev.Score2000;
 				PRODUCT_NAME = SimpleScorer;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -528,7 +532,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_ENTITLEMENTS = SimpleScorerv01/SimpleScorerv01.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"SimpleScorerv01/Preview Content\"";
 				DEVELOPMENT_TEAM = 3CP7Y3H8F6;
 				ENABLE_PREVIEWS = YES;
@@ -540,7 +544,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.StephDev.Score2000;
 				PRODUCT_NAME = SimpleScorer;
 				PROVISIONING_PROFILE_SPECIFIER = "";
