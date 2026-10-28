@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2466BB6182945E2352E086F8 /* GameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E976A95878E8254DFF87FF2F /* GameEntryView.swift */; };
+		CD8572AB8E9687CDB2A92FD6 /* RecentGames.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02E4ED99C639E82FE72BA8B /* RecentGames.swift */; };
+		517D6992C397D0ED3A1FD824 /* GameRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60340C3B4B5B4C5AD6E6E84A /* GameRules.swift */; };
 		D72849FB28EC999900D564CE /* AllScoresView_new.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72849FA28EC999900D564CE /* AllScoresView_new.swift */; };
 		D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */; };
 		D79069D929225131006D418B /* TopSwiperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D829225131006D418B /* TopSwiperView.swift */; };
@@ -37,6 +40,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E976A95878E8254DFF87FF2F /* GameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEntryView.swift; sourceTree = "<group>"; };
+		A02E4ED99C639E82FE72BA8B /* RecentGames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentGames.swift; sourceTree = "<group>"; };
+		60340C3B4B5B4C5AD6E6E84A /* GameRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRules.swift; sourceTree = "<group>"; };
 		D72849FA28EC999900D564CE /* AllScoresView_new.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView_new.swift; sourceTree = "<group>"; };
 		D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDisplayInfo.swift; sourceTree = "<group>"; };
 		D79069D829225131006D418B /* TopSwiperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSwiperView.swift; sourceTree = "<group>"; };
@@ -136,6 +142,8 @@
 		E88751AB241F99F90091853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				A02E4ED99C639E82FE72BA8B /* RecentGames.swift */,
+				60340C3B4B5B4C5AD6E6E84A /* GameRules.swift */,
 				E88751B0241F9B9A0091853F /* Player.swift */,
 				E828ADB1242370F40046BAF8 /* PlayerScore.swift */,
 				E828ADB3242387500046BAF8 /* Game.swift */,
@@ -155,6 +163,7 @@
 		E88751B3241F9DE90091853F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E976A95878E8254DFF87FF2F /* GameEntryView.swift */,
 				D72849FA28EC999900D564CE /* AllScoresView_new.swift */,
 				E88751B4241F9E000091853F /* AvatarView.swift */,
 				D7F35C3628C8DF830007223D /* BottomButtonsView.swift */,
@@ -258,6 +267,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2466BB6182945E2352E086F8 /* GameEntryView.swift in Sources */,
+				CD8572AB8E9687CDB2A92FD6 /* RecentGames.swift in Sources */,
+				517D6992C397D0ED3A1FD824 /* GameRules.swift in Sources */,
 				E8245A6C24600FE40057FB45 /* CircleImagePickerView.swift in Sources */,
 				E88751B1241F9B9A0091853F /* Player.swift in Sources */,
 				D7FE41992990157900D680E8 /* EditView.swift in Sources */,
@@ -350,7 +362,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -405,7 +417,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -428,7 +440,7 @@
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Score2000;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -455,7 +467,7 @@
 				INFOPLIST_FILE = SimpleScorerv01/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Score2000;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

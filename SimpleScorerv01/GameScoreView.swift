@@ -53,6 +53,9 @@ struct GameScoreView: View {
                 
                 if self.showPlayerEntry {
                     NameEntryView(isVisible: self.$showPlayerEntry)
+                } else if self.game.needsGameChoice() && self.displayInfo.screenDisplayed != .gameSetup {
+                    GameEntryView()
+                        .transition(.opacity)
                 }
             }
             

@@ -19,7 +19,20 @@ class Game : ObservableObject {
     
     @Published var playerScores = [PlayerScore] ()
     @Published var maxNbrOfRounds = 0
-    
+
+    // nil until the players chose which game they play
+    @Published var rules : GameRules?
+
+    // MARK: - Game choice
+    func choose(rules : GameRules) {
+        self.rules = rules
+        RecentGames.record(name: rules.name)
+    }
+
+    func needsGameChoice() -> Bool {
+        return rules == nil && playerScores.count > 0 && nbrPlayersUnanmed() == 0
+    }
+
     // MARK: - Player functins
     func addPlayer(player: Player) {
         playerScores.append(PlayerScore(player: player, pointsList: []))
@@ -255,8 +268,11 @@ class Game : ObservableObject {
         
         let nbrOfRounds = self.currentMaxNumberOfRounds()
         let pIndex = self.indexOf(player: player)!
-        
-        if self.playerScores[pIndex].pointsList.count == nbrOfRounds {
+
+        if self.rules?.roundsInSync == false {
+            // Players score independently : no 0 to fill the rounds they did not play
+            self.playerScores[pIndex].addPoints(scoreValue: points)
+        } else if self.playerScores[pIndex].pointsList.count == nbrOfRounds {
             self.playerScores[pIndex].addPoints(scoreValue: points)
         } else if self.playerScores[pIndex].pointsList.count == (nbrOfRounds - 1) {
             self.playerScores[pIndex].addPoints(scoreValue: points)
@@ -313,8 +329,10 @@ class Game : ObservableObject {
         for (index, _) in playerScores.enumerated() {
             playerScores[index].resetScore()
         }
-        
+
         self.maxNbrOfRounds = 0
+        // A new game starts : ask again which game is played
+        self.rules = nil
         
     }
     

@@ -21,7 +21,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Create the SwiftUI view that provides the window contents.
         let displayInfo = GlobalDisplayInfo()
 //        let game = Game(withTestPlayers: ())
-        let game = Game()
+        var game = Game()
+        #if DEBUG
+        // Launch with -demoPlayers to skip the setup and land on the scores with test players
+        if ProcessInfo.processInfo.arguments.contains("-demoPlayers") {
+            game = Game(withTestPlayers: ())
+            displayInfo.screenDisplayed = .scoreCards
+        }
+        #endif
         let contentView = GameScoreView()
         
         // Use a UIHostingController as window root view controller.

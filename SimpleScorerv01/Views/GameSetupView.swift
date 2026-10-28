@@ -121,10 +121,19 @@ struct GameSetupView: View {
                     .frame(maxWidth: maxWidth, maxHeight: maxHeight)
                     .contentShape(Rectangle())
                     .overlay(
-                        Text("PLAY")
-                            .fontWeight(.semibold)
-                            .font(.system(.largeTitle, design: .rounded))
-                            .foregroundColor(Color .offWhite)
+                        VStack {
+                            Text("PLAY")
+                                .fontWeight(.semibold)
+                                .font(.system(.largeTitle, design: .rounded))
+                                .foregroundColor(Color .offWhite)
+                            if let gameName = self.game.rules?.name, !gameName.isEmpty {
+                                Text(gameName.uppercased())
+                                    .font(Font.system(size: 15, weight: .light, design: .rounded))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.1)
+                                    .foregroundColor(Color .offWhite)
+                            }
+                        }
                     ).onTapGesture {
                         self.moveNextScreen()
                     }
