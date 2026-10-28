@@ -118,8 +118,11 @@ struct GameSetupView: View {
                                 .fontWeight(.semibold)
                                 .font(.system(.largeTitle, design: .rounded))
                                 .foregroundColor(Color .offWhite)
-                            if let gameName = self.game.rules?.name, !gameName.isEmpty {
-                                Text(gameName.uppercased())
+                            if let rules = self.game.rules, !rules.name.isEmpty {
+                                // While the players are set : what the game needs, without an alert at each tap
+                                Text(self.game.hasWrongPlayerCount
+                                     ? "\(rules.name) · \(rules.playerCountHint)".uppercased()
+                                     : rules.name.uppercased())
                                     .font(Font.system(size: 15, weight: .light, design: .rounded))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.1)

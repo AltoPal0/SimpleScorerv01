@@ -84,8 +84,13 @@ struct GameScoreView: View {
                 .onAppear { self.updateDualLayout(dual) }
                 // Leaving the setup for the scores : the number of players must suit the game
                 .onChange(of: self.displayInfo.screenDisplayed) { previous, screen in
-                    if previous == .gameSetup && screen < .gameSetup, let rules = self.game.rules,
-                       rules.isInLibrary, !rules.supports(playerCount: self.game.playerScores.count) {
+                    if previous == .gameSetup && screen < .gameSetup && self.game.hasWrongPlayerCount {
+                        self.playerCountAlert = true
+                    }
+                }
+                // A player removed (or added) on the scores screens : at once
+                .onChange(of: self.game.playerScores.count) {
+                    if self.displayInfo.screenDisplayed < .gameSetup && self.game.hasWrongPlayerCount {
                         self.playerCountAlert = true
                     }
                 }

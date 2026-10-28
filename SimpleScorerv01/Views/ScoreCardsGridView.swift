@@ -92,6 +92,12 @@ struct ScoreCardsGridView: View {
         let layout = self.layout(in: geometry.size)
         ZStack{
             ScrollView {
+                PullToReorder(coordinateSpaceName: "pullToReorder") {
+                    withAnimation {
+                        orderedBy = orderedBy.next
+                    }
+                    showOrderToast()
+                }
                 ScrollViewReader { value in
                     LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
                               spacing: CardLayout.spacing) {
@@ -128,12 +134,7 @@ struct ScoreCardsGridView: View {
 
             }
             // Pulling down changes the order of the cards, not a real refresh
-            .refreshable {
-                withAnimation {
-                    orderedBy = orderedBy.next
-                }
-                showOrderToast()
-            }
+            .coordinateSpace(name: "pullToReorder")
             .onDrop(of: [UTType.text], delegate: DropResetDelegate {
                 withAnimation {
                     draggedCard = nil
@@ -166,6 +167,47 @@ struct ScoreCardsGridView: View {
         .sheet(isPresented: $displayEditView) {
                     EditView(playerIdx: idxForEditView, displayEditView: $displayEditView)
                 }
+    }
+}
+
+// Pulling the cards down changes their order : the ⇡↻⇣ of the app instead of the spinner of iOS
+struct PullToReorder: View {
+    var coordinateSpaceName: String
+    var onTrigger: () -> Void
+    
+    static let threshold = CGFloat(70)
+    
+    @State private var armed = false
+    @State private var degrees = 0.0
+    
+    var body: some View {
+        GeometryReader { geo in
+            // How far the content is pulled below the top of the scroll view
+            let pull = geo.frame(in: .named(coordinateSpaceName)).minY
+            
+            Text("⇡↻⇣")
+                .font(.system(.largeTitle, design: .rounded))
+                .foregroundColor(.gray)
+                .rotationEffect(.degrees(degrees))
+                .opacity(Double(min(1, max(0, pull / PullToReorder.threshold))))
+                .frame(maxWidth: .infinity)
+                // In the middle of the gap opened above the cards
+                .offset(y: -pull / 2 - 20)
+                .onChange(of: pull) { _, pull in
+                    if pull > PullToReorder.threshold && !armed {
+                        armed = true
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                        withAnimation {
+                            degrees += 180
+                        }
+                    } else if pull < 5 && armed {
+                        // Released : the order changes
+                        armed = false
+                        onTrigger()
+                    }
+                }
+        }
+        .frame(height: 0)
     }
 }
 

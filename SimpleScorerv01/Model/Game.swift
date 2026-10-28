@@ -52,6 +52,12 @@ class Game : ObservableObject {
         return rules.kind
     }
 
+    // A game of the library played with a number of players it doesn't allow
+    var hasWrongPlayerCount : Bool {
+        guard let rules = rules, rules.isInLibrary, !playerScores.isEmpty else { return false }
+        return !rules.supports(playerCount: playerScores.count)
+    }
+
     var entersRounds : Bool {
         return rules?.entersRounds == true && activeKind != .universal
     }
