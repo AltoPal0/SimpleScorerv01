@@ -23,10 +23,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        let game = Game(withTestPlayers: ())
         var game = Game()
         #if DEBUG
-        // Launch with -demoPlayers to skip the setup and land on the scores with test players
-        if ProcessInfo.processInfo.arguments.contains("-demoPlayers") {
+        // Launch with -demoPlayers to skip the setup and land on the scores with test players,
+        // -demoCount <n> to keep n of them, -demoGame <name> to pick the game and -demoRound to open the round entry
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-demoPlayers") {
             game = Game(withTestPlayers: ())
             displayInfo.screenDisplayed = .scoreCards
+        }
+        if let index = arguments.firstIndex(of: "-demoCount"), arguments.indices.contains(index + 1),
+           let count = Int(arguments[index + 1]) {
+            game.playerScores = Array(game.playerScores.prefix(count))
+        }
+        if let index = arguments.firstIndex(of: "-demoGame"), arguments.indices.contains(index + 1) {
+            let rules = GameLibrary.rules(named: arguments[index + 1])
+            game.rules = rules
+            game.options = GameOptions.load(for: rules)
+            if arguments.contains("-demoRound") {
+                displayInfo.roundEntryPlayerID = game.playerScores.first?.player.id
+            }
         }
         #endif
         let contentView = GameScoreView()

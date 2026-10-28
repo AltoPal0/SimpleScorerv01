@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 enum OrderBy {
     case
@@ -25,6 +26,8 @@ struct ScoreCardsGridView: View {
     @State var orderedBy = OrderBy.players
     
     @State var displayEditView = false
+    @State private var draggedCard : PlayerScore?
+    @State private var cardMoved = false
     @State var idxForEditView = 0
     
     var gridItemLayout = [GridItem(.adaptive(minimum: 300, maximum: .infinity), spacing: 20)]
@@ -46,13 +49,13 @@ struct ScoreCardsGridView: View {
                         
                         ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
                             
-                            pScore1.totalScore() > pScore2.totalScore() && self.orderedBy == .scoreUp
+                            game.total(for: pScore1) > game.total(for: pScore2) && self.orderedBy == .scoreUp
                             ||
-                            pScore1.totalScore() < pScore2.totalScore() && self.orderedBy == .scoreDown
+                            game.total(for: pScore1) < game.total(for: pScore2) && self.orderedBy == .scoreDown
                             ||
                             game.indexOf(player: pScore1.player)! < game.indexOf(player: pScore2.player)!
                             
-                        })) { playerScore in
+                        }), draggingItem: $draggedCard, hasChangedLocation: $cardMoved) { playerScore in
                             ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, indexForEditView: $idxForEditView, displayEditView: $displayEditView ).id(playerScore.id)
                         } moveAction: { from, to in
                             game.playerScores.move(fromOffsets: from, toOffset: to)
@@ -61,7 +64,14 @@ struct ScoreCardsGridView: View {
                 }
                 .padding(20)
                 
-            }.coordinateSpace(name: "pullToRefresh")
+            }
+            .coordinateSpace(name: "pullToRefresh")
+            .onDrop(of: [UTType.text], delegate: DropResetDelegate {
+                withAnimation {
+                    draggedCard = nil
+                    cardMoved = false
+                }
+            })
             
 //            if displayEditView {
 //                EditView(playerIdx: idxForEditView, displayEditView: $displayEditView)

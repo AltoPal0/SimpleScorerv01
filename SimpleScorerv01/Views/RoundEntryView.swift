@@ -1,0 +1,459 @@
+//
+//  RoundEntryView.swift
+//  SimpleScorerv01
+//
+//  Created by Stephane Giloppe on 10/28/26.
+//  Copyright © 2026 Stephane Giloppe. All rights reserved.
+//
+
+import SwiftUI
+
+// Entry of a whole round (deal, mène) for the games scoring all the players at once
+struct RoundEntryView: View {
+
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
+
+    // Player whose card was tapped : winner, taker or scoring team to start with
+    var playerID : UUID
+
+    var body: some View {
+        ZStack {
+            (colorScheme == .dark ? Color.midnightBlue : Color.offWhite).edgesIgnoringSafeArea(.all)
+
+            switch game.activeKind {
+            case .tarot:
+                TarotRoundView(takerID: playerID, onConfirm: confirm)
+            case .coinche:
+                CoincheRoundView(playerID: playerID, onConfirm: confirm)
+            case .uno:
+                UnoRoundView(winnerID: playerID, onConfirm: confirm)
+            case .petanque:
+                PetanqueRoundView(scorerID: playerID, onConfirm: confirm)
+            default:
+                EmptyView()
+            }
+        }
+    }
+
+    func confirm(points : [UUID : Int]) {
+        withAnimation {
+            game.addRound(points: points)
+        }
+        displayInfo.roundEntryPlayerID = nil
+    }
+}
+
+// MARK: - Uno
+
+struct UnoRoundView: View {
+
+    @EnvironmentObject var game : Game
+
+    @State var winnerID : UUID
+    var onConfirm : ([UUID : Int]) -> Void
+
+    // Card points left in each loser's hand
+    @State private var handPoints : [UUID : CGFloat] = [:]
+    @State private var editedID : UUID?
+    @State private var sign = CGFloat(1)
+
+    var losers : [PlayerScore] {
+        game.playerScores.filter { $0.player.id != winnerID }
+    }
+
+    var winnerPoints : Int {
+        Int(losers.reduce(CGFloat(0)) { $0 + (handPoints[$1.player.id] ?? 0) })
+    }
+    
+    // Official : the winner scores all the hands. House rule : everyone keeps the points of his hand
+    var points : [UUID : Int] {
+        guard game.options.unoLowestWins else {
+            return [winnerID : winnerPoints]
+        }
+        var points = [UUID : Int]()
+        for playerScore in losers {
+            points[playerScore.player.id] = Int(handPoints[playerScore.player.id] ?? 0)
+        }
+        return points
+    }
+
+    var body: some View {
+        RoundEntryLayout(title: "Uno") {
+            RoundSection(title: "Out of cards") {
+                PlayerPickRow(players: game.playerScores, selected: $winnerID)
+            }
+
+            RoundSection(title: "Cards left") {
+                VStack(spacing: 8) {
+                    ForEach(losers) { playerScore in
+                        PointsRow(playerScore: playerScore,
+                                  value: Int(handPoints[playerScore.player.id] ?? 0),
+                                  isEdited: editedID == playerScore.player.id)
+                        .onTapGesture {
+                            editedID = playerScore.player.id
+                        }
+                    }
+                }
+
+                if let editedID = editedID {
+                    HStack(spacing: 8) {
+                        ChoiceChip(label: "+\(Uno.actionCard)", isSelected: false) {
+                            handPoints[editedID, default: 0] += CGFloat(Uno.actionCard)
+                        }
+                        ChoiceChip(label: "+\(Uno.wildCard)", isSelected: false) {
+                            handPoints[editedID, default: 0] += CGFloat(Uno.wildCard)
+                        }
+                    }
+                    KeyPadView(valueDisplayed: Binding(
+                        get: { handPoints[editedID] ?? 0 },
+                        set: { handPoints[editedID] = $0 }), sign: $sign)
+                    .frame(height: 180)
+                    .cornerRadius(14)
+                }
+            }
+        } preview: {
+            RoundPreview(points: points)
+        } confirm: {
+            ConfirmBar(isEnabled: game.options.unoLowestWins || winnerPoints > 0) {
+                onConfirm(points)
+            }
+        }
+        .onAppear {
+            editedID = losers.first?.player.id
+        }
+        .onChange(of: winnerID) {
+            handPoints[winnerID] = nil
+            if editedID == winnerID {
+                editedID = losers.first?.player.id
+            }
+        }
+    }
+}
+
+// MARK: - Pétanque
+
+struct PetanqueRoundView: View {
+
+    @EnvironmentObject var game : Game
+
+    @State var scorerID : UUID
+    var onConfirm : ([UUID : Int]) -> Void
+
+    @State private var points = 1
+
+    var body: some View {
+        RoundEntryLayout(title: "Pétanque") {
+            RoundSection(title: "Wins the mène") {
+                PlayerPickRow(players: game.playerScores, selected: $scorerID)
+            }
+
+            RoundSection(title: "Points") {
+                ChoiceChips(items: Array(1...Petanque.maxPointsPerMene), selection: $points) { "\($0)" }
+            }
+        } preview: {
+            RoundPreview(points: [scorerID : points])
+        } confirm: {
+            ConfirmBar(isEnabled: true) {
+                onConfirm([scorerID : points])
+            }
+        }
+    }
+}
+
+// MARK: - Shared components
+
+struct RoundEntryLayout<Content: View, Preview: View, Confirm: View>: View {
+
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
+
+    var title : String
+    @ViewBuilder var content : Content
+    @ViewBuilder var preview : Preview
+    @ViewBuilder var confirm : Confirm
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text(title)
+                    .font(.system(.largeTitle, design: .rounded))
+                    .fontWeight(.semibold)
+                    .foregroundColor(.gray)
+                Spacer()
+                Image(systemName: "xmark")
+                    .font(.system(size: 22, weight: .light))
+                    .foregroundColor(.gray)
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        displayInfo.roundEntryPlayerID = nil
+                    }
+            }
+            .padding([.horizontal, .top])
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    content
+                }
+                .padding()
+            }
+
+            VStack(spacing: 12) {
+                preview
+                confirm
+            }
+            .padding()
+        }
+    }
+}
+
+struct RoundSection<Content: View>: View {
+    var title : String
+    @ViewBuilder var content : Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title.uppercased())
+                .font(Font.system(size: 15, weight: .light, design: .rounded))
+                .foregroundColor(.gray)
+            content
+        }
+    }
+}
+
+// Avatars of the players, the selected one stands out
+struct PlayerPickRow: View {
+    var players : [PlayerScore]
+    @Binding var selected : UUID
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(players) { playerScore in
+                    let isSelected = playerScore.player.id == selected
+                    VStack(spacing: 4) {
+                        AvatarView(user: playerScore.player)
+                            .background(Circle().fill(playerScore.player.colorGradient))
+                            .frame(width: 56, height: 56)
+                        Text(playerScore.player.name)
+                            .font(Font.system(size: 13, weight: isSelected ? .semibold : .light, design: .rounded))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .frame(maxWidth: 70)
+                    }
+                    .scaleEffect(isSelected ? 1.1 : 0.9)
+                    .opacity(isSelected ? 1 : 0.45)
+                    .onTapGesture {
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            selected = playerScore.player.id
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 4)
+        }
+    }
+}
+
+struct ChoiceChip: View {
+    var label : String
+    var isSelected : Bool
+    var fullWidth = false
+    var action : () -> Void
+
+    var body: some View {
+        Text(label)
+            .font(Font.system(size: 18, weight: isSelected ? .semibold : .regular, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+            .foregroundColor(isSelected ? .offWhite : .gray)
+            .padding(.horizontal, 12)
+            .frame(minWidth: 44, maxWidth: fullWidth ? .infinity : nil, minHeight: 44)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(isSelected
+                          ? LinearGradient(Color(hex: 0xf12711), Color(hex: 0xf5af19))
+                          : LinearGradient(Color.clear, Color.clear))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(isSelected ? Color.offWhite : Color.gray.opacity(0.5), lineWidth: 1)
+            )
+            .contentShape(Rectangle())
+            .onTapGesture(perform: action)
+    }
+}
+
+struct ChoiceChips<Item: Hashable>: View {
+    var items : [Item]
+    @Binding var selection : Item
+    // Wider for long labels
+    var minimumWidth = CGFloat(64)
+    var label : (Item) -> String
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: 8)], spacing: 8) {
+            ForEach(items, id: \.self) { item in
+                ChoiceChip(label: label(item), isSelected: item == selection) {
+                    withAnimation(.easeOut(duration: 0.15)) {
+                        selection = item
+                    }
+                }
+            }
+        }
+    }
+}
+
+// One choice per line, for long labels
+struct ChoiceList<Item: Hashable>: View {
+    var items : [Item]
+    @Binding var selection : Item
+    var label : (Item) -> String
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach(items, id: \.self) { item in
+                ChoiceChip(label: label(item), isSelected: item == selection, fullWidth: true) {
+                    withAnimation(.easeOut(duration: 0.15)) {
+                        selection = item
+                    }
+                }
+            }
+        }
+    }
+}
+
+// A value set with − / + and a slider, for card points
+struct PointsDial: View {
+    @Binding var value : Int
+    var range : ClosedRange<Int>
+    var caption : String
+
+    var body: some View {
+        VStack(spacing: 6) {
+            HStack {
+                ChoiceChip(label: "−", isSelected: false) {
+                    value = max(range.lowerBound, value - 1)
+                }
+                Spacer()
+                VStack(spacing: 0) {
+                    Text("\(value)")
+                        .font(Font.system(size: 50, weight: .bold, design: .rounded))
+                        .foregroundColor(.gray)
+                    Text(caption)
+                        .font(Font.system(size: 15, weight: .light, design: .rounded))
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                ChoiceChip(label: "+", isSelected: false) {
+                    value = min(range.upperBound, value + 1)
+                }
+            }
+            Slider(value: Binding(
+                get: { Double(value) },
+                set: { value = Int($0.rounded()) }),
+                   in: Double(range.lowerBound)...Double(range.upperBound))
+            .tint(Color(hex: 0xf5af19))
+        }
+    }
+}
+
+// One player with a value, used for the hands of Uno losers
+struct PointsRow: View {
+    var playerScore : PlayerScore
+    var value : Int
+    var isEdited : Bool
+
+    var body: some View {
+        HStack {
+            AvatarView(user: playerScore.player)
+                .frame(width: 40, height: 40)
+            Text(playerScore.player.name)
+                .font(Font.system(size: 20, weight: .semibold, design: .rounded))
+                .foregroundColor(.offWhite)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Spacer()
+            Text("\(value)")
+                .font(Font.system(size: 25, weight: .bold, design: .rounded))
+                .foregroundColor(.offWhite)
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 56)
+        .background(playerScore.player.colorGradient)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.offWhite, lineWidth: isEdited ? 3 : 1)
+        )
+        .opacity(isEdited ? 1 : 0.7)
+    }
+}
+
+// What each player will get once the round is confirmed
+struct RoundPreview: View {
+    @EnvironmentObject var game : Game
+    var points : [UUID : Int]
+    var caption : String?
+
+    var body: some View {
+        VStack(spacing: 6) {
+            if let caption = caption {
+                Text(caption.uppercased())
+                    .font(Font.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundColor(.gray)
+            }
+            HStack(spacing: 6) {
+                ForEach(game.playerScores) { playerScore in
+                    let value = points[playerScore.player.id] ?? 0
+                    VStack(spacing: 2) {
+                        Text(playerScore.player.initials)
+                            .font(Font.system(size: 15, weight: .regular, design: .rounded))
+                            .foregroundColor(.offWhite)
+                            .lineLimit(1)
+                        Text(value > 0 ? "+\(value)" : "\(value)")
+                            .font(Font.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundColor(.offWhite)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .background(playerScore.player.colorGradient)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .opacity(value == 0 ? 0.5 : 1)
+                }
+            }
+        }
+    }
+}
+
+struct ConfirmBar: View {
+    var isEnabled : Bool
+    var action : () -> Void
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 14)
+            .fill(LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: UnitPoint(x: 0.2, y: 0.2), endPoint: UnitPoint(x: 0.8, y: 0.8)))
+            .overlay(
+                Image(systemName: "checkmark")
+                    .font(.system(size: 30, weight: .semibold))
+                    .foregroundColor(.offWhite)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.offWhite, lineWidth: 1)
+            )
+            .frame(height: 64)
+            .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+            .opacity(isEnabled ? 1 : 0.4)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                if isEnabled {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    action()
+                }
+            }
+    }
+}

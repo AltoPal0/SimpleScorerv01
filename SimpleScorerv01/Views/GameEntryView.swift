@@ -20,7 +20,8 @@ struct GameEntryView: View {
     @FocusState private var fieldFocused : Bool
 
     let frameHeight = CGFloat(90)
-    let maxChoices = 9
+    // 4 rows of 3 : everything fits without scrolling
+    let maxChoices = 12
 
     var gridItemLayout = [GridItem(.adaptive(minimum: 100, maximum: .infinity), spacing: 10)]
 
@@ -31,15 +32,21 @@ struct GameEntryView: View {
     // Library games matching what is typed, or the recent games when nothing is typed yet
     var choices : [GameChoice] {
         if gameName.isEmpty {
-            return recentGames.prefix(maxChoices).map { GameChoice(name: $0.name, isRecent: true) }
+            // Recent games first, then the rest of the library : a tap is enough to start
+            let recentIDs = Set(recentGames.map { GameLibrary.rules(named: $0.name).id })
+            let recents = recentGames.map { choice(name: $0.name, isRecent: true) }
+            let library = GameLibrary.games
+                .filter { !recentIDs.contains($0.id) }
+                .map { choice(name: $0.name, isRecent: false) }
+            return Array((recents + library).prefix(maxChoices))
         }
 
         let recentMatches = recentGames
             .filter { GameLibrary.rules(named: $0.name).matches(gameName) }
-            .map { GameChoice(name: $0.name, isRecent: true) }
+            .map { choice(name: $0.name, isRecent: true) }
         let libraryMatches = GameLibrary.suggestions(for: gameName)
             .filter { game in !recentMatches.contains { GameRules.normalized($0.name) == GameRules.normalized(game.name) } }
-            .map { GameChoice(name: $0.name, isRecent: false) }
+            .map { choice(name: $0.name, isRecent: false) }
 
         return Array((recentMatches + libraryMatches).prefix(maxChoices))
     }
@@ -96,8 +103,8 @@ struct GameEntryView: View {
         }
         .coordinateSpace(name: GameChoiceView.coordinateSpace)
         .onAppear {
-            // Same as for players : keyboard first only when there is nothing to pick
-            if recentGames.isEmpty {
+            // Keyboard first only when there is nothing to pick
+            if choices.isEmpty {
                 fieldFocused = true
             }
         }
@@ -151,6 +158,12 @@ struct GameEntryView: View {
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
     }
 
+    func choice(name: String, isRecent: Bool) -> GameChoice {
+        let rules = GameLibrary.rules(named: name)
+        let isPlayable = !rules.isInLibrary || rules.supports(playerCount: game.playerScores.count)
+        return GameChoice(name: name, isRecent: isRecent, hint: isPlayable ? nil : rules.playerCountHint)
+    }
+
     // An empty name plays with the universal score entry
     func choose(name: String) {
         fieldFocused = false
@@ -164,6 +177,8 @@ struct GameChoice {
     var name : String
     // Recent games can be dragged to the trash, library games cannot
     var isRecent : Bool
+    // Why a library game can't be played with this number of players
+    var hint : String?
 }
 
 struct GameChoiceView: View {
@@ -191,12 +206,21 @@ struct GameChoiceView: View {
                 LinearGradient(Color(hex: 0xf12711),Color(hex: 0xf5af19))
             }
             
-            Text(choice.name)
-                .font(Font.system(size: 40, weight: .light, design: .rounded))
-                .lineLimit(1)
-                .minimumScaleFactor(0.1)
-                .foregroundColor(Color.white)
-                .padding()
+            VStack(spacing: 0) {
+                Text(choice.name)
+                    .font(Font.system(size: 40, weight: .light, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.1)
+                    .foregroundColor(Color.white)
+                if let hint = choice.hint {
+                    Text(hint)
+                        .font(Font.system(size: 12, weight: .light, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .foregroundColor(Color.white)
+                }
+            }
+            .padding(choice.hint == nil ? 16 : 8)
         }
         .frame(height: 60)
         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -206,7 +230,12 @@ struct GameChoiceView: View {
         )
         .offset(dragOffset)
         .gesture(choice.isRecent ? trashGesture : nil)
-        .onTapGesture(perform: onTap)
+        .opacity(choice.hint == nil ? 1 : 0.5)
+        .onTapGesture {
+            if choice.hint == nil {
+                onTap()
+            }
+        }
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         .transition(.asymmetric(insertion: .opacity, removal: .scale))
     }

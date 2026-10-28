@@ -76,7 +76,7 @@ struct AllScoresView_new: View {
                             // Totals
                             HStack {
                                 ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                    TotalRows(totalScore: game.playerScores[idx].totalScore(), playerIndex: idx, showKeyPad: $showKeypad, scoreEdit: $scoreEdit, width: columnWidth)
+                                    TotalRows(totalScore: game.total(for: game.playerScores[idx]), playerIndex: idx, showKeyPad: $showKeypad, scoreEdit: $scoreEdit, width: columnWidth)
                                         .frame(maxHeight: rowHeight)
                                         .padding(.horizontal,2)
                                 }
@@ -131,6 +131,9 @@ struct ColumnBack: View {
 }
 
 struct TotalRows: View {
+    @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
+    
     var totalScore: Int
     var playerIndex : Int
     @Binding var showKeyPad : Bool
@@ -154,9 +157,13 @@ struct TotalRows: View {
                 .frame(width: columnWidth)
                 .foregroundColor(.white)
                 .onTapGesture(count: 1, perform: {
-                    scoreEdit.playerIdx = playerIndex
-                    scoreEdit.mode = .addition
-                    self.showKeyPad = true
+                    if game.entersRounds {
+                        displayInfo.roundEntryPlayerID = game.playerScores[playerIndex].player.id
+                    } else {
+                        scoreEdit.playerIdx = playerIndex
+                        scoreEdit.mode = .addition
+                        self.showKeyPad = true
+                    }
                 })
         }
     }

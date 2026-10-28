@@ -110,7 +110,7 @@ struct EditView: View {
                         
                         // Totals
                         HStack {
-                            let totalScore = game.playerScores[playerIdx].totalScore()
+                            let totalScore = game.total(for: game.playerScores[playerIdx])
                             Text("\(totalScore < 10000 ? String(totalScore) : String(totalScore / 1000)+"K")")
                                 .font(Font.system(size: fontSize(nbrChar: String(totalScore).count, fontSize: 50)
                                                   , weight: .bold

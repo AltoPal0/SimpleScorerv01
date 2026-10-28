@@ -22,15 +22,101 @@ class Game : ObservableObject {
 
     // nil until the players chose which game they play
     @Published var rules : GameRules?
+    @Published var options = GameOptions() {
+        didSet {
+            if let rules = rules {
+                options.save(for: rules)
+            }
+        }
+    }
 
     // MARK: - Game choice
     func choose(rules : GameRules) {
         self.rules = rules
+        self.options = GameOptions.load(for: rules)
         RecentGames.record(name: rules.name)
     }
 
     func needsGameChoice() -> Bool {
         return rules == nil && playerScores.count > 0 && nbrPlayersUnanmed() == 0
+    }
+
+    // Game specific entry only when the game is played with a supported number of players
+    var activeKind : GameKind {
+        guard let rules = rules, rules.supports(playerCount: playerScores.count) else { return .universal }
+        return rules.kind
+    }
+
+    var entersRounds : Bool {
+        return rules?.entersRounds == true && activeKind != .universal
+    }
+
+    // MARK: - Game rules
+    func total(for playerScore : PlayerScore) -> Int {
+        let points = playerScore.pointsList.map { $0.score }
+        return rules?.total(of: points) ?? points.reduce(0, +)
+    }
+
+    var target : Int? {
+        guard activeKind != .universal else { return nil }
+        return options.target ?? rules?.target
+    }
+
+    var lowestScoreWins : Bool {
+        return rules?.lowestScoreWins == true || (activeKind == .uno && options.unoLowestWins)
+    }
+
+    func isEliminated(_ playerScore : PlayerScore) -> Bool {
+        return activeKind == .molkky && options.molkkyMissesOut
+            && Molkky.consecutiveMisses(playerScore.pointsList.map { $0.score }) >= Molkky.missesToBeOut
+    }
+
+    // Points still needed to reach the target, nil for games without target
+    func remaining(for playerScore : PlayerScore) -> Int? {
+        guard let target = target else { return nil }
+        return max(0, target - total(for: playerScore))
+    }
+
+    func winner() -> PlayerScore? {
+        guard let target = target else { return nil }
+
+        if activeKind == .molkky {
+            return playerScores.first { total(for: $0) == target }
+        }
+        if lowestScoreWins {
+            // The game ends when someone reaches the target, the lowest score wins
+            guard playerScores.contains(where: { total(for: $0) >= target }) else { return nil }
+            return playerScores.min { total(for: $0) < total(for: $1) }
+        }
+        return playerScores
+            .filter { total(for: $0) >= target }
+            .max { total(for: $0) < total(for: $1) }
+    }
+
+    // Coinche : 2 players are 2 teams, 4 players make 2 teams of partners
+    func coincheTeam(of playerScore : PlayerScore) -> Int {
+        return Coinche.team(ofPlayerAt: indexOf(player: playerScore.player) ?? 0)
+    }
+
+    func coincheTeamName(_ team : Int) -> String {
+        return playerScores
+            .filter { coincheTeam(of: $0) == team }
+            .map { $0.player.initials.isEmpty ? $0.player.name : $0.player.initials }
+            .joined(separator: " & ")
+    }
+
+    // A whole round at once : every player gets his points, 0 when absent from the dictionary
+    func addRound(points : [UUID : Int]) {
+        let round = self.currentMaxNumberOfRounds()
+
+        for index in self.playerScores.indices {
+            while self.playerScores[index].pointsList.count < round {
+                self.playerScores[index].addPoints(scoreValue: 0)
+            }
+            self.playerScores[index].addPoints(scoreValue: points[self.playerScores[index].player.id] ?? 0)
+        }
+
+        self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
     }
 
     // MARK: - Player functins

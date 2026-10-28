@@ -1,0 +1,53 @@
+//
+//  GameOptions.swift
+//  SimpleScorerv01
+//
+//  Created by Stephane Giloppe on 10/28/26.
+//  Copyright © 2026 Stephane Giloppe. All rights reserved.
+//
+
+import Foundation
+
+// House rules of a game, remembered on the device for the next games
+struct GameOptions: Codable, Equatable {
+
+    // Score ending the game, nil to keep the one of the rules
+    var target: Int?
+    // Mölkky : 3 misses in a row and the player is out
+    var molkkyMissesOut = true
+    // Uno : each player scores the cards left in his own hand and the lowest score wins
+    var unoLowestWins = false
+
+    // Targets the players can pick, empty when the game has no target to change
+    static func targets(for kind: GameKind) -> [Int] {
+        switch kind {
+        case .coinche: return [1000, 1500, 2000]
+        case .uno: return [250, 500]
+        case .petanque: return [11, 13, 15]
+        default: return []
+        }
+    }
+
+    static func hasOptions(_ kind: GameKind) -> Bool {
+        kind == .molkky || kind == .uno || !targets(for: kind).isEmpty
+    }
+
+    static func key(for rules: GameRules) -> String {
+        "gameOptions." + rules.id
+    }
+
+    static func load(for rules: GameRules) -> GameOptions {
+        guard let data = UserDefaults.standard.data(forKey: key(for: rules)),
+              let options = try? JSONDecoder().decode(GameOptions.self, from: data)
+        else {
+            return GameOptions()
+        }
+        return options
+    }
+
+    func save(for rules: GameRules) {
+        if let data = try? JSONEncoder().encode(self) {
+            UserDefaults.standard.set(data, forKey: GameOptions.key(for: rules))
+        }
+    }
+}

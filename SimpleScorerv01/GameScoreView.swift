@@ -23,6 +23,11 @@ struct GameScoreView: View {
     
     @State var dragOffset = CGSize.zero
     
+    // The game played stays on top of the scores screens
+    var showGameHeader: Bool {
+        self.game.rules != nil && self.displayInfo.screenDisplayed != .gameSetup && !self.showPlayerEntry
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -31,20 +36,25 @@ struct GameScoreView: View {
                 } else {
                     Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
                 }
-//                if displayInfo.screenDisplayed == .allScores {
-                    AllScoresView_new()
-                        .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
-//                        .transition(.slide)
-//                }
-                
-                
-                
-                ScoreCardsGridView()
-                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
-                
-                GameSetupView(showPlayerEntry: self.$showPlayerEntry)
-                    .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
-                
+                VStack(spacing: 0) {
+                    if self.showGameHeader {
+                        GameHeaderView()
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .zIndex(1)
+                    }
+                    
+                    ZStack {
+                        AllScoresView_new()
+                            .modifier(cubeRotation(dragOffset: $dragOffset, screen: .allScores, screenWidth: geometry.size.width))
+                        
+                        ScoreCardsGridView()
+                            .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
+                        
+                        GameSetupView(showPlayerEntry: self.$showPlayerEntry)
+                            .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
+                    }
+                }
+                .animation(.easeInOut(duration: 0.3), value: self.showGameHeader)
                 
                 TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry, orderByScores: $orderedByScores)
                 if self.displayInfo.showBottomButtons {
@@ -60,6 +70,15 @@ struct GameScoreView: View {
             }
             
         }
+        .sheet(isPresented: Binding(
+            get: { self.displayInfo.roundEntryPlayerID != nil },
+            set: { if !$0 { self.displayInfo.roundEntryPlayerID = nil } })) {
+                if let playerID = self.displayInfo.roundEntryPlayerID {
+                    RoundEntryView(playerID: playerID)
+                        .environmentObject(self.game)
+                        .environmentObject(self.displayInfo)
+                }
+            }
     }
 }
 

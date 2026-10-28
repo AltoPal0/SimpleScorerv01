@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */; };
+		18ED0AC794191FBFEB3A51F5 /* GameOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEF257C391AD56DAFFD01AC /* GameOptions.swift */; };
+		7EE4E6DE9FEC64EFFD507330 /* MolkkyPadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1A82C89664921FB888DC23 /* MolkkyPadView.swift */; };
+		AC5C1FE2A223F5E5A4753765 /* TarotRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3978E48DE0DE4E3E14C429F /* TarotRoundView.swift */; };
+		3F80C410DF108355C99AF506 /* CoincheRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BCE3C414414EA26F3B0FFA /* CoincheRoundView.swift */; };
+		FA9F8ECE8F2C4456FED5DAC1 /* RoundEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D1341E925F4D54A3826E9A /* RoundEntryView.swift */; };
+		D3EE16AB8FCA5B63C60A23F1 /* GameScoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AFB240BD37054D39B79C6B /* GameScoring.swift */; };
 		2466BB6182945E2352E086F8 /* GameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E976A95878E8254DFF87FF2F /* GameEntryView.swift */; };
 		CD8572AB8E9687CDB2A92FD6 /* RecentGames.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02E4ED99C639E82FE72BA8B /* RecentGames.swift */; };
 		517D6992C397D0ED3A1FD824 /* GameRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60340C3B4B5B4C5AD6E6E84A /* GameRules.swift */; };
@@ -40,6 +47,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHeaderView.swift; sourceTree = "<group>"; };
+		5BEF257C391AD56DAFFD01AC /* GameOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOptions.swift; sourceTree = "<group>"; };
+		0B1A82C89664921FB888DC23 /* MolkkyPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MolkkyPadView.swift; sourceTree = "<group>"; };
+		F3978E48DE0DE4E3E14C429F /* TarotRoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotRoundView.swift; sourceTree = "<group>"; };
+		24BCE3C414414EA26F3B0FFA /* CoincheRoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoincheRoundView.swift; sourceTree = "<group>"; };
+		86D1341E925F4D54A3826E9A /* RoundEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundEntryView.swift; sourceTree = "<group>"; };
+		74AFB240BD37054D39B79C6B /* GameScoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScoring.swift; sourceTree = "<group>"; };
 		E976A95878E8254DFF87FF2F /* GameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEntryView.swift; sourceTree = "<group>"; };
 		A02E4ED99C639E82FE72BA8B /* RecentGames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentGames.swift; sourceTree = "<group>"; };
 		60340C3B4B5B4C5AD6E6E84A /* GameRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRules.swift; sourceTree = "<group>"; };
@@ -142,6 +156,8 @@
 		E88751AB241F99F90091853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				5BEF257C391AD56DAFFD01AC /* GameOptions.swift */,
+				74AFB240BD37054D39B79C6B /* GameScoring.swift */,
 				A02E4ED99C639E82FE72BA8B /* RecentGames.swift */,
 				60340C3B4B5B4C5AD6E6E84A /* GameRules.swift */,
 				E88751B0241F9B9A0091853F /* Player.swift */,
@@ -163,6 +179,11 @@
 		E88751B3241F9DE90091853F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */,
+				0B1A82C89664921FB888DC23 /* MolkkyPadView.swift */,
+				F3978E48DE0DE4E3E14C429F /* TarotRoundView.swift */,
+				24BCE3C414414EA26F3B0FFA /* CoincheRoundView.swift */,
+				86D1341E925F4D54A3826E9A /* RoundEntryView.swift */,
 				E976A95878E8254DFF87FF2F /* GameEntryView.swift */,
 				D72849FA28EC999900D564CE /* AllScoresView_new.swift */,
 				E88751B4241F9E000091853F /* AvatarView.swift */,
@@ -267,6 +288,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */,
+				18ED0AC794191FBFEB3A51F5 /* GameOptions.swift in Sources */,
+				7EE4E6DE9FEC64EFFD507330 /* MolkkyPadView.swift in Sources */,
+				AC5C1FE2A223F5E5A4753765 /* TarotRoundView.swift in Sources */,
+				3F80C410DF108355C99AF506 /* CoincheRoundView.swift in Sources */,
+				FA9F8ECE8F2C4456FED5DAC1 /* RoundEntryView.swift in Sources */,
+				D3EE16AB8FCA5B63C60A23F1 /* GameScoring.swift in Sources */,
 				2466BB6182945E2352E086F8 /* GameEntryView.swift in Sources */,
 				CD8572AB8E9687CDB2A92FD6 /* RecentGames.swift in Sources */,
 				517D6992C397D0ED3A1FD824 /* GameRules.swift in Sources */,

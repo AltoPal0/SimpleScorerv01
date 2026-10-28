@@ -15,6 +15,8 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var gradients = gradiants.shuffled()
     @Published var scoreCardSize = CardSize.compact
     @Published var showBottomButtons = true
+    // Player tapped to enter a whole round (deal, mène) : the round entry sheet is shown when set
+    @Published var roundEntryPlayerID : UUID?
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         

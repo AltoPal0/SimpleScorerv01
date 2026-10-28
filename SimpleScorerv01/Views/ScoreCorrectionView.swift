@@ -25,7 +25,7 @@ struct ScoreCorrectionView: View {
             return "\(String(game.playerScores[playerIndex].pointsList[round].score)) ⇢ \(self.sign >= 0 ? "" : "-") \( String(format: "%.0f",abs(pointsScored)))"
         } else {
             if game.playerScores[playerIndex].pointsList[optional: round] != nil {
-                return "\(game.playerScores[playerIndex].totalScore()) \(self.sign >= 0 ? "+" : "-") \(String(format: "%.0f",abs(pointsScored)))"
+                return "\(game.total(for: game.playerScores[playerIndex])) \(self.sign >= 0 ? "+" : "-") \(String(format: "%.0f",abs(pointsScored)))"
             } else {
                 return " • \(self.sign >= 0 ? "+" : "-") \(String(format: "%.0f",abs(pointsScored)))"
             }

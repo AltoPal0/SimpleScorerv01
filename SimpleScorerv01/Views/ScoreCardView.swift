@@ -96,7 +96,7 @@ struct ScoreCardView: View {
                                 .padding(10)
                                 .frame(width: frameHeight*2/3)
                             
-                            if self.playerScore.totalScore() < 1000000 {
+                            if self.game.total(for: self.playerScore) < 1000000 {
                                 playerNameView
                             }
                             
@@ -107,9 +107,17 @@ struct ScoreCardView: View {
                         }
                         .frame(height: frameHeight*2/3)
                         
-                        if self.showBottomBar || self.displayInfo.scoreCardSize == .normal {
-                            if self.showKeyPad {
-                                KeyPadView(valueDisplayed: $pointsScored, sign: $sign)
+                        if (self.showBottomBar || self.displayInfo.scoreCardSize == .normal) && !self.game.entersRounds {
+                            if self.showKeyPad && self.game.activeKind == .molkky {
+                                MolkkyPadView { pins in
+                                    self.commitPoints(pins)
+                                }
+                                    .frame(height: frameHeight*4/3)
+                                    .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
+                                    .padding([.horizontal,.bottom],3)
+                                    .disabled(self.dragOffset.width != 0)
+                            } else if self.showKeyPad {
+                                KeyPadView(valueDisplayed: $pointsScored, sign: $sign, bonusKey: self.game.activeKind == .scrabble ? 50 : nil)
                                     .frame(height: frameHeight*4/3)
                                     .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
                                     .padding([.horizontal,.bottom],3)
@@ -142,6 +150,7 @@ struct ScoreCardView: View {
                 )
                 .shadow(color: Color.black.opacity(noshadow ? 0.0 : 0.3), radius: 10, x: 0, y: 10)
                 .offset(slideOpen ? CGSize(width: -120, height: 0) : dragOffset)
+                .opacity(self.game.isEliminated(self.playerScore) ? 0.4 : 1)
             }
             .gesture(
                 DragGesture(coordinateSpace: .local)
@@ -166,9 +175,14 @@ struct ScoreCardView: View {
                     }
                     displayInfo.showBottomButtons = true
                 }
-                else {
+                else if self.game.entersRounds {
+                    self.displayInfo.roundEntryPlayerID = self.playerScore.player.id
+                }
+                else if !self.game.isEliminated(self.playerScore) {
                     self.scoreEditing = true
-                    if self.displayInfo.scoreCardSize == .compact {
+                    if self.game.activeKind == .molkky {
+                        self.showKeyPad = true
+                    } else if self.displayInfo.scoreCardSize == .compact {
                             self.showKeyPad.toggle()
                     }
                     self.showBottomBar = true
@@ -250,7 +264,40 @@ struct ScoreCardView: View {
         }
     }
     
+    func commitPoints(_ points: Int) {
+        self.displayInfo.showBottomButtons = true
+        self.game.addPointsFor(player: self.playerScore.player, points: points)
+        self.pointsScored = 0
+        self.sign = 1
+        self.scoreEditing = false
+        self.showKeyPad = false
+        if self.displayInfo.scoreCardSize == .compact {
+            self.showBottomBar = false
+        }
+    }
+    
+    // Under the total : winner, out, Mölkky misses or points still to score
+    var gameCaption: Text? {
+        if self.game.winner() == self.playerScore {
+            return Text(Image(systemName: "crown.fill"))
+        }
+        if self.game.isEliminated(self.playerScore) {
+            return Text("OUT")
+        }
+        if self.game.activeKind == .molkky {
+            let misses = Molkky.consecutiveMisses(self.playerScore.pointsList.map { $0.score })
+            if misses > 0 {
+                return Text(String(repeating: "✕", count: misses))
+            }
+        }
+        if let remaining = self.game.remaining(for: self.playerScore) {
+            return Text("\(remaining) to go")
+        }
+        return nil
+    }
+    
     var totalFrameHeight : CGFloat {
+        if self.game.entersRounds {return frameHeight*2/3}
         if self.showKeyPad {return frameHeight * 6/3}
         if self.showBottomBar || self.displayInfo.scoreCardSize == .normal {return frameHeight}
         return frameHeight*2/3
@@ -287,7 +334,7 @@ struct ScoreCardView: View {
             HStack {
                 if scoreEditing {
                     
-                    Text("\(self.playerScore.totalScore()) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
+                    Text("\(self.game.total(for: self.playerScore)) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
                         .font(Font.system(size: 25, weight: .bold, design: .rounded))
                         .minimumScaleFactor(0.5)
                         .lineLimit(2)
@@ -299,23 +346,23 @@ struct ScoreCardView: View {
                             .overlay(Image(systemName: "checkmark").foregroundColor(Color.white))
                             .frame(minWidth:70, maxWidth:70, maxHeight: .infinity)
                             .onTapGesture {
-                                self.displayInfo.showBottomButtons = true
-                                self.game.addPointsFor(player: self.playerScore.player, points: Int(String(format: "%.0f",abs(self.pointsScored) * sign))!)
-                                self.pointsScored = 0
-                                self.sign = 1
-                                self.scoreEditing = false
-                                self.showKeyPad = false
-                                if self.displayInfo.scoreCardSize == .compact {
-                                    self.showBottomBar = false
-                                }
+                                self.commitPoints(Int(String(format: "%.0f",abs(self.pointsScored) * sign))!)
                         }
                 } else {
-                    Text("\(self.playerScore.totalScore())")
-                        .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
-                        .minimumScaleFactor(0.2)
-                        .lineLimit(1)
-                        .foregroundColor(Color .offWhite)
-                        .padding(.horizontal,self.scoreEditing ? 0 : 20)
+                    VStack(alignment: .trailing, spacing: 0) {
+                        Text("\(self.game.total(for: self.playerScore))")
+                            .font(Font.system(size: self.scoreEditing ? 25 : 50, weight: .bold, design: .rounded))
+                            .minimumScaleFactor(0.2)
+                            .lineLimit(1)
+                            .foregroundColor(Color .offWhite)
+                        if let caption = self.gameCaption {
+                            caption
+                                .font(Font.system(size: 15, weight: .semibold, design: .rounded))
+                                .lineLimit(1)
+                                .foregroundColor(Color .offWhite)
+                        }
+                    }
+                    .padding(.horizontal,self.scoreEditing ? 0 : 20)
                 }
             }
             
