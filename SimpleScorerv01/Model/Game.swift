@@ -76,6 +76,36 @@ class Game : ObservableObject {
             && Molkky.consecutiveMisses(playerScore.pointsList.map { $0.score }) >= Molkky.missesToBeOut
     }
 
+    // Mölkky : why entering a score for this player deserves a warning, nil when it doesn't
+    enum MolkkyWarning {
+        case eliminated, alreadyPlayed
+    }
+
+    func molkkyWarning(for playerScore : PlayerScore) -> MolkkyWarning? {
+        if isEliminated(playerScore) {
+            return .eliminated
+        }
+        return playersYetToPlay(before: playerScore).isEmpty ? nil : .alreadyPlayed
+    }
+
+    func molkkyWarningTitle(_ warning : MolkkyWarning, for playerScore : PlayerScore) -> String {
+        warning == .eliminated
+            ? "\(playerScore.player.name) is out after 3 misses"
+            : "\(playerScore.player.name) already played this turn"
+    }
+
+    func molkkyWarningMessage(_ warning : MolkkyWarning, for playerScore : PlayerScore) -> String {
+        if warning == .eliminated {
+            return "Let \(playerScore.player.name) keep playing? Players won't be out after 3 misses anymore."
+        }
+        return "Still to play : \(playersYetToPlay(before: playerScore).map { $0.player.name }.joined(separator: ", "))."
+    }
+
+    // Players won't be out after 3 misses anymore
+    func keepEliminatedPlaying() {
+        options.molkkyMissesOut = false
+    }
+
     // Mölkky : players still in the game who played fewer turns than this one
     func playersYetToPlay(before playerScore : PlayerScore) -> [PlayerScore] {
         guard activeKind == .molkky else { return [] }

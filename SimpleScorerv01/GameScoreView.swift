@@ -23,14 +23,17 @@ struct GameScoreView: View {
     
     @State var dragOffset = CGSize.zero
     
+    // The game can't be played with this number of players (Coinche with 5...)
+    @State private var playerCountAlert = false
+    
     // The game played stays on top of the scores screens
     var showGameHeader: Bool {
         self.game.rules != nil && self.displayInfo.screenDisplayed < .gameSetup && !self.showPlayerEntry
     }
     
-    // Width of the columns of scores : 60 per column, its padding and the spacing
+    // Width of the columns of scores : 64 per column with its spacing, and the side margins
     func columnsWidth() -> CGFloat {
-        CGFloat(self.game.playerScores.count) * 72 + 40
+        CGFloat(self.game.playerScores.count) * 72 + 48
     }
     
     // Enough room for the columns next to the cards (iPad)
@@ -79,6 +82,13 @@ struct GameScoreView: View {
                 }
                 .animation(.easeInOut(duration: 0.3), value: self.showGameHeader)
                 .onAppear { self.updateDualLayout(dual) }
+                // Leaving the setup for the scores : the number of players must suit the game
+                .onChange(of: self.displayInfo.screenDisplayed) { previous, screen in
+                    if previous == .gameSetup && screen < .gameSetup, let rules = self.game.rules,
+                       rules.isInLibrary, !rules.supports(playerCount: self.game.playerScores.count) {
+                        self.playerCountAlert = true
+                    }
+                }
                 .onChange(of: dual) { self.updateDualLayout(dual) }
                 
                 TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry, orderByScores: $orderedByScores)
@@ -94,6 +104,20 @@ struct GameScoreView: View {
                 }
             }
             
+        }
+        .alert("\(self.game.rules?.name ?? "") is played with \(self.game.rules?.playerCountHint ?? "")",
+               isPresented: self.$playerCountAlert) {
+            Button("Change game") {
+                self.game.rules = nil
+            }
+            Button("Back to players") {
+                withAnimation {
+                    self.displayInfo.screenDisplayed = .gameSetup
+                }
+            }
+            Button("Enter scores freely", role: .cancel) {}
+        } message: {
+            Text("There are \(self.game.playerScores.count) players : the scores of \(self.game.rules?.name ?? "") can't be counted.")
         }
         .alert("\(self.displayInfo.gameToRequest ?? "") isn't in \(AppConfig.appName) yet",
                isPresented: Binding(

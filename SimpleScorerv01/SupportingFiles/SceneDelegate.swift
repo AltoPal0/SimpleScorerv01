@@ -53,6 +53,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 displayInfo.roundEntryPlayerID = game.playerScores.first?.player.id
             }
         }
+        // -demoShort keeps 3 rounds per player
+        if arguments.contains("-demoShort") {
+            for index in game.playerScores.indices {
+                game.playerScores[index].pointsList = Array(game.playerScores[index].pointsList.prefix(3))
+            }
+            game.maxNbrOfRounds = game.currentMaxNumberOfRounds()
+        }
         // -demoColumns opens the columns of scores
         if arguments.contains("-demoColumns") {
             displayInfo.screenDisplayed = .allScores

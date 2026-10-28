@@ -120,6 +120,15 @@ struct TarotDeal {
             case .gardeContre: return "Garde contre"
             }
         }
+        
+        // Fits 4 on a line
+        var shortName: String {
+            switch self {
+            case .gardeSans: return "G.S"
+            case .gardeContre: return "G.C"
+            default: return name
+            }
+        }
     }
 
     enum Side {
@@ -137,6 +146,10 @@ struct TarotDeal {
     var points = 51
     var petitAuBout = Side.none
     var poignee = 0
+    // Players who declared a misère : 10 points from each other player, whatever the contract
+    var miseres = [Int]()
+    
+    static let misere = 10
 
     var required: Int {
         TarotDeal.requiredPoints[bouts]
@@ -168,6 +181,12 @@ struct TarotDeal {
             scores[partner] = value
         } else {
             scores[taker] = (playerCount - 1) * value
+        }
+        
+        for player in miseres where scores.indices.contains(player) {
+            for index in scores.indices {
+                scores[index] += index == player ? TarotDeal.misere * (playerCount - 1) : -TarotDeal.misere
+            }
         }
         return scores
     }

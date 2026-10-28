@@ -48,7 +48,7 @@ struct CoincheRoundView: View {
 
     var pointsText : String {
         if deal.takerIsCapot { return "Capot" }
-        return pointsEntered ? "\(deal.takerPoints)" : "—"
+        return pointsEntered ? "\(deal.takerPoints)" : ""
     }
 
     var body: some View {

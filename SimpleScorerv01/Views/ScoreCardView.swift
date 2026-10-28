@@ -27,7 +27,7 @@ struct ScoreCardView: View {
     @State private var sign = CGFloat(1)
     @State private var scoreEditing = false
     @State private var showKeyPad = false
-    @State private var molkkyAlert : MolkkyAlert?
+    @State private var molkkyAlert : Game.MolkkyWarning?
     
     @State private var nameEditing = false
     @State private var username = ""
@@ -193,21 +193,20 @@ struct ScoreCardView: View {
                 else if self.game.isEliminated(self.playerScore) {
                     self.molkkyAlert = .eliminated
                 }
-                else if !self.scoreEditing && !self.game.playersYetToPlay(before: self.playerScore).isEmpty {
+                else if !self.scoreEditing, let warning = self.game.molkkyWarning(for: self.playerScore) {
                     // Mölkky : everyone plays the same number of turns
-                    self.molkkyAlert = .alreadyPlayed
+                    self.molkkyAlert = warning
                 }
                 else {
                     self.startScoreEntry()
                 }
             } //tap
-            .alert(self.molkkyAlertTitle, isPresented: Binding(
+            .alert(self.molkkyAlert.map { self.game.molkkyWarningTitle($0, for: self.playerScore) } ?? "", isPresented: Binding(
                 get: { self.molkkyAlert != nil },
                 set: { if !$0 { self.molkkyAlert = nil } })) {
                     if self.molkkyAlert == .eliminated {
                         Button("Keep playing") {
-                            // Changes the house rule : nobody is out after 3 misses anymore
-                            self.game.options.molkkyMissesOut = false
+                            self.game.keepEliminatedPlaying()
                             self.startScoreEntry()
                         }
                         Button("Cancel", role: .cancel) {}
@@ -217,26 +216,8 @@ struct ScoreCardView: View {
                         }
                     }
                 } message: {
-                    Text(self.molkkyAlertMessage)
+                    Text(self.molkkyAlert.map { self.game.molkkyWarningMessage($0, for: self.playerScore) } ?? "")
                 }
-    }
-    
-    enum MolkkyAlert {
-        case alreadyPlayed, eliminated
-    }
-    
-    var molkkyAlertTitle: String {
-        self.molkkyAlert == .eliminated
-            ? "\(self.playerScore.player.name) is out after 3 misses"
-            : "\(self.playerScore.player.name) already played this turn"
-    }
-    
-    var molkkyAlertMessage: String {
-        if self.molkkyAlert == .eliminated {
-            return "Let \(self.playerScore.player.name) keep playing? Players won't be out after 3 misses anymore."
-        }
-        let names = self.game.playersYetToPlay(before: self.playerScore).map { $0.player.name }
-        return "Still to play : \(names.joined(separator: ", "))."
     }
     
     func startScoreEntry() {

@@ -261,18 +261,7 @@ struct KeypadPanel: View {
     var onDone : () -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Spacer()
-                Text("Done")
-                    .font(Font.system(size: 18, weight: .semibold, design: .rounded))
-                    .foregroundColor(.gray)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .contentShape(Rectangle())
-                    .onTapGesture(perform: onDone)
-            }
-            
+        BottomPanel(onDone: onDone) {
             KeyPadView(valueDisplayed: Binding(
                 get: { typedPoints },
                 set: { value in
@@ -292,6 +281,28 @@ struct KeypadPanel: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding([.horizontal, .bottom], 8)
         }
+    }
+}
+
+// Panel over the bottom of the screen, like the keyboard of iOS, framed by the gradient of the app
+struct BottomPanel<Content: View>: View {
+    var onDone : () -> Void
+    @ViewBuilder var content : Content
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Text("Done")
+                    .font(Font.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: onDone)
+            }
+            content
+        }
         .background(
             UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20)
                 .fill(Color.offWhite)
@@ -308,14 +319,27 @@ struct KeypadPanel: View {
 
 struct RoundSection<Content: View>: View {
     var title : String
+    // Title and content on one line, to save height
+    var inline = false
     @ViewBuilder var content : Content
-
+    
+    var titleText: some View {
+        Text(title.uppercased())
+            .font(Font.system(size: 15, weight: .light, design: .rounded))
+            .foregroundColor(.gray)
+    }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title.uppercased())
-                .font(Font.system(size: 15, weight: .light, design: .rounded))
-                .foregroundColor(.gray)
-            content
+        if inline {
+            HStack(spacing: 12) {
+                titleText
+                content
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 10) {
+                titleText
+                content
+            }
         }
     }
 }
@@ -345,6 +369,45 @@ struct PlayerPickRow: View {
                     .onTapGesture {
                         withAnimation(.easeOut(duration: 0.15)) {
                             selected = playerScore.player.id
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 4)
+        }
+    }
+}
+
+// Avatars of the players, several can be picked
+struct PlayerMultiPickRow: View {
+    var players : [PlayerScore]
+    @Binding var selected : Set<UUID>
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(players) { playerScore in
+                    let isSelected = selected.contains(playerScore.player.id)
+                    VStack(spacing: 4) {
+                        AvatarView(user: playerScore.player)
+                            .background(Circle().fill(playerScore.player.colorGradient))
+                            .frame(width: 48, height: 48)
+                        Text(playerScore.player.name)
+                            .font(Font.system(size: 13, weight: isSelected ? .semibold : .light, design: .rounded))
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                            .frame(maxWidth: 64)
+                    }
+                    .scaleEffect(isSelected ? 1.1 : 0.9)
+                    .opacity(isSelected ? 1 : 0.45)
+                    .onTapGesture {
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            if isSelected {
+                                selected.remove(playerScore.player.id)
+                            } else {
+                                selected.insert(playerScore.player.id)
+                            }
                         }
                     }
                 }
@@ -389,12 +452,21 @@ struct ChoiceChips<Item: Hashable>: View {
     @Binding var selection : Item
     // Wider for long labels
     var minimumWidth = CGFloat(64)
+    // Fixed number of chips per line, all the same width
+    var columns : Int? = nil
     var label : (Item) -> String
-
+    
+    var gridItems: [GridItem] {
+        if let columns = columns {
+            return Array(repeating: GridItem(.flexible(), spacing: 8), count: columns)
+        }
+        return [GridItem(.adaptive(minimum: minimumWidth), spacing: 8)]
+    }
+    
     var body: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: 8)], spacing: 8) {
+        LazyVGrid(columns: gridItems, spacing: 8) {
             ForEach(items, id: \.self) { item in
-                ChoiceChip(label: label(item), isSelected: item == selection) {
+                ChoiceChip(label: label(item), isSelected: item == selection, fullWidth: columns != nil) {
                     withAnimation(.easeOut(duration: 0.15)) {
                         selection = item
                     }
@@ -436,22 +508,22 @@ struct PointsKeypadEntry: View {
     var onValue : (Int) -> Void
     
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 6) {
+            if !text.isEmpty {
                 Text(text)
                     .font(Font.system(size: 50, weight: .bold, design: .rounded))
                     .foregroundColor(.gray)
-                if let caption = caption {
-                    Text(caption)
-                        .font(Font.system(size: 15, weight: .light, design: .rounded))
-                        .foregroundColor(.gray)
-                }
             }
-            Spacer()
+            if let caption = caption {
+                Text(caption)
+                    .font(Font.system(size: 15, weight: .light, design: .rounded))
+                    .foregroundColor(.gray)
+            }
             ChoiceChip(label: "Add score", isSelected: true) {
                 presentKeypad(KeypadRequest(maximum: maximum, extraKey: extraKey, onExtraKey: onExtraKey, onValue: onValue))
             }
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
