@@ -73,6 +73,11 @@ struct AllScoresView_new: View {
     static let sideMargin = CGFloat(24)
     static let bottomMargin = CGFloat(32)
     
+    // One column per player, Coinche with 4 players : one per team, its first player holds the scores
+    var columns: [[Int]] {
+        game.coincheTeams ?? game.playerScores.indices.map { [$0] }
+    }
+    
     // Cells and totals ask for the keypad through this : Mölkky warnings come first
     var keypadRequest: Binding<Bool> {
         Binding(
@@ -97,25 +102,30 @@ struct AllScoresView_new: View {
                 let metrics = ColumnMetrics.compute(
                     width: geometry.size.width - 2 * AllScoresView_new.sideMargin,
                     height: geometry.size.height - AllScoresView_new.margin - AllScoresView_new.bottomRoom,
-                    players: game.playerScores.count,
+                    players: columns.count,
                     rounds: game.maxNbrOfRounds)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     VStack(spacing: 0) {
                         // Initials
                         HStack(spacing: ColumnMetrics.spacing) {
-                            ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                AvatarView(user: game.playerScores[idx].player)
-                                    .padding(7)
-                                    .frame(width: metrics.width, height: metrics.headerHeight)
+                            ForEach(columns, id: \.self) { column in
+                                // Partners one above the other
+                                VStack(spacing: 2) {
+                                    ForEach(column, id: \.self) { idx in
+                                        AvatarView(user: game.playerScores[idx].player)
+                                    }
+                                }
+                                .padding(7)
+                                .frame(width: metrics.width, height: metrics.headerHeight)
                             }
                         }
                         
                         // Points, scrolling together when they don't fit
                         ScrollView(.vertical, showsIndicators: false) {
                             HStack(alignment: .top, spacing: ColumnMetrics.spacing) {
-                                ForEach(0..<game.playerScores.count, id: \.self) { playerIndex in
-                                    PointsRows(playerIndex: playerIndex, metrics: metrics, showKeypad: keypadRequest, scoreEdit: $scoreEdit)
+                                ForEach(columns, id: \.self) { column in
+                                    PointsRows(playerIndex: column[0], metrics: metrics, showKeypad: keypadRequest, scoreEdit: $scoreEdit)
                                 }
                             }
                         }
@@ -123,16 +133,16 @@ struct AllScoresView_new: View {
                         
                         // Totals
                         HStack(spacing: ColumnMetrics.spacing) {
-                            ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                TotalRows(playerIndex: idx, metrics: metrics, showKeyPad: keypadRequest, scoreEdit: $scoreEdit)
+                            ForEach(columns, id: \.self) { column in
+                                TotalRows(playerIndex: column[0], metrics: metrics, showKeyPad: keypadRequest, scoreEdit: $scoreEdit)
                             }
                         }
                     }
                     // Drawn behind the content at its exact size : nothing gets cut
                     .background(alignment: .top) {
                         HStack(spacing: ColumnMetrics.spacing) {
-                            ForEach(0..<game.playerScores.count, id: \.self) { idx in
-                                ColumnBack(player: game.playerScores[idx].player, metrics: metrics)
+                            ForEach(columns, id: \.self) { column in
+                                ColumnBack(player: game.playerScores[column[0]].player, metrics: metrics)
                             }
                         }
                     }

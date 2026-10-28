@@ -63,16 +63,33 @@ struct ScoreCardsGridView: View {
         }
     }
     
+    // Coinche with 4 players, after the first deal : one card per team
+    var teams: [[PlayerScore]]? {
+        guard let teams = game.coincheTeams, game.maxNbrOfRounds > 0 else { return nil }
+        let sorted = teams.map { $0.map { game.playerScores[$0] } }
+        switch orderedBy {
+        case .scoreUp: return sorted.sorted { game.total(for: $0[0]) > game.total(for: $1[0]) }
+        case .scoreDown: return sorted.sorted { game.total(for: $0[0]) < game.total(for: $1[0]) }
+        case .players: return sorted
+        }
+    }
+    
     // Cards of the round games never show the bottom bar
     var baseCardHeight: CGFloat {
-        game.entersRounds || displayInfo.scoreCardSize == .compact ? 90 : 135
+        if teams != nil { return TeamCardView.baseHeight }
+        return game.entersRounds || displayInfo.scoreCardSize == .compact ? 90 : 135
     }
     
     func layout(in size: CGSize) -> CardLayout {
         // Room for the bottom arrows and the New round button
         let reserved = CGFloat(70) + (game.entersRounds ? 100 : 0)
         return CardLayout.compute(width: size.width, height: size.height - reserved,
-                                  players: game.playerScores.count, baseCardHeight: baseCardHeight)
+                                  players: teams?.count ?? game.playerScores.count, baseCardHeight: baseCardHeight)
+    }
+    
+    // Coinche before the first deal : a line between the 2nd and the 3rd player, the two teams
+    func endsFirstTeam(_ playerScore: PlayerScore) -> Bool {
+        game.coincheTeams != nil && orderedBy == .players && game.indexOf(player: playerScore.player) == 1
     }
     
     // Same font for every name : what is left once the avatar and the widest total have their room
@@ -102,6 +119,11 @@ struct ScoreCardsGridView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
                               spacing: CardLayout.spacing) {
                         
+                        if let teams = teams {
+                            ForEach(teams, id: \.first!.id) { team in
+                                TeamCardView(team: team)
+                            }
+                        } else {
                         ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
                             
                             game.total(for: pScore1) > game.total(for: pScore2) && self.orderedBy == .scoreUp
@@ -112,8 +134,17 @@ struct ScoreCardsGridView: View {
                             
                         }), draggingItem: $draggedCard, hasChangedLocation: $cardMoved) { playerScore in
                             ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, indexForEditView: $idxForEditView, displayEditView: $displayEditView ).id(playerScore.id)
+                                .overlay(alignment: .bottom) {
+                                    if endsFirstTeam(playerScore) {
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.5))
+                                            .frame(height: 1)
+                                            .offset(y: CardLayout.spacing / 2 + 0.5)
+                                    }
+                                }
                         } moveAction: { from, to in
                             game.playerScores.move(fromOffsets: from, toOffset: to)
+                        }
                         }
                     }
                 }

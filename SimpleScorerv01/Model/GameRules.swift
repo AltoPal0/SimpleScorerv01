@@ -16,7 +16,9 @@ enum GameKind {
     tarot ,
     scrabble ,
     uno ,
-    petanque
+    petanque ,
+    gangOfFour ,
+    cabo
 }
 
 struct GameRules: Identifiable, Hashable {
@@ -49,7 +51,7 @@ struct GameRules: Identifiable, Hashable {
 
     // Points of a whole round are entered at once for all the players (deal, mène)
     var entersRounds: Bool {
-        [.coinche, .tarot, .uno, .petanque].contains(kind)
+        [.coinche, .tarot, .uno, .petanque, .gangOfFour, .cabo].contains(kind)
     }
 
     func supports(playerCount: Int) -> Bool {
@@ -67,6 +69,8 @@ struct GameRules: Identifiable, Hashable {
             return points.reduce(0) { total, points in
                 total + points > Molkky.target ? Molkky.fallback : total + points
             }
+        case .cabo:
+            return Cabo.total(of: points)
         default:
             return points.reduce(0, +)
         }
@@ -98,6 +102,8 @@ enum GameLibrary {
         GameRules(id: "scrabble", name: "Scrabble", kind: .scrabble, playerCounts: 2...4),
         GameRules(id: "uno", name: "Uno", kind: .uno, target: 500, playerCounts: 2...10),
         GameRules(id: "petanque", name: "Pétanque", aliases: ["Boules"], kind: .petanque, target: 13, playerCounts: 2...4),
+        GameRules(id: "gangoffour", name: "Gang of Four", aliases: ["Gang of 4", "Gang"], kind: .gangOfFour, lowestScoreWins: true, target: 100, playerCounts: 3...4),
+        GameRules(id: "cabo", name: "Cabo", aliases: ["Gabot", "Gabo"], kind: .cabo, lowestScoreWins: true, target: 100, playerCounts: 2...4),
     ]
 
     static func suggestions(for query: String) -> [GameRules] {

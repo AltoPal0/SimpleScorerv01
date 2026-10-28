@@ -47,9 +47,13 @@ struct HistoryView: View {
 }
 
 struct GameRecordCard: View {
-
+    
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
     var record : GameRecord
+    
+    @State private var offersResume = false
 
     var body: some View {
         let ranking = record.ranking
@@ -87,7 +91,7 @@ struct GameRecordCard: View {
                                 .opacity(index == 0 && ranking.count > 1 ? 1 : 0)
                             RecordAvatar(player: player)
                                 .frame(width: 48, height: 48)
-                            Text("\(player.total)")
+                            Text(verbatim: "\(player.total)")
                                 .font(Font.system(size: 15, weight: .semibold, design: .rounded))
                                 .foregroundColor(.gray)
                                 .lineLimit(1)
@@ -109,6 +113,18 @@ struct GameRecordCard: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(Color.offWhite, lineWidth: 1)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            offersResume = true
+        }
+        .alert("Resume this game of \(record.gameName)?", isPresented: $offersResume) {
+            Button("Resume") {
+                resume()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("The game in progress stays in the history.")
+        }
         .contextMenu {
             Button(role: .destructive) {
                 withAnimation {
@@ -120,6 +136,17 @@ struct GameRecordCard: View {
         }
     }
 
+    func resume() {
+        game.resume(players: record.players, gameID: record.gameID, gameName: record.gameName, recordID: record.id, date: record.date)
+        // Colors taken by the players leave the palette of the new ones
+        let taken = Set(record.players.compactMap { $0.gradientIndex })
+        displayInfo.gradientIndices = Array(gradiants.indices).filter { !taken.contains($0) }.shuffled()
+        displayInfo.setSizeAndScroll(nbrPlayers: game.playerScores.count)
+        withAnimation {
+            displayInfo.screenDisplayed = .scoreCards
+        }
+    }
+    
     static func dateText(_ date: Date) -> String {
         let time = date.formatted(date: .omitted, time: .shortened)
         if Calendar.current.isDateInToday(date) {

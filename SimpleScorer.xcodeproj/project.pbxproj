@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		27B5EC2F3544DDBC6A8B1AC2 /* TeamCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D7FEA28B0C6480A64F8012 /* TeamCardView.swift */; };
+		5851D5F2A6B122CDFAC43B87 /* HandRoundViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D262ADE91B9B76D555F42D5B /* HandRoundViews.swift */; };
 		81E9832E75CBC0E4AD6D4FED /* GameSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0409596E9FE86A86506BCBB /* GameSnapshot.swift */; };
 		6F6E380DCBCC3DF4221E61ED /* CardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5226305D8DC2236578A88643 /* CardLayout.swift */; };
 		6E90A700E6D541EE923765DF /* GameRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE7EAAE233A6BDAFE64E89A /* GameRequests.swift */; };
@@ -54,6 +56,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		86D7FEA28B0C6480A64F8012 /* TeamCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamCardView.swift; sourceTree = "<group>"; };
+		D262ADE91B9B76D555F42D5B /* HandRoundViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandRoundViews.swift; sourceTree = "<group>"; };
 		C0409596E9FE86A86506BCBB /* GameSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSnapshot.swift; sourceTree = "<group>"; };
 		5226305D8DC2236578A88643 /* CardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardLayout.swift; sourceTree = "<group>"; };
 		08A967C17733121B1E457908 /* SimpleScorerv01.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SimpleScorerv01.entitlements; sourceTree = "<group>"; };
@@ -200,6 +204,8 @@
 		E88751B3241F9DE90091853F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				86D7FEA28B0C6480A64F8012 /* TeamCardView.swift */,
+				D262ADE91B9B76D555F42D5B /* HandRoundViews.swift */,
 				EC2C13396BF6F16282B0D473 /* ShareCardView.swift */,
 				1AC12CA7465D29EAB3F45D84 /* HistoryView.swift */,
 				A45D3B961034AEC27F5EBC4A /* GameHeaderView.swift */,
@@ -311,6 +317,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27B5EC2F3544DDBC6A8B1AC2 /* TeamCardView.swift in Sources */,
+				5851D5F2A6B122CDFAC43B87 /* HandRoundViews.swift in Sources */,
 				81E9832E75CBC0E4AD6D4FED /* GameSnapshot.swift in Sources */,
 				6F6E380DCBCC3DF4221E61ED /* CardLayout.swift in Sources */,
 				6E90A700E6D541EE923765DF /* GameRequests.swift in Sources */,

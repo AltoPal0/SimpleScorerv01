@@ -50,7 +50,7 @@ struct ShareCardView: View {
                                 .font(.system(size: 16))
                         }
                         Spacer()
-                        Text("\(player.total)")
+                        Text(verbatim: "\(player.total)")
                             .font(Font.system(size: 28, weight: .bold, design: .rounded))
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)

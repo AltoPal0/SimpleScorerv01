@@ -31,6 +31,10 @@ struct RoundEntryView: View {
                 UnoRoundView(winnerID: playerID, onConfirm: confirm)
             case .petanque:
                 PetanqueRoundView(scorerID: playerID, onConfirm: confirm)
+            case .gangOfFour:
+                GangOfFourRoundView(winnerID: playerID, onConfirm: confirm)
+            case .cabo:
+                CaboRoundView(callerID: playerID, onConfirm: confirm)
             default:
                 EmptyView()
             }

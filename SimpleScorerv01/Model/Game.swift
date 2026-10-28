@@ -144,7 +144,18 @@ class Game : ObservableObject {
 
     // Coinche : 2 players are 2 teams, 4 players make 2 teams of partners
     func coincheTeam(of playerScore : PlayerScore) -> Int {
-        return Coinche.team(ofPlayerAt: indexOf(player: playerScore.player) ?? 0)
+        return Coinche.team(ofPlayerAt: indexOf(player: playerScore.player) ?? 0, playerCount: playerScores.count)
+    }
+
+    // Coinche with 4 players : the two teams, as indices of their players. nil for any other game
+    var coincheTeams : [[Int]]? {
+        guard activeKind == .coinche && playerScores.count == 4 else { return nil }
+        return [[0, 1], [2, 3]]
+    }
+
+    // The player and the partner sharing the score, or the player alone
+    func teamIndices(of index : Int) -> [Int] {
+        coincheTeams?.first { $0.contains(index) } ?? [index]
     }
 
     func coincheTeamName(_ team : Int) -> String {
@@ -170,6 +181,29 @@ class Game : ObservableObject {
             recordID: recordID,
             recordDate: recordDate
         ).save()
+    }
+
+    // A game of the history played again : its scores go on in the same history entry
+    func resume(players : [RecordedPlayer], gameID : String, gameName : String, recordID : UUID, date : Date) {
+        playerScores = players.map { saved in
+            var playerScore = PlayerScore(
+                player: Player(name: saved.name, initials: saved.initials, gradientIndex: saved.gradientIndex),
+                pointsList: [])
+            for points in saved.points {
+                playerScore.addPoints(scoreValue: points)
+            }
+            return playerScore
+        }
+        
+        let rules = gameID == GameRules.universal.id
+            ? GameRules.universal
+            : GameLibrary.games.first { $0.id == gameID } ?? GameLibrary.rules(named: gameName)
+        self.rules = rules
+        self.options = GameOptions.load(for: rules)
+        self.recordID = recordID
+        self.recordDate = date
+        self.maxNbrOfRounds = currentMaxNumberOfRounds()
+        saveSnapshot()
     }
 
     // The game as it was when the app was left, empty the first time
@@ -515,17 +549,20 @@ class Game : ObservableObject {
 //        self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
     }
     
+    // Coinche : partners share their score, a correction goes to both
     func deletePointsFor(player : Player, round : Int) {
-        let index = self.indexOf(player: player)!
-        
-        self.playerScores[index].pointsList.remove(at: round)
-        
-        // Adjust roundNbr for all points
-        // (Decrease round for those after)
-        for point in self.playerScores[index].pointsList {
-            if point.round > round {
-                let pointIndex = self.playerScores[index].indexFor(round: point.round)!
-                self.playerScores[index].pointsList[pointIndex].round -= 1
+        for index in self.teamIndices(of: self.indexOf(player: player)!)
+            where self.playerScores[index].pointsList.indices.contains(round) {
+            
+            self.playerScores[index].pointsList.remove(at: round)
+            
+            // Adjust roundNbr for all points
+            // (Decrease round for those after)
+            for point in self.playerScores[index].pointsList {
+                if point.round > round {
+                    let pointIndex = self.playerScores[index].indexFor(round: point.round)!
+                    self.playerScores[index].pointsList[pointIndex].round -= 1
+                }
             }
         }
         
@@ -534,9 +571,10 @@ class Game : ObservableObject {
     }
     
     func modifyPointsFor(player : Player, round : Int, points : Int) {
-        let index = self.indexOf(player: player)!
-        
-        self.playerScores[index].modifyScore(newScore: points, forRound: round)
+        for index in self.teamIndices(of: self.indexOf(player: player)!)
+            where self.playerScores[index].indexFor(round: round) != nil {
+            self.playerScores[index].modifyScore(newScore: points, forRound: round)
+        }
         self.recordHistory()
     }
     

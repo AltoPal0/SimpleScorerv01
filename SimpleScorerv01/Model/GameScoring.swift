@@ -98,9 +98,9 @@ enum Coinche {
     static let capot = 250
     static let target = 2000
     
-    // With 4 players, partners sit face to face : 1st & 3rd against 2nd & 4th
-    static func team(ofPlayerAt index: Int) -> Int {
-        index % 2
+    // 2 players are 2 teams, with 4 players : 1st & 2nd against 3rd & 4th
+    static func team(ofPlayerAt index: Int, playerCount: Int) -> Int {
+        playerCount == 4 ? index / 2 : index
     }
 }
 
@@ -198,6 +198,67 @@ struct TarotDeal {
 enum Uno {
     static let actionCard = 20
     static let wildCard = 50
+}
+
+// MARK: - Gang of Four
+// The player out of cards ends the round, the others score the cards left, more for many cards
+
+enum GangOfFour {
+    static let cards = 16
+    
+    static func penalty(cardsLeft: Int) -> Int {
+        switch cardsLeft {
+        case ...0: return 0
+        case 1...7: return cardsLeft
+        case 8...10: return cardsLeft * 2
+        case 11...13: return cardsLeft * 3
+        default: return min(cardsLeft, cards) * 4
+        }
+    }
+    
+    // The direction of play changes every round, clockwise first
+    static func isClockwise(round: Int) -> Bool {
+        round % 2 == 0
+    }
+}
+
+// MARK: - Cabo
+// Lowest total wins, the game ends when someone goes over 100
+
+enum Cabo {
+    static let target = 100
+    static let fallback = 50
+    static let failedCallPenalty = 10
+    static let kamikaze = 50
+    
+    // Exactly 100 brings the player back to 50, once in the game
+    static func total(of points: [Int]) -> Int {
+        var total = 0
+        var fellBack = false
+        for points in points {
+            total += points
+            if total == target && !fellBack {
+                total = fallback
+                fellBack = true
+            }
+        }
+        return total
+    }
+    
+    // Points of a round : the caller scores 0 with the lowest hand, a tie or worse costs 10 more.
+    // Kamikaze (two 12 and two 13) : 0 for that player, 50 for the others
+    static func roundPoints(hands: [Int], caller: Int, kamikaze: Int?) -> [Int] {
+        if let kamikaze = kamikaze {
+            return hands.indices.map { $0 == kamikaze ? 0 : Cabo.kamikaze }
+        }
+        var points = hands
+        if hands.indices.contains(caller) {
+            let others = hands.indices.filter { $0 != caller }.map { hands[$0] }
+            let callerIsLowest = others.allSatisfy { hands[caller] < $0 }
+            points[caller] = callerIsLowest ? 0 : hands[caller] + failedCallPenalty
+        }
+        return points
+    }
 }
 
 // MARK: - Pétanque

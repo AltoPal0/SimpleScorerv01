@@ -347,7 +347,7 @@ struct ScoreCardView: View {
             }
         }
         if let remaining = self.game.remaining(for: self.playerScore) {
-            return Text("\(remaining) to go")
+            return Text(verbatim: "\(remaining) to go")
         }
         return nil
     }
@@ -391,7 +391,7 @@ struct ScoreCardView: View {
             HStack {
                 if scoreEditing {
                     
-                    Text("\(self.game.total(for: self.playerScore)) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
+                    Text(verbatim: "\(self.game.total(for: self.playerScore)) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
                         .font(Font.system(size: 25 * scale, weight: .bold, design: .rounded))
                         .minimumScaleFactor(0.5)
                         .lineLimit(2)
