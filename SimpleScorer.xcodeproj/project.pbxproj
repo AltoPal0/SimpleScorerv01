@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03E0751782CCBD235923B648 /* Pods_SimpleScorerv01.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 929B9070BB9E9419D6695C73 /* Pods_SimpleScorerv01.framework */; };
 		D72849FB28EC999900D564CE /* AllScoresView_new.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72849FA28EC999900D564CE /* AllScoresView_new.swift */; };
 		D76274F1247D020C0035F6DD /* GlobalDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */; };
 		D79069D929225131006D418B /* TopSwiperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79069D829225131006D418B /* TopSwiperView.swift */; };
@@ -38,8 +37,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		929B9070BB9E9419D6695C73 /* Pods_SimpleScorerv01.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleScorerv01.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B1C66F21B8F1DF96253304AA /* Pods-SimpleScorerv01.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleScorerv01.debug.xcconfig"; path = "Target Support Files/Pods-SimpleScorerv01/Pods-SimpleScorerv01.debug.xcconfig"; sourceTree = "<group>"; };
 		D72849FA28EC999900D564CE /* AllScoresView_new.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllScoresView_new.swift; sourceTree = "<group>"; };
 		D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDisplayInfo.swift; sourceTree = "<group>"; };
 		D79069D829225131006D418B /* TopSwiperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSwiperView.swift; sourceTree = "<group>"; };
@@ -69,7 +66,6 @@
 		E8AE91A7245C405B00CA7F55 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		E8B42DA42456DFBB001AE7C2 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		E8F648372464014E00F59B7C /* GameSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSetupView.swift; sourceTree = "<group>"; };
-		EF93DB7B20F79BEB3C2AABC8 /* Pods-SimpleScorerv01.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleScorerv01.release.xcconfig"; path = "Target Support Files/Pods-SimpleScorerv01/Pods-SimpleScorerv01.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,30 +73,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03E0751782CCBD235923B648 /* Pods_SimpleScorerv01.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		81B296D4192E5883D78E95A6 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				929B9070BB9E9419D6695C73 /* Pods_SimpleScorerv01.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		D32C78132E97F15CB5696790 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				B1C66F21B8F1DF96253304AA /* Pods-SimpleScorerv01.debug.xcconfig */,
-				EF93DB7B20F79BEB3C2AABC8 /* Pods-SimpleScorerv01.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		D7C03BAD246EE9D50006FB9F /* Tools */ = {
 			isa = PBXGroup;
 			children = (
@@ -118,8 +96,6 @@
 				E8B42DA42456DFBB001AE7C2 /* Constants.swift */,
 				E8875196241F99DB0091853F /* SimpleScorerv01 */,
 				E8875195241F99DB0091853F /* Products */,
-				D32C78132E97F15CB5696790 /* Pods */,
-				81B296D4192E5883D78E95A6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -217,7 +193,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E88751A8241F99DC0091853F /* Build configuration list for PBXNativeTarget "SimpleScorer" */;
 			buildPhases = (
-				1961D1B27DC6EF5C32AB3849 /* [CP] Check Pods Manifest.lock */,
 				E8875190241F99DB0091853F /* Sources */,
 				E8875191241F99DB0091853F /* Frameworks */,
 				E8875192241F99DB0091853F /* Resources */,
@@ -277,30 +252,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		1961D1B27DC6EF5C32AB3849 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-SimpleScorerv01-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E8875190241F99DB0091853F /* Sources */ = {
@@ -466,7 +417,6 @@
 		};
 		E88751A9241F99DC0091853F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B1C66F21B8F1DF96253304AA /* Pods-SimpleScorerv01.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -494,7 +444,6 @@
 		};
 		E88751AA241F99DC0091853F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EF93DB7B20F79BEB3C2AABC8 /* Pods-SimpleScorerv01.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
