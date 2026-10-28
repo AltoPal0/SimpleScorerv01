@@ -116,14 +116,20 @@ struct ScoreCardsGridView: View {
                     showOrderToast()
                 }
                 ScrollViewReader { value in
+                    // Teams and players are two grids of their own : sharing one grid with the same ids
+                    // left stale cards on screen when switching between them (reset of a Coinche game)
+                    if let teams = teams {
+                        LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
+                                  spacing: CardLayout.spacing) {
+                            ForEach(teams, id: \.first!.player.id) { team in
+                                TeamCardView(team: team)
+                            }
+                        }
+                        .id("teams")
+                    } else {
                     LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
                               spacing: CardLayout.spacing) {
                         
-                        if let teams = teams {
-                            ForEach(teams, id: \.first!.id) { team in
-                                TeamCardView(team: team)
-                            }
-                        } else {
                         ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
                             
                             game.total(for: pScore1) > game.total(for: pScore2) && self.orderedBy == .scoreUp
@@ -145,7 +151,8 @@ struct ScoreCardsGridView: View {
                         } moveAction: { from, to in
                             game.playerScores.move(fromOffsets: from, toOffset: to)
                         }
-                        }
+                    }
+                    .id("players")
                     }
                 }
                 .environment(\.cardScale, layout.scale)

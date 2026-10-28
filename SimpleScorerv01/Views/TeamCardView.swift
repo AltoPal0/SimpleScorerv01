@@ -40,7 +40,16 @@ struct TeamCardView: View {
                 .frame(height: rowHeight)
                 .overlay(alignment: .bottom) {
                     if index == 0 {
-                        Rectangle().fill(Color.offWhite.opacity(0.6)).frame(height: 0.5)
+                        // Fades out before reaching the score
+                        Rectangle()
+                            .fill(LinearGradient(
+                                gradient: Gradient(stops: [
+                                    .init(color: Color.offWhite.opacity(0.6), location: 0),
+                                    .init(color: Color.offWhite.opacity(0.6), location: 0.4),
+                                    .init(color: Color.offWhite.opacity(0), location: 0.65),
+                                ]),
+                                startPoint: .leading, endPoint: .trailing))
+                            .frame(height: 0.5)
                     }
                 }
             }

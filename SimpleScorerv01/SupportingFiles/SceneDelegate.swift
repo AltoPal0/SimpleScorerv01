@@ -60,6 +60,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
             game.maxNbrOfRounds = game.currentMaxNumberOfRounds()
         }
+        // -demoReset resets the scores 8 seconds after launch, as the Reset scores button
+        if arguments.contains("-demoReset") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 8) { [game] in
+                game.resetScores(keepingGame: true)
+            }
+        }
+        // -demoResetAll resets everything 8 seconds after launch, as the Reset all button
+        if arguments.contains("-demoResetAll") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 8) { [game, displayInfo] in
+                game.resetAll()
+                displayInfo.gradientIndices = Array(gradiants.indices).shuffled()
+                displayInfo.setSizeAndScroll(nbrPlayers: 0)
+            }
+        }
         // -demoColumns opens the columns of scores
         if arguments.contains("-demoColumns") {
             displayInfo.screenDisplayed = .allScores

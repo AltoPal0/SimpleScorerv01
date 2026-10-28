@@ -102,7 +102,7 @@ enum GameLibrary {
         GameRules(id: "scrabble", name: "Scrabble", kind: .scrabble, playerCounts: 2...4),
         GameRules(id: "uno", name: "Uno", kind: .uno, target: 500, playerCounts: 2...10),
         GameRules(id: "petanque", name: "Pétanque", aliases: ["Boules"], kind: .petanque, target: 13, playerCounts: 2...4),
-        GameRules(id: "gangoffour", name: "Gang of Four", aliases: ["Gang of 4", "Gang"], kind: .gangOfFour, lowestScoreWins: true, target: 100, playerCounts: 3...4),
+        GameRules(id: "gangoffour", name: "Gang of 4", aliases: ["Gang of Four", "Gang"], kind: .gangOfFour, lowestScoreWins: true, target: 100, playerCounts: 3...4),
         GameRules(id: "cabo", name: "Cabo", aliases: ["Gabot", "Gabo"], kind: .cabo, lowestScoreWins: true, target: 100, playerCounts: 2...4),
     ]
 

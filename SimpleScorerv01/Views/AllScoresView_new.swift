@@ -114,8 +114,11 @@ struct AllScoresView_new: View {
                             ForEach(columns, id: \.self) { column in
                                 // Partners side by side, smaller
                                 HStack(spacing: 2) {
+                                    // Optional : a reset all empties the players while these views still exist
                                     ForEach(column, id: \.self) { idx in
-                                        AvatarView(user: game.playerScores[idx].player)
+                                        if let playerScore = game.playerScores[optional: idx] {
+                                            AvatarView(user: playerScore.player)
+                                        }
                                     }
                                 }
                                 .padding(7)
@@ -144,7 +147,9 @@ struct AllScoresView_new: View {
                     .background(alignment: .top) {
                         HStack(spacing: ColumnMetrics.spacing) {
                             ForEach(columns, id: \.self) { column in
-                                ColumnBack(player: game.playerScores[column[0]].player, metrics: metrics)
+                                if let playerScore = game.playerScores[optional: column[0]] {
+                                    ColumnBack(player: playerScore.player, metrics: metrics)
+                                }
                             }
                         }
                     }
@@ -237,7 +242,7 @@ struct TotalRows: View {
     @Binding var scoreEdit : (playerIdx: Int, round: Int, mode: ScoreEditMode)
     
     var totalText: String {
-        let playerScore = game.playerScores[playerIndex]
+        guard let playerScore = game.playerScores[optional: playerIndex] else { return "" }
         if game.isEliminated(playerScore) {
             return "✕"
         }
@@ -255,8 +260,9 @@ struct TotalRows: View {
             .frame(width: metrics.width, height: metrics.totalHeight)
             .contentShape(Rectangle())
             .onTapGesture(count: 1, perform: {
+                guard let playerScore = game.playerScores[optional: playerIndex] else { return }
                 if game.entersRounds {
-                    displayInfo.roundEntryPlayerID = game.playerScores[playerIndex].player.id
+                    displayInfo.roundEntryPlayerID = playerScore.player.id
                 } else {
                     scoreEdit.playerIdx = playerIndex
                     scoreEdit.mode = .addition
@@ -318,7 +324,7 @@ struct Cell: View {
     
     var body: some View {
         
-        Text(roundExists ? game.playerScores[playerIndex].pointsList[round].score.description : "•")
+        Text(game.playerScores[optional: playerIndex]?.pointsList[optional: round]?.score.description ?? "•")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
             .onTapGesture(count: 1, perform: {

@@ -13,7 +13,6 @@ import SwiftUI
 struct GangOfFourRoundView: View {
 
     @EnvironmentObject var game : Game
-    @Environment(\.presentKeypad) var presentKeypad
 
     @State var winnerID : UUID
     var onConfirm : ([UUID : Int]) -> Void
@@ -39,7 +38,7 @@ struct GangOfFourRoundView: View {
     }
 
     var body: some View {
-        RoundEntryLayout(title: "Gang of Four") {
+        RoundEntryLayout(title: "Gang of 4") {
             RoundSection(title: "Out of cards") {
                 PlayerPickRow(players: game.playerScores, selected: $winnerID)
             }
@@ -49,11 +48,10 @@ struct GangOfFourRoundView: View {
                     ForEach(losers) { playerScore in
                         HandRow(playerScore: playerScore,
                                 value: cardsLeft[playerScore.player.id],
-                                unit: "cards") {
-                            presentKeypad(KeypadRequest(maximum: GangOfFour.cards, extraKey: "", onExtraKey: {}) { cards in
-                                cardsLeft[playerScore.player.id] = cards
-                            })
-                        }
+                                unit: "cards",
+                                request: KeypadRequest(maximum: GangOfFour.cards, extraKey: "", onExtraKey: {}) { cards in
+                                    cardsLeft[playerScore.player.id] = cards
+                                })
                     }
                 }
             }
@@ -75,7 +73,6 @@ struct GangOfFourRoundView: View {
 struct CaboRoundView: View {
 
     @EnvironmentObject var game : Game
-    @Environment(\.presentKeypad) var presentKeypad
 
     @State var callerID : UUID
     var onConfirm : ([UUID : Int]) -> Void
@@ -119,11 +116,10 @@ struct CaboRoundView: View {
                     ForEach(game.playerScores) { playerScore in
                         HandRow(playerScore: playerScore,
                                 value: hands[playerScore.player.id],
-                                unit: "points") {
-                            presentKeypad(KeypadRequest(maximum: 99, extraKey: "", onExtraKey: {}) { total in
-                                hands[playerScore.player.id] = total
-                            })
-                        }
+                                unit: "points",
+                                request: KeypadRequest(maximum: 99, extraKey: "", onExtraKey: {}) { total in
+                                    hands[playerScore.player.id] = total
+                                })
                     }
                 }
             }
@@ -144,12 +140,15 @@ struct CaboRoundView: View {
     }
 }
 
-// A player and what is left in the hand, tapped to type it on the keypad
+// A player and what is left in the hand, tapped to type it on the keypad.
+// Reads the keypad itself : it only exists inside the RoundEntryLayout
 struct HandRow: View {
+    @Environment(\.presentKeypad) var presentKeypad
+    
     var playerScore : PlayerScore
     var value : Int?
     var unit : String
-    var onTap : () -> Void
+    var request : KeypadRequest
 
     var body: some View {
         HStack {
@@ -183,6 +182,8 @@ struct HandRow: View {
                 .stroke(Color.offWhite, lineWidth: 1)
         )
         .contentShape(Rectangle())
-        .onTapGesture(perform: onTap)
+        .onTapGesture {
+            presentKeypad(request)
+        }
     }
 }
