@@ -37,3 +37,6 @@ fastlane/test_output
 # Python
 __pycache__/
 *.pyc
+
+# Apple keys
+*.p8
