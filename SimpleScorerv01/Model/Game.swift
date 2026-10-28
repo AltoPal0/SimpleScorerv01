@@ -39,6 +39,7 @@ class Game : ObservableObject {
         self.rules = rules
         self.options = GameOptions.load(for: rules)
         RecentGames.record(name: rules.name)
+        self.saveSnapshot()
     }
 
     func needsGameChoice() -> Bool {
@@ -118,7 +119,51 @@ class Game : ObservableObject {
     }
 
     // MARK: - History
+    // MARK: - Interrupted game
+    func saveSnapshot() {
+        GameSnapshot(
+            players: playerScores.map { playerScore in
+                GameSnapshot.SavedPlayer(
+                    id: playerScore.player.id,
+                    name: playerScore.player.name,
+                    initials: playerScore.player.initials,
+                    gradientIndex: playerScore.player.gradientIndex,
+                    points: playerScore.pointsList.map { $0.score })
+            },
+            gameName: rules?.name,
+            recordID: recordID,
+            recordDate: recordDate
+        ).save()
+    }
+
+    // The game as it was when the app was left, empty the first time
+    static func restored() -> Game {
+        let game = Game()
+        guard let snapshot = GameSnapshot.load() else { return game }
+
+        for saved in snapshot.players {
+            var playerScore = PlayerScore(
+                player: Player(id: saved.id, name: saved.name, initials: saved.initials, gradientIndex: saved.gradientIndex),
+                pointsList: [])
+            for points in saved.points {
+                playerScore.addPoints(scoreValue: points)
+            }
+            game.playerScores.append(playerScore)
+        }
+        if let gameName = snapshot.gameName {
+            let rules = GameLibrary.rules(named: gameName)
+            game.rules = rules
+            game.options = GameOptions.load(for: rules)
+        }
+        game.recordID = snapshot.recordID
+        game.recordDate = snapshot.recordDate
+        game.maxNbrOfRounds = game.currentMaxNumberOfRounds()
+        return game
+    }
+
     func recordHistory() {
+        self.saveSnapshot()
+
         let hasPoints = playerScores.contains { !$0.pointsList.isEmpty }
 
         MainActor.assumeIsolated {
@@ -469,6 +514,7 @@ class Game : ObservableObject {
         self.playerScores = []
         self.maxNbrOfRounds = 0
         self.rules = nil
+        self.saveSnapshot()
     }
 
     // keepingGame : a new game of the same game, otherwise the players are asked which game they play
@@ -485,6 +531,7 @@ class Game : ObservableObject {
             self.rules = nil
         }
         
+        self.saveSnapshot()
     }
     
     //    func maxScore() -> Int {

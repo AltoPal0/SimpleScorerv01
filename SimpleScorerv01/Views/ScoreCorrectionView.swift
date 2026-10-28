@@ -82,27 +82,21 @@ struct ScoreCorrectionView: View {
                             .overlay(Image(systemName: "checkmark").foregroundColor(Color.white))
                             .frame(minWidth:70, maxWidth:70, maxHeight: .infinity)
                             .onTapGesture {
-                                if editMode == .modification {
-                                    game.modifyPointsFor(player: game.playerScores[playerIndex].player, round: round, points: Int(pointsScored * sign))
-                                    showKeypad = false
-                                    sign = 1
-                                    pointsScored = 0
-                                } else {
-                                    if game.playerScores[playerIndex].pointsList[optional: round] != nil {
-                                        game.addPointsFor(player: game.playerScores[playerIndex].player, points: Int(pointsScored * sign))
-                                    } else {
-                                        // modification of an empty cell is like addition at specific round
-                                        game.addPointsFor(player: game.playerScores[playerIndex].player, points: Int(pointsScored * sign), round: round)
-                                    }
-                                    showKeypad = false
-                                    sign = 1
-                                    pointsScored = 0
-                                }
+                                commit(Int(pointsScored * sign))
                             }
                     }
                     .frame(height: geo.size.height/3)
                     
-                    KeyPadView(valueDisplayed: $pointsScored, sign: $sign)
+                    // The keypad of the game, as on the cards
+                    if game.activeKind == .molkky {
+                        MolkkyPadView { points in
+                            commit(points)
+                        }
+                    } else {
+                        KeyPadView(valueDisplayed: $pointsScored, sign: $sign,
+                                   extraKey: game.activeKind == .scrabble ? "+50" : nil,
+                                   onExtraKey: { pointsScored += 50 })
+                    }
                     
                 }
                 
@@ -111,6 +105,22 @@ struct ScoreCorrectionView: View {
             .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
             
         }
+    }
+}
+
+extension ScoreCorrectionView {
+    func commit(_ points: Int) {
+        if editMode == .modification {
+            game.modifyPointsFor(player: game.playerScores[playerIndex].player, round: round, points: points)
+        } else if game.playerScores[playerIndex].pointsList[optional: round] != nil {
+            game.addPointsFor(player: game.playerScores[playerIndex].player, points: points)
+        } else {
+            // modification of an empty cell is like addition at specific round
+            game.addPointsFor(player: game.playerScores[playerIndex].player, points: points, round: round)
+        }
+        showKeypad = false
+        sign = 1
+        pointsScored = 0
     }
 }
 

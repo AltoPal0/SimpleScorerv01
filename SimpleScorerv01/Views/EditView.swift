@@ -160,5 +160,6 @@ struct EditView_Previews: PreviewProvider {
     static var previews: some View {
         EditView(playerIdx: 0, displayEditView: .constant(true))
             .environmentObject(Game(withTestPlayers: ()))
+            .environmentObject(GlobalDisplayInfo())
     }
 }

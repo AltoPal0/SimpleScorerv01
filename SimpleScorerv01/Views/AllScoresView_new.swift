@@ -206,6 +206,7 @@ struct PointsRows: View {
 
 struct Cell: View {
     @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
     var playerIndex : Int
     var round : Int
     
@@ -234,6 +235,9 @@ struct Cell: View {
                     withAnimation{
                         self.showingActionSheet = true
                     }
+                } else if game.entersRounds {
+                    // A missing score of a round game : the whole round is entered
+                    displayInfo.roundEntryPlayerID = game.playerScores[playerIndex].player.id
                 } else {
                     scoreEdit.playerIdx = playerIndex
                     scoreEdit.mode = .addition
@@ -272,6 +276,7 @@ struct AllScoresView_new_Previews: PreviewProvider {
     static var previews: some View {
         AllScoresView_new()
             .environmentObject(Game(withTestPlayers: ()))
+            .environmentObject(GlobalDisplayInfo())
     }
 }
 

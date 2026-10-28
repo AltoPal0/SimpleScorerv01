@@ -13,6 +13,8 @@ import SwiftData
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    // Saved when the app leaves the screen : names and players change outside the scores
+    var game: Game?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -22,7 +24,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Create the SwiftUI view that provides the window contents.
         let displayInfo = GlobalDisplayInfo()
 //        let game = Game(withTestPlayers: ())
-        var game = Game()
+        // The interrupted game starts again where it was
+        var game = Game.restored()
+        if !game.playerScores.isEmpty {
+            // Colors already taken leave the palette of the new players
+            let taken = Set(game.playerScores.compactMap { $0.player.gradientIndex })
+            displayInfo.gradientIndices.removeAll { taken.contains($0) }
+            displayInfo.setSizeAndScroll(nbrPlayers: game.playerScores.count)
+            displayInfo.screenDisplayed = game.rules == nil ? .gameSetup : .scoreCards
+        }
         #if DEBUG
         // Launch with -demoPlayers to skip the setup and land on the scores with test players,
         // -demoCount <n> to keep n of them, -demoGame <name> to pick the game and -demoRound to open the round entry
@@ -77,6 +87,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             displayInfo.screenDisplayed = .history
         }
         #endif
+        self.game = game
         let contentView = GameScoreView()
         
         // Use a UIHostingController as window root view controller.
@@ -115,6 +126,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
+        game?.saveSnapshot()
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
