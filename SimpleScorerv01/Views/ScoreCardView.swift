@@ -463,9 +463,12 @@ struct ScoreCardView: View {
                             .lineLimit(1)
                             .foregroundColor(Color .offWhite)
                         if let caption = self.gameCaption {
+                            // Whole, under the name if needed : it takes no width from the name
                             caption
                                 .font(Font.system(size: 15 * scale, weight: .semibold, design: .rounded))
                                 .lineLimit(1)
+                                .fixedSize()
+                                .frame(width: 0, alignment: .trailing)
                                 .foregroundColor(Color .offWhite)
                         }
                     }
