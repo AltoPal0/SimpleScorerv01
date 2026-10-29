@@ -1,0 +1,9 @@
+{
+  "id" : "9c12f112-e9ae-4502-903e-a8cf7fed8f7b",
+  "targets" : [
+    {
+      "id" : "83031f5a-35d8-4523-9ae7-f4bab2667246",
+      "name" : "SimpleScorer"
+    }
+  ]
+}
