@@ -55,6 +55,17 @@ struct SettingsView: View {
                             .font(Font.system(size: 15, weight: .light, design: .rounded))
                             .foregroundColor(.gray)
                             .fixedSize(horizontal: false, vertical: true)
+
+                        // Required by the CC BY license of the icons used
+                        RoundSection(title: L("Credits")) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(L("Dart icon : Lorc, game-icons.net"))
+                                Link(L("License CC BY 3.0"), destination: URL(string: "https://creativecommons.org/licenses/by/3.0/")!)
+                                Link("game-icons.net", destination: URL(string: "https://game-icons.net")!)
+                            }
+                            .font(Font.system(size: 15, weight: .light, design: .rounded))
+                            .foregroundColor(.gray)
+                        }
                     }
                     .padding()
                 }

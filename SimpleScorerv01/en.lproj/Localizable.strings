@@ -60,8 +60,10 @@
 "Contract made" = "Contract made";
 "Counted" = "Counted";
 "Counterclockwise" = "Counterclockwise";
+"Credits" = "Credits";
 "Cricket" = "Cricket";
 "Dark" = "Dark";
+"Dart icon : Lorc, game-icons.net" = "Dart icon : Lorc, game-icons.net";
 "Darts" = "Darts";
 "Darts 301" = "Darts 301";
 "Darts 501" = "Darts 501";
@@ -101,6 +103,7 @@
 "Keep playing" = "Keep playing";
 "Language" = "Language";
 "Let %@ keep playing? Players won't be out after 3 misses anymore." = "Let %@ keep playing? Players won't be out after 3 misses anymore.";
+"License CC BY 3.0" = "License CC BY 3.0";
 "Light" = "Light";
 "Lowest first" = "Lowest first";
 "Misère %@" = "Misère %@";
