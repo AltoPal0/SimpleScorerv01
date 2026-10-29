@@ -92,15 +92,14 @@ struct ScoreCardsGridView: View {
         game.coincheTeams != nil && orderedBy == .players && game.indexOf(player: playerScore.player) == 1
     }
     
-    // Same font for every name : what is left once the avatar and the widest total have their room
+    // Same fonts on every card : the name and the total share what is left once the avatar and the paddings have their room
     func cardNames(for layout: CardLayout) -> CardNames {
         let scale = layout.scale
         let avatar = 135 * scale * 2 / 3
-        let widestTotal = game.playerScores
-            .map { CardNames.width(of: "\(game.displayedTotal(for: $0))", size: 50 * scale, weight: .bold) }
-            .max() ?? 0
-        return CardNames.compute(players: game.playerScores.map { $0.player },
-                                 availableWidth: layout.cardWidth - avatar - widestTotal - 40 * scale - 10,
+        let locale = AppSettings.shared.locale
+        return CardNames.compute(names: game.playerScores.map { $0.player.name }.filter { $0 != Player.defaultName },
+                                 totals: game.playerScores.map { game.displayedTotal(for: $0).formatted(.number.locale(locale)) },
+                                 availableWidth: layout.cardWidth - avatar - 40 * scale - 10,
                                  scale: scale)
     }
     

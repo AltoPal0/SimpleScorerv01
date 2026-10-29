@@ -264,12 +264,14 @@ struct ScoreCardView: View {
         Group {
             if !scoreEditing {
                 if !self.nameEditing && self.playerScore.player.name != Player.defaultName {
-                    // Same size for every name, the longest ones end with a "."
-                    Text(self.cardNames.names[self.playerScore.player.id] ?? self.playerScore.player.name)
-                        .font(Font.system(size: self.cardNames.fontSize, weight: .semibold, design: .rounded))
+                    // Same size for every name. Too long next to the totals : the avatar alone
+                    if self.cardNames.showsNames {
+                        Text(self.playerScore.player.name)
+                            .font(Font.system(size: self.cardNames.fontSize, weight: .semibold, design: .rounded))
                             .lineLimit(1)
                             .minimumScaleFactor(0.9)
-                        .foregroundColor(Color .offWhite)
+                            .foregroundColor(Color .offWhite)
+                    }
                 } else {
                     HStack {
                         TextField(L("Name?"), text: self.$username,onEditingChanged: {change in }, onCommit: {commitName()})
@@ -458,7 +460,7 @@ struct ScoreCardView: View {
                 } else {
                     VStack(alignment: .trailing, spacing: 0) {
                         Text(self.game.isEliminated(self.playerScore) ? "✕" : "\(self.game.displayedTotal(for: self.playerScore))")
-                            .font(Font.system(size: (self.scoreEditing ? 25 : 50) * scale, weight: .bold, design: .rounded))
+                            .font(Font.system(size: self.scoreEditing ? 25 * scale : self.cardNames.scoreSize, weight: .bold, design: .rounded))
                             .minimumScaleFactor(0.2)
                             .lineLimit(1)
                             .foregroundColor(Color .offWhite)

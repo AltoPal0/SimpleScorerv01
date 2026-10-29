@@ -48,15 +48,22 @@ struct CardLayout: Equatable {
     }
 }
 
-// The names of all the cards share one font size, set by the longest name
+// The names and the totals of all the cards share two font sizes, set by the longest name and the widest total.
+// The total stays a bit bigger than the name. When the names no longer fit, the cards keep only the avatar
 struct CardNames: Equatable {
 
     static let maximumSize = CGFloat(40)
-    // Below this size the longest names are cut and end with a "."
+    // Below this size the names are left out
     static let minimumSize = CGFloat(24)
+    static let maximumScoreSize = CGFloat(50)
+    // Total compared to the name : bigger, but close
+    static let scoreRatio = CGFloat(1.25)
+    // Between the name and the total
+    static let gap = CGFloat(8)
 
     var fontSize = CardNames.maximumSize
-    var names = [UUID : String]()
+    var scoreSize = CardNames.maximumScoreSize
+    var showsNames = true
 
     static func font(size: CGFloat, weight: UIFont.Weight = .semibold) -> UIFont {
         let font = UIFont.systemFont(ofSize: size, weight: weight)
@@ -68,30 +75,26 @@ struct CardNames: Equatable {
         ceil((text as NSString).size(withAttributes: [.font: font(size: size, weight: weight)]).width)
     }
 
-    static func compute(players: [Player], availableWidth: CGFloat, scale: CGFloat) -> CardNames {
+    // availableWidth : what the name and the total share, the avatar and the paddings already taken off
+    static func compute(names: [String], totals: [String], availableWidth: CGFloat, scale: CGFloat) -> CardNames {
         let maximum = maximumSize * scale
         let minimum = minimumSize * scale
-        guard availableWidth > 0 else { return CardNames(fontSize: maximum) }
+        let maximumScore = maximumScoreSize * scale
+        guard availableWidth > 0 else { return CardNames(fontSize: maximum, scoreSize: maximumScore) }
 
-        // Width of the longest name for a 1 pt font : the size is proportional
-        let longest = players.map { width(of: $0.name, size: 100) / 100 }.max() ?? 0
-        let size = longest > 0 ? min(maximum, max(minimum, availableWidth / longest)) : maximum
+        // Widths for a 1 pt font : the sizes are proportional
+        let longest = names.map { width(of: $0, size: 100) / 100 }.max() ?? 0
+        let widest = totals.map { width(of: $0, size: 100, weight: .bold) / 100 }.max() ?? 0
+        let room = availableWidth - gap * scale
 
-        var names = [UUID : String]()
-        for player in players {
-            names[player.id] = shortened(player.name, size: size, width: availableWidth)
+        // Name and total side by side, the total scoreRatio times bigger
+        let size = min(maximum, maximumScore / scoreRatio, room / (longest + scoreRatio * widest))
+        if longest == 0 || size >= minimum {
+            return CardNames(fontSize: size, scoreSize: size * scoreRatio)
         }
-        return CardNames(fontSize: size, names: names)
-    }
-
-    // The name as it fits, cut with a "." when it is too long
-    static func shortened(_ name: String, size: CGFloat, width: CGFloat) -> String {
-        guard self.width(of: name, size: size) > width else { return name }
-        var length = name.count - 1
-        while length > 1 && self.width(of: String(name.prefix(length)) + ".", size: size) > width {
-            length -= 1
-        }
-        return String(name.prefix(length)) + "."
+        // Too long : only the avatar, the total takes the room of the name
+        let scoreSize = widest > 0 ? min(maximumScore, availableWidth / widest) : maximumScore
+        return CardNames(fontSize: minimum, scoreSize: scoreSize, showsNames: false)
     }
 }
 
