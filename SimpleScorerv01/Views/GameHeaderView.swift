@@ -8,7 +8,8 @@
 
 import SwiftUI
 
-// Top of the scores screens : the game played and its options, discreet like the arrows at the bottom
+// Top of the scores screens : the game played and its options, discreet like the arrows at the bottom.
+// Hidden while playing : a short pull on the cards shows it, scrolling the cards hides it again
 struct GameHeaderView: View {
 
     @EnvironmentObject var game : Game
@@ -23,16 +24,6 @@ struct GameHeaderView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .foregroundColor(.gray)
-
-            // Gang of Four : the direction of play, changing every round
-            if game.activeKind == .gangOfFour {
-                let clockwise = GangOfFour.isClockwise(round: game.currentMaxNumberOfRounds())
-                Label(clockwise ? L("Clockwise") : L("Counterclockwise"),
-                      systemImage: clockwise ? "arrow.clockwise" : "arrow.counterclockwise")
-                    .font(Font.system(size: 15, weight: .light, design: .rounded))
-                    .foregroundColor(.gray)
-                    .padding(.leading, 8)
-            }
 
             Spacer()
 

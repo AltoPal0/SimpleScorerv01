@@ -38,6 +38,8 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var gameToRequest : String?
     // Large screens : the columns of scores and the cards side by side, the columns screen alone is skipped
     @Published var isDualLayout = false
+    // The bar with the name of the game and its options : hidden while playing, a short pull on the cards shows it
+    @Published var showsGameHeader = false
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         

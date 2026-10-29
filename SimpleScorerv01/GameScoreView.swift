@@ -23,9 +23,9 @@ struct GameScoreView: View {
     // The game can't be played with this number of players (Coinche with 5...)
     @State private var playerCountAlert = false
     
-    // The game played stays on top of the scores screens
+    // The game played, on top of the scores screens once pulled down
     var showGameHeader: Bool {
-        self.game.rules != nil && self.displayInfo.screenDisplayed <= .scoreCards
+        self.game.rules != nil && self.displayInfo.screenDisplayed <= .scoreCards && self.displayInfo.showsGameHeader
     }
     
     // Width of the columns of scores : 64 per column with its spacing, and the side margins

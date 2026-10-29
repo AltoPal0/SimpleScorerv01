@@ -103,20 +103,41 @@ struct ScoreCardsGridView: View {
                                  scale: scale)
     }
     
+    // Shanghai : the number to aim at. Gang of Four : the direction of play, changing every round
+    var gameInfo: Label<Text, Image>? {
+        if let number = game.shanghaiNumber {
+            return Label(L("Aim at %ld", number), systemImage: "scope")
+        }
+        if game.activeKind == .gangOfFour {
+            let clockwise = GangOfFour.isClockwise(round: game.currentMaxNumberOfRounds())
+            return Label(clockwise ? L("Clockwise") : L("Counterclockwise"),
+                         systemImage: clockwise ? "arrow.right" : "arrow.left")
+        }
+        return nil
+    }
+    
     var body: some View {
         GeometryReader { geometry in
         let layout = self.layout(in: geometry.size)
         ZStack{
             ScrollView {
-                PullToReorder(coordinateSpaceName: "pullToReorder") {
+                PullToReveal(coordinateSpaceName: "pullToReorder", isRevealed: displayInfo.showsGameHeader) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        displayInfo.showsGameHeader = true
+                    }
+                } onReorder: {
                     withAnimation {
                         orderedBy = orderedBy.next
                     }
                     showOrderToast()
+                } onScroll: {
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        displayInfo.showsGameHeader = false
+                    }
                 }
-                // Shanghai : the number aimed at this round, right above the cards
-                if let number = game.shanghaiNumber {
-                    Label(L("Aim at %ld", number), systemImage: "scope")
+                // What the game needs while playing, always in sight right above the cards
+                if let info = gameInfo {
+                    info
                         .font(Font.system(size: 22, weight: .semibold, design: .rounded))
                         .foregroundColor(.gray)
                         .padding(.top, CardLayout.spacing)
@@ -216,13 +237,20 @@ struct ScoreCardsGridView: View {
 }
 
 // Pulling the cards down changes their order : the ⇡↻⇣ of the app instead of the spinner of iOS
-struct PullToReorder: View {
+// Pulled down at the top of the cards : a short pull shows the bar of the game, a long one changes the order of the cards.
+// Scrolled up while the bar shows : the bar goes away
+struct PullToReveal: View {
     var coordinateSpaceName: String
-    var onTrigger: () -> Void
+    var isRevealed: Bool
+    var onReveal: () -> Void
+    var onReorder: () -> Void
+    var onScroll: () -> Void
     
-    static let threshold = CGFloat(70)
+    static let revealThreshold = CGFloat(40)
+    static let reorderThreshold = CGFloat(110)
     
-    @State private var armed = false
+    @State private var revealArmed = false
+    @State private var reorderArmed = false
     @State private var degrees = 0.0
     
     var body: some View {
@@ -230,25 +258,36 @@ struct PullToReorder: View {
             // How far the content is pulled below the top of the scroll view
             let pull = geo.frame(in: .named(coordinateSpaceName)).minY
             
+            // Only past the short pull : the order changes further down
             Text("⇡↻⇣")
                 .font(.system(.largeTitle, design: .rounded))
                 .foregroundColor(.gray)
                 .rotationEffect(.degrees(degrees))
-                .opacity(Double(min(1, max(0, pull / PullToReorder.threshold))))
+                .opacity(Double(min(1, max(0, (pull - PullToReveal.revealThreshold) / (PullToReveal.reorderThreshold - PullToReveal.revealThreshold)))))
                 .frame(maxWidth: .infinity)
                 // In the middle of the gap opened above the cards
                 .offset(y: -pull / 2 - 20)
                 .onChange(of: pull) { _, pull in
-                    if pull > PullToReorder.threshold && !armed {
-                        armed = true
+                    if pull > PullToReveal.reorderThreshold && !reorderArmed {
+                        reorderArmed = true
                         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                         withAnimation {
                             degrees += 180
                         }
-                    } else if pull < 5 && armed {
-                        // Released : the order changes
-                        armed = false
-                        onTrigger()
+                    } else if pull > PullToReveal.revealThreshold && !revealArmed && !isRevealed {
+                        revealArmed = true
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    } else if pull < 5 && (revealArmed || reorderArmed) {
+                        // Released : the long pull wins over the short one
+                        if reorderArmed {
+                            onReorder()
+                        } else {
+                            onReveal()
+                        }
+                        revealArmed = false
+                        reorderArmed = false
+                    } else if pull < -12 && isRevealed {
+                        onScroll()
                     }
                 }
         }
