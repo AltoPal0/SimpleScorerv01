@@ -17,7 +17,10 @@ struct GameEntryView: View {
 
     @State private var gameName = ""
     @State private var recentGames = RecentGames.load()
+    @State private var hiddenGames = RecentGames.hiddenIDs()
     @State private var isDragging = false
+    // Darts chosen : its variants are picked on their own screen
+    @State private var showsDartsVariants = false
     @FocusState private var fieldFocused : Bool
 
     let frameHeight = CGFloat(90)
@@ -30,14 +33,15 @@ struct GameEntryView: View {
         colorScheme == .dark ? .midnightBlue : .offWhite
     }
 
-    // Library games matching what is typed, or the recent games when nothing is typed yet
+    // Library games matching what is typed, or the most played games when nothing is typed yet
     var choices : [GameChoice] {
         if gameName.isEmpty {
-            // Recent games first, then the rest of the library : a tap is enough to start
+            // Most played games first, then the rest of the library : a tap is enough to start.
+            // The variants of darts come with Darts, the games thrown to the trash are only found when typed
             let recentIDs = Set(recentGames.map { GameLibrary.rules(named: $0.name).id })
             let recents = recentGames.map { choice(name: $0.name, isRecent: true) }
             let library = GameLibrary.games
-                .filter { !recentIDs.contains($0.id) }
+                .filter { !recentIDs.contains($0.id) && !hiddenGames.contains($0.id) && $0.darts == nil }
                 .map { choice(name: $0.name, isRecent: false) }
             return Array((recents + library).prefix(maxChoices))
         }
@@ -67,46 +71,58 @@ struct GameEntryView: View {
                     }.transition(.opacity)
                 }
 
-                VStack {
-                    gameCard
-                        .padding(.vertical)
+                if showsDartsVariants {
+                    dartsVariants(height: geometry.size.height)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                } else {
+                    // In the middle of the screen, as the names of the players
+                    VStack {
+                        gameCard
+                            .padding(.vertical)
 
-                    if !choices.isEmpty {
-                        HStack {
-                            ZStack {
-                                Divider().frame(height: 1).background(Color.gray).padding()
-                            }
-                            Text("OR").foregroundColor(.gray)
-                            ZStack {
-                                Divider().frame(height: 1).background(Color.gray).padding()
-                            }
-                        }
-
-                        LazyVGrid(columns: gridItemLayout, alignment: .center, spacing: 0) {
-                            ForEach(choices, id: \.name) { choice in
-                                GameChoiceView(choice: choice, containerSize: geometry.size, isDragging: $isDragging) {
-                                    choose(name: choice.name)
-                                } onTrash: {
-                                    withAnimation {
-                                        RecentGames.remove(name: choice.name)
-                                        recentGames = RecentGames.load()
-                                    }
+                        if !choices.isEmpty {
+                            HStack {
+                                ZStack {
+                                    Divider().frame(height: 1).background(Color.gray).padding()
                                 }
-                                .padding(.vertical, 2)
+                                Text(L("OR")).foregroundColor(.gray)
+                                ZStack {
+                                    Divider().frame(height: 1).background(Color.gray).padding()
+                                }
                             }
-                        }
-                        .padding()
-                    }
 
-                    Spacer()
+                            LazyVGrid(columns: gridItemLayout, alignment: .center, spacing: 0) {
+                                ForEach(choices, id: \.name) { choice in
+                                    GameChoiceView(choice: choice, containerSize: geometry.size, isDragging: $isDragging) {
+                                        choose(name: choice.name)
+                                    } onTrash: {
+                                        withAnimation {
+                                            RecentGames.trash(name: choice.name)
+                                            reload()
+                                        }
+                                    }
+                                    .padding(.vertical, 2)
+                                }
+                            }
+                            .padding()
+                        }
+                    }
+                    .transition(.move(edge: .leading).combined(with: .opacity))
                 }
             }
         }
         .coordinateSpace(name: GameChoiceView.coordinateSpace)
-        .onAppear {
-            // Keyboard first only when there is nothing to pick
-            if choices.isEmpty {
-                fieldFocused = true
+        // The screen stays built beside the others : it gets ready when the players slide to it
+        .onChange(of: displayInfo.screenDisplayed) { _, screen in
+            if screen == .gameChoice {
+                reload()
+                // Keyboard first only when there is nothing to pick
+                if choices.isEmpty {
+                    fieldFocused = true
+                }
+            } else {
+                fieldFocused = false
+                showsDartsVariants = false
             }
         }
     }
@@ -122,7 +138,7 @@ struct GameEntryView: View {
                     .frame(width: 60)
                     .padding(.leading, 10)
 
-                TextField("Which game?", text: $gameName)
+                TextField(L("Which game?"), text: $gameName)
                     .font(Font.system(size: 40, weight: .semibold, design: .rounded))
                     .foregroundColor(.offWhite)
                     .lineLimit(1)
@@ -159,18 +175,101 @@ struct GameEntryView: View {
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
     }
 
+    // The variants of darts, each with a few words under it so that no one picks the wrong one
+    func dartsVariants(height: CGFloat) -> some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 16) {
+                HStack(spacing: 8) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 22, weight: .light))
+                    Text(L("Darts"))
+                        .font(Font.system(size: 30, weight: .semibold, design: .rounded))
+                    Spacer()
+                }
+                .foregroundColor(.gray)
+                .frame(width: 350)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation {
+                        showsDartsVariants = false
+                    }
+                }
+
+                ForEach(DartsVariant.allCases, id: \.self) { variant in
+                    let rules = GameLibrary.variant(variant)
+                    let isPlayable = rules.supports(playerCount: game.playerScores.count)
+                    VStack(spacing: 6) {
+                        ZStack {
+                            // Same gradient as the games and the previous players
+                            LinearGradient(Color(hex: 0x136a8a), Color(hex: 0x267871))
+                            Text(rules.displayName)
+                                .font(Font.system(size: 30, weight: .light, design: .rounded))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
+                                .foregroundColor(.white)
+                                .padding(.horizontal)
+                        }
+                        .frame(width: 350, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.offWhite, lineWidth: 1)
+                        )
+                        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+
+                        Text(isPlayable ? variant.summary : rules.playerCountHint)
+                            .font(Font.system(size: 13, weight: .light, design: .rounded))
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(width: 330)
+                    }
+                    .opacity(isPlayable ? 1 : 0.5)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if isPlayable {
+                            start(rules)
+                        }
+                    }
+                }
+            }
+            .padding()
+            // In the middle of the screen when it fits, scrolling on the small ones
+            .frame(maxWidth: .infinity, minHeight: height)
+        }
+    }
+
     func choice(name: String, isRecent: Bool) -> GameChoice {
         let rules = GameLibrary.rules(named: name)
         let isPlayable = !rules.isInLibrary || rules.supports(playerCount: game.playerScores.count)
-        return GameChoice(name: name, isRecent: isRecent, hint: isPlayable ? nil : rules.playerCountHint)
+        return GameChoice(name: name, title: rules.displayName, isRecent: isRecent, hint: isPlayable ? nil : rules.playerCountHint)
+    }
+
+    func reload() {
+        recentGames = RecentGames.load()
+        hiddenGames = RecentGames.hiddenIDs()
     }
 
     // An empty name plays with the universal score entry
     func choose(name: String) {
-        fieldFocused = false
         let rules = GameLibrary.rules(named: name)
+        if rules.isDartsFamily {
+            fieldFocused = false
+            withAnimation {
+                showsDartsVariants = true
+            }
+            return
+        }
+        start(rules)
+    }
+
+    // The game is chosen : on to the scores
+    func start(_ rules: GameRules) {
+        fieldFocused = false
+        game.choose(rules: rules)
+        gameName = ""
         withAnimation {
-            game.choose(rules: rules)
+            displayInfo.screenDisplayed = .scoreCards
         }
         if GameRequests.shouldOffer(rules) {
             displayInfo.gameToRequest = rules.name
@@ -179,8 +278,11 @@ struct GameEntryView: View {
 }
 
 struct GameChoice {
+    // Key of the game in the library and the recent games
     var name : String
-    // Recent games can be dragged to the trash, library games cannot
+    // Shown, in the language of the app
+    var title : String
+    // Recent games leave the recent games when thrown to the trash, library games leave the choices
     var isRecent : Bool
     // Why a library game can't be played with this number of players
     var hint : String?
@@ -197,7 +299,9 @@ struct GameChoiceView: View {
     var onTap : () -> Void
     var onTrash : () -> Void
     
-    @GestureState private var dragOffset = CGSize.zero
+    @State private var dragOffset = CGSize.zero
+    // A long press lifts the game, then it can be dragged to the trash
+    @State private var isLifted = false
     @State private var isAboveTrash = false
     @State private var trashFeedbackPlayed = false
     
@@ -211,7 +315,7 @@ struct GameChoiceView: View {
             }
             
             VStack(spacing: 0) {
-                Text(choice.name)
+                Text(choice.title)
                     .font(Font.system(size: 40, weight: .light, design: .rounded))
                     .lineLimit(1)
                     .minimumScaleFactor(0.1)
@@ -232,24 +336,37 @@ struct GameChoiceView: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(isAboveTrash ? Color.offRed : Color.offWhite, lineWidth: isAboveTrash ? 2 : 1)
         )
+        .scaleEffect(isLifted ? 1.08 : 1)
         .offset(dragOffset)
-        .gesture(choice.isRecent ? trashGesture : nil)
         .opacity(choice.hint == nil ? 1 : 0.5)
+        .zIndex(isLifted ? 1 : 0)
         .onTapGesture {
             if choice.hint == nil {
                 onTap()
             }
         }
-        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+        .onLongPressGesture(minimumDuration: 0.3, maximumDistance: .infinity) {
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            withAnimation(.easeOut(duration: 0.15)) {
+                isLifted = true
+                isDragging = true
+            }
+        } onPressingChanged: { pressing in
+            // Lifted and released without moving : back in place
+            if !pressing && isLifted && dragOffset == .zero {
+                drop()
+            }
+        }
+        .simultaneousGesture(trashGesture)
+        .shadow(color: Color.black.opacity(isLifted ? 0.45 : 0.3), radius: isLifted ? 16 : 10, x: 0, y: 10)
         .transition(.asymmetric(insertion: .opacity, removal: .scale))
     }
     
     var trashGesture: some Gesture {
         DragGesture(coordinateSpace: .named(GameChoiceView.coordinateSpace))
-            .updating($dragOffset) { value, state, _ in
-                state = value.translation
-            }
             .onChanged { value in
+                guard isLifted else { return }
+                dragOffset = value.translation
                 let aboveTrash = abs(value.location.x - containerSize.width / 2) < 50
                     && value.location.y > containerSize.height - 80
                 if aboveTrash && !trashFeedbackPlayed {
@@ -259,18 +376,24 @@ struct GameChoiceView: View {
                     trashFeedbackPlayed = false
                 }
                 isAboveTrash = aboveTrash
-                withAnimation { isDragging = true }
             }
             .onEnded { _ in
+                guard isLifted else { return }
                 if isAboveTrash {
                     onTrash()
                 }
-                trashFeedbackPlayed = false
-                withAnimation {
-                    isAboveTrash = false
-                    isDragging = false
-                }
+                drop()
             }
+    }
+    
+    func drop() {
+        trashFeedbackPlayed = false
+        withAnimation {
+            dragOffset = .zero
+            isLifted = false
+            isAboveTrash = false
+            isDragging = false
+        }
     }
 }
 

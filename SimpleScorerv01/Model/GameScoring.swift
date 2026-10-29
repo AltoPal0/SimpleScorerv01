@@ -261,6 +261,29 @@ enum Cabo {
     }
 }
 
+// MARK: - Darts
+
+enum Darts {
+    static let playerCounts = 1...8
+    // Around the clock : 1 to 20, then the bull
+    static let clockTargets = 21
+    // Shanghai : one round per number, from 1 to 7
+    static let shanghaiRounds = 7
+
+    // 501 and 301 : a turn going under 0, or leaving 1 when the game ends on a double, is a bust and counts nothing
+    static func countdownTotal(of points: [Int], start: Int, doubleOut: Bool) -> Int {
+        var total = 0
+        for points in points {
+            let left = start - (total + points)
+            if left < 0 || (doubleOut && left == 1) {
+                continue
+            }
+            total += points
+        }
+        return total
+    }
+}
+
 // MARK: - Pétanque
 
 enum Petanque {

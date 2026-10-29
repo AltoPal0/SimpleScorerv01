@@ -27,7 +27,7 @@ struct ShareCardView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                 // Full date : "today" means nothing to the friend opening the image tomorrow
-                Text(record.date.formatted(.dateTime.day().month(.wide).year()))
+                Text(record.date.formatted(.dateTime.day().month(.wide).year().locale(AppSettings.shared.locale)))
                     .font(Font.system(size: 15, weight: .light, design: .rounded))
             }
             .foregroundColor(.offWhite)
@@ -73,7 +73,7 @@ struct ShareCardView: View {
                 Text(AppConfig.appName)
                     .font(Font.system(size: 22, weight: .heavy, design: .rounded))
                     .foregroundStyle(ShareCardView.appGradient)
-                Text("Free on the App Store")
+                Text(L("Free on the App Store"))
                     .font(Font.system(size: 12, weight: .light, design: .rounded))
                     .foregroundColor(.gray)
             }
@@ -90,9 +90,9 @@ struct ShareCardView: View {
     static func message(for record: GameRecord) -> String {
         var message = record.gameName
         if let winner = record.ranking.first, record.players.count > 1 {
-            message += " · \(winner.name) wins with \(winner.total) points!"
+            message += " · " + L("%@ wins with %ld points!", winner.name, winner.total)
         }
-        return message + "\nScored with \(AppConfig.appName) \(AppConfig.appStoreURL.absoluteString)"
+        return message + "\n" + L("Scored with %@", AppConfig.appName) + " " + AppConfig.appStoreURL.absoluteString
     }
 
     @MainActor

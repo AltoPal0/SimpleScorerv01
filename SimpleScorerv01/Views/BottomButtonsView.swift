@@ -13,64 +13,29 @@ struct BottomButtonsView: View {
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     @EnvironmentObject var game : Game
     
-    @Environment(\.colorScheme) var colorScheme
-    
-    @Binding var showPlayerEntry : Bool
-    
-    @State var swipeDirection = "none"
-    @GestureState var dragOffset = CGSize.zero
-    
     var body: some View {
         VStack {
             Spacer()
             HStack {
-                if self.displayInfo.screenDisplayed == .history || (!(self.displayInfo.screenDisplayed == .allScores) && !(game.playerScores.count == 0)
-                    && !(self.displayInfo.isDualLayout && self.displayInfo.screenDisplayed == .scoreCards)) {
+                // Only when there is somewhere to go
+                if self.displayInfo.screenOnLeft(game: game) != nil {
                     Image(systemName: "arrow.left.circle")
                         .font(.system(.largeTitle, design: .rounded))
-                        .foregroundColor(colorScheme == .dark ? Color.gray : Color.gray)
-                        .background(Circle().foregroundColor(Color .clear))
+                        .foregroundColor(Color.gray)
+                        .contentShape(Circle())
                         .onTapGesture {
-                            withAnimation{
-                                if self.displayInfo.screenDisplayed == .history {
-                                    self.displayInfo.screenDisplayed = .gameSetup
-                                    return
-                                }
-                                if game.nbrPlayersUnanmed() > 0 {
-                                    showPlayerEntry = true
-                                } else {
-                                    showPlayerEntry = false
-                                }
-                                if self.displayInfo.screenDisplayed == .gameSetup {
-                                    self.displayInfo.screenDisplayed = .scoreCards
-                                } else {
-                                    self.displayInfo.screenDisplayed = .allScores
-                                }
-                            }
+                            self.displayInfo.moveLeft(game: game)
                         }.padding()
-                } else {
-                    EmptyView()
                 }
                 Spacer()
-                if !(self.displayInfo.screenDisplayed == .history) {
+                if self.displayInfo.screenOnRight(game: game) != nil {
                     Image(systemName: "arrow.right.circle")
                         .font(.system(.largeTitle, design: .rounded))
                         .foregroundColor(Color.gray)
                         .contentShape(Circle())
-                        .background(Circle().foregroundColor(Color .clear))
                         .onTapGesture {
-                            withAnimation{
-                                if self.displayInfo.screenDisplayed == .allScores {
-                                    self.displayInfo.screenDisplayed = .scoreCards
-                                } else if self.displayInfo.screenDisplayed == .scoreCards {
-                                    self.displayInfo.screenDisplayed = .gameSetup
-                                } else {
-                                    self.displayInfo.screenDisplayed = .history
-                                }
-                            }
+                            self.displayInfo.moveRight(game: game)
                         }.padding()
-                } else {
-                    EmptyView()
                 }
             }
         }
@@ -117,7 +82,7 @@ struct BottomButtonsView: View {
 
 struct BottomButtonsView_Previews: PreviewProvider {
     static var previews: some View {
-        BottomButtonsView(showPlayerEntry: .constant(false))
+        BottomButtonsView()
             .environmentObject(GlobalDisplayInfo())
             .environmentObject(Game(withTestEmptyNamePlayers:()))
     }

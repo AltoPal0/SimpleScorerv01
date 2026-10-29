@@ -39,16 +39,16 @@ struct GangOfFourRoundView: View {
 
     var body: some View {
         RoundEntryLayout(title: "Gang of 4") {
-            RoundSection(title: "Out of cards") {
+            RoundSection(title: L("Out of cards")) {
                 PlayerPickRow(players: game.playerScores, selected: $winnerID)
             }
 
-            RoundSection(title: "Cards left") {
+            RoundSection(title: L("Cards left")) {
                 VStack(spacing: 8) {
                     ForEach(losers) { playerScore in
                         HandRow(playerScore: playerScore,
                                 value: cardsLeft[playerScore.player.id],
-                                unit: "cards",
+                                unit: L("cards"),
                                 request: KeypadRequest(maximum: GangOfFour.cards, extraKey: "", onExtraKey: {}) { cards in
                                     cardsLeft[playerScore.player.id] = cards
                                 })
@@ -102,21 +102,21 @@ struct CaboRoundView: View {
 
     var callerCaption : String? {
         guard kamikazeID == nil, isComplete else { return nil }
-        return (points[callerID] ?? 0) == 0 ? "Cabo made" : "Cabo failed · + \(Cabo.failedCallPenalty)"
+        return (points[callerID] ?? 0) == 0 ? L("Cabo made") : L("Cabo failed · + %ld", Cabo.failedCallPenalty)
     }
 
     var body: some View {
         RoundEntryLayout(title: "Cabo") {
-            RoundSection(title: "Called Cabo") {
+            RoundSection(title: L("Called Cabo")) {
                 PlayerPickRow(players: game.playerScores, selected: $callerID)
             }
 
-            RoundSection(title: "Hands") {
+            RoundSection(title: L("Hands")) {
                 VStack(spacing: 8) {
                     ForEach(game.playerScores) { playerScore in
                         HandRow(playerScore: playerScore,
                                 value: hands[playerScore.player.id],
-                                unit: "points",
+                                unit: L("points"),
                                 request: KeypadRequest(maximum: 99, extraKey: "", onExtraKey: {}) { total in
                                     hands[playerScore.player.id] = total
                                 })
@@ -124,7 +124,7 @@ struct CaboRoundView: View {
                 }
             }
 
-            RoundSection(title: "Kamikaze · \(game.options.caboKamikazeHand)") {
+            RoundSection(title: L("Kamikaze · %@", game.options.caboKamikazeHand)) {
                 ChoiceChips(items: [nil] + game.playerScores.map { Optional($0.player.id) },
                             selection: $kamikazeID, minimumWidth: 80) { id in
                     game.playerScores.first { $0.player.id == id }?.player.name ?? "—"

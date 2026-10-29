@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C1A5E77B20B44E8F9D3A6E01 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E02 /* AppSettings.swift */; };
+		C1A5E77B20B44E8F9D3A6E03 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */; };
+		C1A5E77B20B44E8F9D3A6E05 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E06 /* Localizable.strings */; };
 		27B5EC2F3544DDBC6A8B1AC2 /* TeamCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D7FEA28B0C6480A64F8012 /* TeamCardView.swift */; };
 		5851D5F2A6B122CDFAC43B87 /* HandRoundViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D262ADE91B9B76D555F42D5B /* HandRoundViews.swift */; };
 		81E9832E75CBC0E4AD6D4FED /* GameSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0409596E9FE86A86506BCBB /* GameSnapshot.swift */; };
@@ -57,6 +60,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C1A5E77B20B44E8F9D3A6E02 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6E07 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6E08 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		86D7FEA28B0C6480A64F8012 /* TeamCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamCardView.swift; sourceTree = "<group>"; };
 		D262ADE91B9B76D555F42D5B /* HandRoundViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandRoundViews.swift; sourceTree = "<group>"; };
 		C0409596E9FE86A86506BCBB /* GameSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSnapshot.swift; sourceTree = "<group>"; };
@@ -127,6 +134,7 @@
 				E8ADADAC25540B3600874D44 /* AppStoreReviewManager.swift */,
 				D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */,
 				D7A42388297A8FCF000398EB /* ReorderableForEach.swift */,
+				C1A5E77B20B44E8F9D3A6E02 /* AppSettings.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -162,6 +170,7 @@
 				E887519D241F99DC0091853F /* Assets.xcassets */,
 				E88751A2241F99DC0091853F /* LaunchScreen.storyboard */,
 				E88751A5241F99DC0091853F /* Info.plist */,
+				C1A5E77B20B44E8F9D3A6E06 /* Localizable.strings */,
 				A1B2C3D4E5F60718293A4B5C /* PrivacyInfo.xcprivacy */,
 				E887519F241F99DC0091853F /* Preview Content */,
 				E88751B2241F9CB20091853F /* SupportingFiles */,
@@ -229,6 +238,7 @@
 				D79069D829225131006D418B /* TopSwiperView.swift */,
 				D7A8F3412928DE2700E95110 /* NameEntryView.swift */,
 				D7FE41982990157900D680E8 /* EditView.swift */,
+				C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -289,6 +299,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				fr,
 				Base,
 			);
 			mainGroup = E887518B241F99DB0091853F;
@@ -310,6 +321,7 @@
 				E88751A1241F99DC0091853F /* Preview Assets.xcassets in Resources */,
 				E887519E241F99DC0091853F /* Assets.xcassets in Resources */,
 				A1B2C3D4E5F60718293A4B5D /* PrivacyInfo.xcprivacy in Resources */,
+				C1A5E77B20B44E8F9D3A6E05 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,6 +340,8 @@
 				6E90A700E6D541EE923765DF /* GameRequests.swift in Sources */,
 				F4D6583E458D829E13DA582C /* ShareCardView.swift in Sources */,
 				F6653F2E7FE830A5A8704766 /* AppConfig.swift in Sources */,
+				C1A5E77B20B44E8F9D3A6E01 /* AppSettings.swift in Sources */,
+				C1A5E77B20B44E8F9D3A6E03 /* SettingsView.swift in Sources */,
 				314AFFC5A3391E68E8C92C44 /* HistoryView.swift in Sources */,
 				2F6F383DC9DDF7E18CF19BAA /* GameRecord.swift in Sources */,
 				40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */,
@@ -370,6 +384,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		C1A5E77B20B44E8F9D3A6E06 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C1A5E77B20B44E8F9D3A6E07 /* en */,
+				C1A5E77B20B44E8F9D3A6E08 /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		E88751A2241F99DC0091853F /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

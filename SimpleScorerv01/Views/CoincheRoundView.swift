@@ -47,34 +47,34 @@ struct CoincheRoundView: View {
     }
 
     var pointsText : String {
-        if deal.takerIsCapot { return "Capot" }
+        if deal.takerIsCapot { return L("Capot") }
         return pointsEntered ? "\(deal.takerPoints)" : ""
     }
 
     var body: some View {
         RoundEntryLayout(title: "Coinche") {
-            RoundSection(title: "Taking team") {
+            RoundSection(title: L("Taking team")) {
                 ChoiceChips(items: [0, 1], selection: $deal.takerTeam, minimumWidth: 150) { game.coincheTeamName($0) }
             }
 
-            RoundSection(title: "Contract") {
+            RoundSection(title: L("Contract")) {
                 ChoiceChips(items: CoincheDeal.contracts, selection: $deal.contract) {
-                    $0 == Coinche.capot ? "Capot" : "\($0)"
+                    $0 == Coinche.capot ? L("Capot") : "\($0)"
                 }
                 ChoiceChips(items: [1, 2, 4], selection: $deal.multiplier, minimumWidth: 100) {
                     switch $0 {
-                    case 2: return "Coinchée"
-                    case 4: return "Surcoinchée"
+                    case 2: return L("Coinchée")
+                    case 4: return L("Surcoinchée")
                     default: return "—"
                     }
                 }
             }
 
-            RoundSection(title: "Points of \(game.coincheTeamName(deal.takerTeam))") {
+            RoundSection(title: L("Points of %@", game.coincheTeamName(deal.takerTeam))) {
                 PointsKeypadEntry(text: pointsText,
-                                  caption: pointsEntered && !deal.takerIsCapot ? "defense \(162 - deal.takerPoints)" : nil,
+                                  caption: pointsEntered && !deal.takerIsCapot ? L("defense %ld", 162 - deal.takerPoints) : nil,
                                   maximum: 162,
-                                  extraKey: "Capot",
+                                  extraKey: L("Capot"),
                                   onExtraKey: {
                     deal.takerPoints = 162
                     deal.takerIsCapot = true
@@ -87,13 +87,13 @@ struct CoincheRoundView: View {
             }
             
             if game.options.coincheBelote {
-                RoundSection(title: "Belote · Rebelote") {
+                RoundSection(title: L("Belote · Rebelote")) {
                     ChoiceChips(items: [-1, 0, 1], selection: $belote, minimumWidth: 100) { $0 < 0 ? "—" : game.coincheTeamName($0) }
                 }
             }
         } preview: {
             RoundPreview(points: pointsEntered ? points : [:],
-                         caption: pointsEntered ? (fullDeal.isMade ? "Contract made" : "Contract down") : nil)
+                         caption: pointsEntered ? (fullDeal.isMade ? L("Contract made") : L("Contract down")) : nil)
         } confirm: {
             ConfirmBar(isEnabled: pointsEntered) {
                 onConfirm(points)

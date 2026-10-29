@@ -65,7 +65,30 @@ class Game : ObservableObject {
     // MARK: - Game rules
     func total(for playerScore : PlayerScore) -> Int {
         let points = playerScore.pointsList.map { $0.score }
+        if countsDown, let start = rules?.target {
+            return Darts.countdownTotal(of: points, start: start, doubleOut: options.dartsDoubleOut)
+        }
         return rules?.total(of: points) ?? points.reduce(0, +)
+    }
+
+    // Darts 501 and 301 : the players see what is left to score, down to 0
+    var countsDown : Bool {
+        activeKind == .darts && rules?.darts?.countsDown == true
+    }
+
+    // The big number of the cards and columns
+    func displayedTotal(for playerScore : PlayerScore) -> Int {
+        if countsDown, let remaining = remaining(for: playerScore) {
+            return remaining
+        }
+        return total(for: playerScore)
+    }
+
+    // Shanghai : the number aimed at by the players still to play this round, nil once the 7 rounds are over
+    var shanghaiNumber : Int? {
+        guard activeKind == .darts, rules?.darts == .shanghai else { return nil }
+        let round = (playerScores.map { $0.pointsList.count }.min() ?? 0) + 1
+        return round <= Darts.shanghaiRounds ? round : nil
     }
 
     var target : Int? {
@@ -96,15 +119,15 @@ class Game : ObservableObject {
 
     func molkkyWarningTitle(_ warning : MolkkyWarning, for playerScore : PlayerScore) -> String {
         warning == .eliminated
-            ? "\(playerScore.player.name) is out after 3 misses"
-            : "\(playerScore.player.name) already played this turn"
+            ? L("%@ is out after 3 misses", playerScore.player.name)
+            : L("%@ already played this turn", playerScore.player.name)
     }
 
     func molkkyWarningMessage(_ warning : MolkkyWarning, for playerScore : PlayerScore) -> String {
         if warning == .eliminated {
-            return "Let \(playerScore.player.name) keep playing? Players won't be out after 3 misses anymore."
+            return L("Let %@ keep playing? Players won't be out after 3 misses anymore.", playerScore.player.name)
         }
-        return "Still to play : \(playersYetToPlay(before: playerScore).map { $0.player.name }.joined(separator: ", "))."
+        return L("Still to play : %@.", playersYetToPlay(before: playerScore).map { $0.player.name }.joined(separator: ", "))
     }
 
     // Players won't be out after 3 misses anymore

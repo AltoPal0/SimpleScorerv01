@@ -15,7 +15,6 @@ struct TopSwiperView: View {
     @EnvironmentObject var game : Game
     
     @Binding var dragOffset : CGSize
-    @Binding var showPlayerEntry : Bool
     @Binding var orderByScores : Bool
     
     @GestureState var dragUpdate = CGSize.zero
@@ -63,23 +62,10 @@ struct TopSwiperView: View {
                             state.width = value.translation.width
                         }
                         .onEnded({ (value) in
-                            if value.startLocation.x > (geo.size.width - swipeAreaSides) && self.displayInfo.screenDisplayed != .history {
-                                withAnimation{
-                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue + 1)!
-                                }
-                            } else if value.startLocation.x < swipeAreaSides && self.displayInfo.screenDisplayed != .allScores
-                                        && !(self.displayInfo.isDualLayout && self.displayInfo.screenDisplayed == .scoreCards) {
-                                // Back on the scores with players to name : ask their names first
-                                if game.nbrPlayersUnanmed() > 0 && self.displayInfo.screenDisplayed == .gameSetup {
-                                    withAnimation{
-                                        self.showPlayerEntry = true
-                                    }
-                                    self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
-                                } else {
-                                    withAnimation{
-                                        self.displayInfo.screenDisplayed = ScreenType(rawValue: self.displayInfo.screenDisplayed.rawValue - 1)!
-                                    }
-                                }
+                            if value.startLocation.x > (geo.size.width - swipeAreaSides) {
+                                self.displayInfo.moveRight(game: game)
+                            } else if value.startLocation.x < swipeAreaSides {
+                                self.displayInfo.moveLeft(game: game)
                             }
                         })
                 )
@@ -93,6 +79,6 @@ struct TopSwiperView: View {
 
 struct TopSwiperView_Previews: PreviewProvider {
     static var previews: some View {
-        TopSwiperView(dragOffset: .constant(CGSize.zero), showPlayerEntry: .constant(false), orderByScores: .constant(false))
+        TopSwiperView(dragOffset: .constant(CGSize.zero), orderByScores: .constant(false))
     }
 }

@@ -68,7 +68,7 @@ struct TeamCardView: View {
                         Image(systemName: "crown.fill")
                             .font(.system(size: 15 * scale))
                     } else if let remaining = game.remaining(for: first) {
-                        Text(verbatim: "\(remaining) to go")
+                        Text(L("%ld to go", remaining))
                             .font(Font.system(size: 15 * scale, weight: .semibold, design: .rounded))
                     }
                 }

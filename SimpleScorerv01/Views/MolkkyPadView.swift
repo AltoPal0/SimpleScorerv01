@@ -34,7 +34,7 @@ struct MolkkyPadView: View {
 
             // A throw knocking no pin : 3 in a row and the player is out
             Button(action: { pick(0) }) {
-                Text("✕  miss").foregroundColor(.offRed).fontWeight(.light)
+                Text("✕  " + L("miss")).foregroundColor(.offRed).fontWeight(.light)
             }
             .buttonStyle(SimpleRectButtonStyle())
         }

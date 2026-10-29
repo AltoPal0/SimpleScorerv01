@@ -18,9 +18,6 @@ struct GameScoreView: View {
     @State private var shouldScroll = true
     @State var orderedByScores = false
     
-    // PlayerEntry
-    @State private var showPlayerEntry = false
-    
     @State var dragOffset = CGSize.zero
     
     // The game can't be played with this number of players (Coinche with 5...)
@@ -28,7 +25,7 @@ struct GameScoreView: View {
     
     // The game played stays on top of the scores screens
     var showGameHeader: Bool {
-        self.game.rules != nil && self.displayInfo.screenDisplayed < .gameSetup && !self.showPlayerEntry
+        self.game.rules != nil && self.displayInfo.screenDisplayed <= .scoreCards
     }
     
     // Width of the columns of scores : 64 per column with its spacing, and the side margins
@@ -73,7 +70,14 @@ struct GameScoreView: View {
                                 .modifier(cubeRotation(dragOffset: $dragOffset, screen: .scoreCards, screenWidth: geometry.size.width))
                         }
                         
-                        GameSetupView(showPlayerEntry: self.$showPlayerEntry)
+                        // Between the setup and the scores : the names of the players, then the game
+                        GameEntryView()
+                            .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameChoice, screenWidth: geometry.size.width))
+                        
+                        NameEntryView(isVisible: self.namesEntered)
+                            .modifier(cubeRotation(dragOffset: $dragOffset, screen: .playerNames, screenWidth: geometry.size.width))
+                        
+                        GameSetupView()
                             .modifier(cubeRotation(dragOffset: $dragOffset, screen: .gameSetup, screenWidth: geometry.size.width))
                         
                         HistoryView()
@@ -84,59 +88,60 @@ struct GameScoreView: View {
                 .onAppear { self.updateDualLayout(dual) }
                 // Leaving the setup for the scores : the number of players must suit the game
                 .onChange(of: self.displayInfo.screenDisplayed) { previous, screen in
-                    if previous == .gameSetup && screen < .gameSetup && self.game.hasWrongPlayerCount {
+                    if (previous == .gameSetup || previous == .playerNames) && screen <= .scoreCards && self.game.hasWrongPlayerCount {
                         self.playerCountAlert = true
                     }
                 }
                 // A player removed (or added) on the scores screens : at once
                 .onChange(of: self.game.playerScores.count) {
-                    if self.displayInfo.screenDisplayed < .gameSetup && self.game.hasWrongPlayerCount {
+                    if self.displayInfo.screenDisplayed <= .scoreCards && self.game.hasWrongPlayerCount {
                         self.playerCountAlert = true
+                    }
+                }
+                // No game anymore while on the scores (Change game) : the game is chosen again
+                .onChange(of: self.game.needsGameChoice()) { _, needsGame in
+                    if needsGame && self.displayInfo.screenDisplayed <= .scoreCards {
+                        withAnimation {
+                            self.displayInfo.screenDisplayed = .gameChoice
+                        }
                     }
                 }
                 .onChange(of: dual) { self.updateDualLayout(dual) }
                 
-                TopSwiperView(dragOffset: $dragOffset, showPlayerEntry: $showPlayerEntry, orderByScores: $orderedByScores)
+                TopSwiperView(dragOffset: $dragOffset, orderByScores: $orderedByScores)
                 if self.displayInfo.showBottomButtons {
-                    BottomButtonsView(showPlayerEntry: $showPlayerEntry)
-                }
-                
-                if self.showPlayerEntry {
-                    NameEntryView(isVisible: self.$showPlayerEntry)
-                } else if self.game.needsGameChoice() && self.displayInfo.screenDisplayed < .gameSetup {
-                    GameEntryView()
-                        .transition(.opacity)
+                    BottomButtonsView()
                 }
             }
             
         }
-        .alert("\(self.game.rules?.name ?? "") is played with \(self.game.rules?.playerCountHint ?? "")",
+        .alert(L("%@ is played with %@", self.game.rules?.displayName ?? "", self.game.rules?.playerCountHint ?? ""),
                isPresented: self.$playerCountAlert) {
-            Button("Change game") {
+            Button(L("Change game")) {
                 self.game.rules = nil
             }
-            Button("Back to players") {
+            Button(L("Back to players")) {
                 withAnimation {
                     self.displayInfo.screenDisplayed = .gameSetup
                 }
             }
-            Button("Enter scores freely", role: .cancel) {}
+            Button(L("Enter scores freely"), role: .cancel) {}
         } message: {
-            Text("There are \(self.game.playerScores.count) players : the scores of \(self.game.rules?.name ?? "") can't be counted.")
+            Text(L("There are %ld players : the scores of %@ can't be counted.", self.game.playerScores.count, self.game.rules?.displayName ?? ""))
         }
-        .alert("\(self.displayInfo.gameToRequest ?? "") isn't in \(AppConfig.appName) yet",
+        .alert(L("%@ isn't in %@ yet", self.displayInfo.gameToRequest ?? "", AppConfig.appName),
                isPresented: Binding(
                 get: { self.displayInfo.gameToRequest != nil },
                 set: { if !$0 { self.displayInfo.gameToRequest = nil } }),
                presenting: self.displayInfo.gameToRequest) { name in
-            Button("Ask for it") {
+            Button(L("Ask for it")) {
                 Task { await GameRequests.request(game: name) }
             }
-            Button("Not now", role: .cancel) {
+            Button(L("Not now"), role: .cancel) {
                 GameRequests.markOffered(name)
             }
         } message: { _ in
-            Text("Ask for its own score sheet and get a notification when it's ready. Meanwhile, scores are entered freely.")
+            Text(L("Ask for its own score sheet and get a notification when it's ready. Meanwhile, scores are entered freely."))
         }
         .sheet(isPresented: Binding(
             get: { self.displayInfo.roundEntryPlayerID != nil },
@@ -151,6 +156,18 @@ struct GameScoreView: View {
 }
 
 extension GameScoreView {
+    // Every player has a name : the game is chosen next, unless it already is
+    var namesEntered: Binding<Bool> {
+        Binding(
+            get: { self.displayInfo.screenDisplayed == .playerNames },
+            set: { visible in
+                guard !visible else { return }
+                withAnimation {
+                    self.displayInfo.screenDisplayed = self.game.rules == nil ? .gameChoice : .scoreCards
+                }
+            })
+    }
+    
     func updateDualLayout(_ dual: Bool) {
         self.displayInfo.isDualLayout = dual
         // The columns are already next to the cards
@@ -207,10 +224,16 @@ struct cubeRotation: ViewModifier {
 
     }
     
+    // Jumping over screens (setup to scores) : those in between stay hidden
+    var isSeen: Bool {
+        screen == self.displayInfo.screenDisplayed || screen == self.displayInfo.previousScreen
+    }
+    
     func body(content: Content) -> some View {
         content
             .rotation3DEffect(self.angle(), axis: (x: 0, y:1 , z:0.0001), anchor: self.edge())
             .offset(x: self.offSet() , y: 0)
+            .opacity(self.isSeen ? 1 : 0)
             .disabled(!(self.displayInfo.screenDisplayed == screen))
     }
     

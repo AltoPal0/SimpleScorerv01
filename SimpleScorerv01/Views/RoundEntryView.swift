@@ -85,11 +85,11 @@ struct UnoRoundView: View {
 
     var body: some View {
         RoundEntryLayout(title: "Uno") {
-            RoundSection(title: "Out of cards") {
+            RoundSection(title: L("Out of cards")) {
                 PlayerPickRow(players: game.playerScores, selected: $winnerID)
             }
 
-            RoundSection(title: "Cards left") {
+            RoundSection(title: L("Cards left")) {
                 VStack(spacing: 8) {
                     ForEach(losers) { playerScore in
                         PointsRow(playerScore: playerScore,
@@ -149,11 +149,11 @@ struct PetanqueRoundView: View {
 
     var body: some View {
         RoundEntryLayout(title: "Pétanque") {
-            RoundSection(title: "Wins the mène") {
+            RoundSection(title: L("Wins the mène")) {
                 PlayerPickRow(players: game.playerScores, selected: $scorerID)
             }
 
-            RoundSection(title: "Points") {
+            RoundSection(title: L("Points")) {
                 ChoiceChips(items: Array(1...Petanque.maxPointsPerMene), selection: $points) { "\($0)" }
             }
         } preview: {
@@ -297,7 +297,7 @@ struct BottomPanel<Content: View>: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Text("Done")
+                Text(L("Done"))
                     .font(Font.system(size: 18, weight: .semibold, design: .rounded))
                     .foregroundColor(.gray)
                     .padding(.horizontal, 20)
@@ -523,7 +523,7 @@ struct PointsKeypadEntry: View {
                     .font(Font.system(size: 15, weight: .light, design: .rounded))
                     .foregroundColor(.gray)
             }
-            ChoiceChip(label: "Add score", isSelected: true) {
+            ChoiceChip(label: L("Add score"), isSelected: true) {
                 presentKeypad(KeypadRequest(maximum: maximum, extraKey: extraKey, onExtraKey: onExtraKey, onValue: onValue))
             }
         }

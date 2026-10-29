@@ -25,9 +25,9 @@ enum OrderBy {
     
     var label: String {
         switch self {
-        case .scoreUp : return "Highest first"
-        case .scoreDown : return "Lowest first"
-        case .players : return "Table order"
+        case .scoreUp : return L("Highest first")
+        case .scoreDown : return L("Lowest first")
+        case .players : return L("Table order")
         }
     }
 }
@@ -97,7 +97,7 @@ struct ScoreCardsGridView: View {
         let scale = layout.scale
         let avatar = 135 * scale * 2 / 3
         let widestTotal = game.playerScores
-            .map { CardNames.width(of: "\(game.total(for: $0))", size: 50 * scale, weight: .bold) }
+            .map { CardNames.width(of: "\(game.displayedTotal(for: $0))", size: 50 * scale, weight: .bold) }
             .max() ?? 0
         return CardNames.compute(players: game.playerScores.map { $0.player },
                                  availableWidth: layout.cardWidth - avatar - widestTotal - 40 * scale - 10,
@@ -255,7 +255,7 @@ struct NewRoundButton: View {
 
     var body: some View {
         // Discreet like the arrows at the bottom : the scores stay the main thing
-        Label("New round", systemImage: "plus.circle")
+        Label(L("New round"), systemImage: "plus.circle")
             .font(.system(.title2, design: .rounded))
             .foregroundColor(.gray)
             // Just the width of its label

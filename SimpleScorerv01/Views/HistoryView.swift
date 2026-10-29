@@ -21,7 +21,7 @@ struct HistoryView: View {
 
             if records.isEmpty {
                 Spacer()
-                Text("Your games will show up here")
+                Text(L("Your games will show up here"))
                     .font(Font.system(size: 20, weight: .light, design: .rounded))
                     .foregroundColor(.gray)
                     .frame(maxWidth: .infinity)
@@ -113,13 +113,13 @@ struct GameRecordCard: View {
         .onTapGesture {
             offersResume = true
         }
-        .alert("Resume this game of \(record.gameName)?", isPresented: $offersResume) {
-            Button("Resume") {
+        .alert(L("Resume this game of %@?", record.gameName), isPresented: $offersResume) {
+            Button(L("Resume")) {
                 resume()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L("Cancel"), role: .cancel) {}
         } message: {
-            Text("The game in progress stays in the history.")
+            Text(L("The game in progress stays in the history."))
         }
         .contextMenu {
             Button(role: .destructive) {
@@ -127,7 +127,7 @@ struct GameRecordCard: View {
                     HistoryStore.shared.delete(id: record.id)
                 }
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label(L("Delete"), systemImage: "trash")
             }
         }
     }
@@ -144,14 +144,15 @@ struct GameRecordCard: View {
     }
     
     static func dateText(_ date: Date) -> String {
-        let time = date.formatted(date: .omitted, time: .shortened)
+        let locale = AppSettings.shared.locale
+        let time = date.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(locale))
         if Calendar.current.isDateInToday(date) {
-            return "Today · \(time)"
+            return L("Today · %@", time)
         }
         if Calendar.current.isDateInYesterday(date) {
-            return "Yesterday · \(time)"
+            return L("Yesterday · %@", time)
         }
-        return date.formatted(.dateTime.day().month(.abbreviated).year())
+        return date.formatted(.dateTime.day().month(.abbreviated).year().locale(locale))
     }
 }
 

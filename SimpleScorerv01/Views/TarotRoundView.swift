@@ -65,53 +65,53 @@ struct TarotRoundView: View {
 
     var pointsCaption : String {
         let difference = deal.points - deal.required
-        return "needs \(deal.required) · \(difference >= 0 ? "+" : "")\(difference)"
+        return L("needs %ld", deal.required) + " · \(difference >= 0 ? "+" : "")\(difference)"
     }
 
     // What the extras hold, in a few words
     var extrasSummary : String {
         var extras = [String]()
         switch deal.petitAuBout {
-        case .attack: extras.append("Petit au bout attack")
-        case .defense: extras.append("Petit au bout defense")
+        case .attack: extras.append(L("Petit au bout attack"))
+        case .defense: extras.append(L("Petit au bout defense"))
         case .none: break
         }
         switch deal.poignee {
-        case 20: extras.append("Simple poignée")
-        case 30: extras.append("Double poignée")
-        case 40: extras.append("Triple poignée")
+        case 20: extras.append(L("Simple poignée"))
+        case 30: extras.append(L("Double poignée"))
+        case 40: extras.append(L("Triple poignée"))
         default: break
         }
         let miseres = game.playerScores.filter { misereIDs.contains($0.player.id) }.map { $0.player.name }
         if !miseres.isEmpty {
-            extras.append("Misère " + miseres.joined(separator: ", "))
+            extras.append(L("Misère %@", miseres.joined(separator: ", ")))
         }
-        return extras.isEmpty ? "Petit au bout · Poignée · Misère" : extras.joined(separator: " · ")
+        return extras.isEmpty ? L("Petit au bout · Poignée · Misère") : extras.joined(separator: " · ")
     }
 
     var body: some View {
         ZStack(alignment: .bottom) {
             RoundEntryLayout(title: "Tarot") {
-                RoundSection(title: "Taker") {
+                RoundSection(title: L("Taker")) {
                     PlayerPickRow(players: game.playerScores, selected: choice($takerID))
                 }
 
                 if isFivePlayers {
-                    RoundSection(title: "Called king") {
+                    RoundSection(title: L("Called king")) {
                         PlayerPickRow(players: game.playerScores, selected: choice($partnerID))
                     }
                 }
 
-                RoundSection(title: "Contract") {
+                RoundSection(title: L("Contract")) {
                     ChoiceChips(items: TarotDeal.Contract.allCases, selection: $deal.contract, columns: 4) { $0.shortName }
                 }
 
-                RoundSection(title: "Oudlers", inline: true) {
+                RoundSection(title: L("Oudlers"), inline: true) {
                     ChoiceChips(items: [0, 1, 2, 3], selection: $deal.bouts, columns: 4) { "\($0)" }
                 }
 
                 PointsKeypadEntry(text: pointsEntered ? "\(deal.points)" : "",
-                                  caption: pointsEntered ? pointsCaption : "Attack needs \(deal.required)",
+                                  caption: pointsEntered ? pointsCaption : L("Attack needs %ld", deal.required),
                                   maximum: 91) { points in
                     deal.points = points
                     pointsEntered = true
@@ -119,7 +119,7 @@ struct TarotRoundView: View {
 
                 // Extras in one button : the screen stays short
                 VStack(spacing: 6) {
-                    ChoiceChip(label: "Extras", isSelected: false) {
+                    ChoiceChip(label: L("Extras"), isSelected: false) {
                         withAnimation(KeypadPanel.spring) {
                             showExtras = true
                         }
@@ -132,7 +132,7 @@ struct TarotRoundView: View {
                 .frame(maxWidth: .infinity)
             } preview: {
                 RoundPreview(points: pointsEntered ? points : [:],
-                             caption: pointsEntered && takerID != nil ? (deal.isMade ? "Contract made" : "Contract down") : nil)
+                             caption: pointsEntered && takerID != nil ? (deal.isMade ? L("Contract made") : L("Contract down")) : nil)
             } confirm: {
                 ConfirmBar(isEnabled: pointsEntered) {
                     if takerID == nil {
@@ -157,18 +157,18 @@ struct TarotRoundView: View {
                 .zIndex(1)
             }
         }
-        .alert("Who took?", isPresented: $missesTaker) {
-            Button("OK") {}
+        .alert(L("Who took?"), isPresented: $missesTaker) {
+            Button(L("OK")) {}
         } message: {
-            Text("Choose the taker before saving the deal.")
+            Text(L("Choose the taker before saving the deal."))
         }
-        .alert("\(takerName) plays alone?", isPresented: $confirmsPlayingAlone) {
-            Button("Plays alone") {
+        .alert(L("%@ plays alone?", takerName), isPresented: $confirmsPlayingAlone) {
+            Button(L("Plays alone")) {
                 onConfirm(points)
             }
-            Button("Choose partner", role: .cancel) {}
+            Button(L("Choose partner"), role: .cancel) {}
         } message: {
-            Text("No partner was called : \(takerName) is both the taker and the called king.")
+            Text(L("No partner was called : %@ is both the taker and the called king.", takerName))
         }
         .onChange(of: takerID) {
             partnerID = takerID
@@ -177,29 +177,29 @@ struct TarotRoundView: View {
 
     var extrasPanel: some View {
         VStack(alignment: .leading, spacing: 20) {
-            RoundSection(title: "Petit au bout") {
+            RoundSection(title: L("Petit au bout")) {
                 ChoiceChips(items: game.options.tarotPetitDefense ? [TarotDeal.Side.none, .attack, .defense] : [TarotDeal.Side.none, .attack],
                             selection: $deal.petitAuBout, columns: game.options.tarotPetitDefense ? 3 : 2) {
                     switch $0 {
                     case .none: return "—"
-                    case .attack: return "Attack"
-                    case .defense: return "Defense"
+                    case .attack: return L("Attack")
+                    case .defense: return L("Defense")
                     }
                 }
             }
 
-            RoundSection(title: "Poignée") {
+            RoundSection(title: L("Poignée")) {
                 ChoiceChips(items: TarotDeal.poignees, selection: $deal.poignee, columns: 4) {
                     switch $0 {
-                    case 20: return "Simple"
-                    case 30: return "Double"
-                    case 40: return "Triple"
+                    case 20: return L("Simple")
+                    case 30: return L("Double")
+                    case 40: return L("Triple")
                     default: return "—"
                     }
                 }
             }
 
-            RoundSection(title: "Misère · 10 from each player") {
+            RoundSection(title: L("Misère · 10 from each player")) {
                 PlayerMultiPickRow(players: game.playerScores, selected: $misereIDs)
             }
         }

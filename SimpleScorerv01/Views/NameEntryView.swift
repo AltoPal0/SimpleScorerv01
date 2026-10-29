@@ -17,6 +17,8 @@ struct NameEntryView: View {
     
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
+    // Set to false once every player has a name
     @Binding var isVisible : Bool
     
     @FocusState var focusedCard: UUID?
@@ -55,6 +57,11 @@ struct NameEntryView: View {
                 
                 VStack{
                     
+                    // Every player has a name (back from the game) : a tap on one changes it
+                    if game.nbrPlayersUnanmed() == 0 && !game.playerScores.isEmpty {
+                        namedPlayers
+                    }
+                    
                     ZStack{
                         ForEach(game.playerScores) { playerScore in
                             if playerScore.player.name == Player.defaultName {
@@ -72,12 +79,12 @@ struct NameEntryView: View {
                         }
                     }
                     
-                    if previousPlayers.count > 0 && !game.allPreviousPlayersSelected() {
+                    if previousPlayers.count > 0 && !game.allPreviousPlayersSelected() && game.nbrPlayersUnanmed() > 0 {
                         HStack {
                             ZStack{
                                 Divider().frame(height: 1).background(Color.gray).padding()
                             }
-                            Text("OR").foregroundColor(.gray)
+                            Text(L("OR")).foregroundColor(.gray)
                             ZStack {
                                 Divider().frame(height: 1).background(Color.gray).padding()
                             }
@@ -95,6 +102,75 @@ struct NameEntryView: View {
                 }
             }
         }
+        // The screen stays built beside the others : it gets ready when the setup slides to it
+        .onChange(of: displayInfo.screenDisplayed) { _, screen in
+            if screen == .playerNames {
+                previousPlayers = NameEntryView.loadPreviousPlayers()
+                // Keyboard first only when there is no previous player to pick
+                if previousPlayers.isEmpty {
+                    DispatchQueue.main.async {
+                        focusedCard = game.playerScores.first { $0.player.name == Player.defaultName }?.player.id
+                    }
+                }
+            } else {
+                focusedCard = nil
+            }
+        }
+    }
+    
+    static func loadPreviousPlayers() -> [SavedPlayer] {
+        guard let data = UserDefaults.standard.data(forKey: "previousPlayers"),
+              let players = try? JSONDecoder().decode([SavedPlayer].self, from: data)
+        else {
+            return []
+        }
+        return players
+    }
+    
+    var namedPlayers: some View {
+        VStack(spacing: 8) {
+            Text(L("Tap a player to change the name"))
+                .font(Font.system(size: 15, weight: .light, design: .rounded))
+                .foregroundColor(.gray)
+            
+            LazyVGrid(columns: gridItemLayout, alignment: .center, spacing: 0) {
+                ForEach(game.playerScores) { playerScore in
+                    ZStack {
+                        playerScore.player.colorGradient
+                        Text(playerScore.player.name)
+                            .font(Font.system(size: 40, weight: .light, design: .rounded))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.1)
+                            .foregroundColor(Color.white)
+                            .padding()
+                    }
+                    .frame(height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.offWhite, lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+                    .padding(.vertical, 2)
+                    .onTapGesture {
+                        guard let index = game.indexOf(player: playerScore.player) else { return }
+                        // Its card comes back to type the name, or to pick a previous player
+                        withAnimation {
+                            game.playerScores[index].player.name = Player.defaultName
+                        }
+                        indexOfTopPlayer = index
+                        previousPlayers = NameEntryView.loadPreviousPlayers()
+                        if previousPlayers.isEmpty {
+                            DispatchQueue.main.async {
+                                focusedCard = playerScore.player.id
+                            }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+        .transition(.opacity)
     }
 }
 
@@ -112,6 +188,8 @@ struct previousPlayerView: View {
     @Binding var indexOfTopPlayer : Int
     
     @GestureState private var dragOffset = CGSize.zero
+    // A long press lifts the player, then it can be dragged to the trash
+    @State private var isLifted = false
     @State private var isAboveTrash = false
     @State var geoProxy : GeometryProxy
     @Binding var isDragging : Bool
@@ -151,22 +229,19 @@ struct previousPlayerView: View {
                 RoundedRectangle(cornerRadius: 14)
                     .stroke(isAboveTrash ? Color.offRed : Color.offWhite, lineWidth: isAboveTrash ? 2 : 1)
             )
+            .scaleEffect(isLifted ? 1.08 : 1)
             .offset(dragOffset)
             .opacity(game.listNames().contains(name) ? 0.5 : 1)
 //            .scaleEffect(isAboveTrash ? 0.8 : 1, anchor: .bottom)
-            .gesture(!game.listNames().contains(name) ?
+            .simultaneousGesture(!game.listNames().contains(name) ?
                      DragGesture(coordinateSpace: .global)
                 .updating($dragOffset) { value, state, transaction in
+                    guard isLifted else { return }
                     state.height = value.translation.height
                     state.width = value.translation.width
-                    print("\(value.location.y) - \(geoProxy.size.height)")
                 }
                 .onChanged({ value in
-                    if !startFeedbackPlayed {
-                        let impactMed = UIImpactFeedbackGenerator(style: .soft)
-                        impactMed.impactOccurred()
-                        startFeedbackPlayed = true
-                    }
+                    guard isLifted else { return }
                     if value.location.x > (geoProxy.size.width / 2) - 35
                         && value.location.x < (geoProxy.size.width / 2) + 35
                         && value.location.y > (geoProxy.size.height) - 30 {
@@ -191,8 +266,10 @@ struct previousPlayerView: View {
                     
                 })
                     .onEnded({ (value) in
+                        guard isLifted else { return }
                         startFeedbackPlayed = false
                         trashFeedbackPlayed = false
+                        isLifted = false
                         if isAboveTrash {
                             self.savedPlayers.remove(at: self.savedPlayers.firstIndex(where: {$0.name == name})! )
                             withAnimation {
@@ -248,6 +325,26 @@ struct previousPlayerView: View {
                     
                 }
             }
+            .onLongPressGesture(minimumDuration: 0.3, maximumDistance: .infinity) {
+                guard !game.listNames().contains(name) else { return }
+                if !startFeedbackPlayed {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    startFeedbackPlayed = true
+                }
+                withAnimation(.easeOut(duration: 0.15)) {
+                    isLifted = true
+                    isDragging = true
+                }
+            } onPressingChanged: { pressing in
+                // Lifted and released without moving : back in place
+                if !pressing && isLifted && dragOffset == .zero {
+                    startFeedbackPlayed = false
+                    withAnimation {
+                        isLifted = false
+                        isDragging = false
+                    }
+                }
+            }
             .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         }.transition(.asymmetric(insertion: .opacity, removal: .scale))
     }
@@ -258,6 +355,7 @@ struct previousPlayerView: View {
 struct NameCardView : View {
     
     @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
     var playerScore : PlayerScore
     var index : Int
@@ -289,7 +387,7 @@ struct NameCardView : View {
                 AvatarView(user: playerScore.player)
                     .padding(10)
                 
-                TextField(Player.defaultName, text: binding, onCommit:{
+                TextField(L(Player.defaultName), text: binding, onCommit:{
                     self.username = binding.wrappedValue
                     commitName()
                 })
@@ -319,7 +417,8 @@ struct NameCardView : View {
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
         .onAppear{
             if self.game.indexOfPlayerWithNoName(playerScore: playerScore) == 0 {
-                if numberOfPreviousPlayers == 0 {
+                // Built beside the other screens : the keyboard only comes up on the screen of the names
+                if numberOfPreviousPlayers == 0 && displayInfo.screenDisplayed == .playerNames {
                     focusedCard.wrappedValue = playerScore.player.id
                 }
                 self.indexOfTopPlayer = game.indexOf(playerID: playerScore.player.id)!
@@ -420,6 +519,7 @@ struct NameEntryView_Previews: PreviewProvider {
     static var previews: some View {
         NameEntryView(isVisible: .constant(true))
             .environmentObject(Game(withTestEmptyNamePlayers: ()))
+            .environmentObject(GlobalDisplayInfo())
         
     }
 }

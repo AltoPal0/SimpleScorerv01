@@ -205,13 +205,13 @@ struct ScoreCardView: View {
                 get: { self.molkkyAlert != nil },
                 set: { if !$0 { self.molkkyAlert = nil } })) {
                     if self.molkkyAlert == .eliminated {
-                        Button("Keep playing") {
+                        Button(L("Keep playing")) {
                             self.game.keepEliminatedPlaying()
                             self.startScoreEntry()
                         }
-                        Button("Cancel", role: .cancel) {}
+                        Button(L("Cancel"), role: .cancel) {}
                     } else {
-                        Button("OK") {
+                        Button(L("OK")) {
                             self.startScoreEntry()
                         }
                     }
@@ -255,7 +255,7 @@ struct ScoreCardView: View {
                         .foregroundColor(Color .offWhite)
                 } else {
                     HStack {
-                        TextField("Name?", text: self.$username,onEditingChanged: {change in }, onCommit: {commitName()})
+                        TextField(L("Name?"), text: self.$username,onEditingChanged: {change in }, onCommit: {commitName()})
                         .focused($focusedField, equals: .name)
                         .font(.system(.largeTitle, design: .rounded))
                         .background(Color.offWhite.opacity(0.6))
@@ -286,7 +286,7 @@ struct ScoreCardView: View {
             }
         }
         .alert(isPresented: $showingAlert) {
-            Alert(title: Text("No name entered"), message: Text("Please enter a name"), dismissButton: .default(Text("OK")))
+            Alert(title: Text(L("No name entered")), message: Text(L("Please enter a name")), dismissButton: .default(Text(L("OK"))))
         }
     }
     
@@ -346,8 +346,9 @@ struct ScoreCardView: View {
                 return Text(String(repeating: "✕", count: misses))
             }
         }
-        if let remaining = self.game.remaining(for: self.playerScore) {
-            return Text(verbatim: "\(remaining) to go")
+        // Darts 501 and 301 : what is left is already the big number
+        if !self.game.countsDown, let remaining = self.game.remaining(for: self.playerScore) {
+            return Text(L("%ld to go", remaining))
         }
         return nil
     }
@@ -391,7 +392,9 @@ struct ScoreCardView: View {
             HStack {
                 if scoreEditing {
                     
-                    Text(verbatim: "\(self.game.total(for: self.playerScore)) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
+                    Text(verbatim: self.game.countsDown
+                         ? "\(self.game.displayedTotal(for: self.playerScore)) - \(String(format: "%.0f",abs(self.pointsScored)))"
+                         : "\(self.game.total(for: self.playerScore)) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
                         .font(Font.system(size: 25 * scale, weight: .bold, design: .rounded))
                         .minimumScaleFactor(0.5)
                         .lineLimit(2)
@@ -407,7 +410,7 @@ struct ScoreCardView: View {
                         }
                 } else {
                     VStack(alignment: .trailing, spacing: 0) {
-                        Text(self.game.isEliminated(self.playerScore) ? "✕" : "\(self.game.total(for: self.playerScore))")
+                        Text(self.game.isEliminated(self.playerScore) ? "✕" : "\(self.game.displayedTotal(for: self.playerScore))")
                             .font(Font.system(size: (self.scoreEditing ? 25 : 50) * scale, weight: .bold, design: .rounded))
                             .minimumScaleFactor(0.2)
                             .lineLimit(1)

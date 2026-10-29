@@ -176,13 +176,13 @@ struct AllScoresView_new: View {
             get: { molkkyAlert != nil },
             set: { if !$0 { molkkyAlert = nil } })) {
                 if molkkyAlert == .eliminated {
-                    Button("Keep playing") {
+                    Button(L("Keep playing")) {
                         game.keepEliminatedPlaying()
                         showKeypad = true
                     }
-                    Button("Cancel", role: .cancel) {}
+                    Button(L("Cancel"), role: .cancel) {}
                 } else {
-                    Button("OK") {
+                    Button(L("OK")) {
                         showKeypad = true
                     }
                 }
@@ -246,7 +246,7 @@ struct TotalRows: View {
         if game.isEliminated(playerScore) {
             return "✕"
         }
-        let total = game.total(for: playerScore)
+        let total = game.displayedTotal(for: playerScore)
         return abs(total) < 10000 ? String(total) : String(total / 1000) + "K"
     }
     
@@ -343,8 +343,8 @@ struct Cell: View {
                 }
             })
             .actionSheet(isPresented: $showingActionSheet) {
-                ActionSheet(title: Text("Edit score").font(.system(.headline, design: .rounded)), buttons: [
-                    .default(Text("Modify")) {
+                ActionSheet(title: Text(L("Edit score")).font(.system(.headline, design: .rounded)), buttons: [
+                    .default(Text(L("Modify"))) {
                         scoreEdit.playerIdx = playerIndex
                         if roundExists {
                             scoreEdit.mode = .modification
@@ -354,14 +354,14 @@ struct Cell: View {
                         scoreEdit.round = round
                         self.showKeypad = true
                     },
-                    .destructive(Text("Delete")) {
+                    .destructive(Text(L("Delete"))) {
                         withAnimation {
                             if roundExists {
                                 game.deletePointsFor(player: game.playerScores[playerIndex].player, round: round)
                             }
                         }
                     },
-                    .cancel()
+                    .cancel(Text(L("Cancel")))
                 ])
             }
             

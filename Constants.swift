@@ -15,12 +15,15 @@ enum CardSize {
     normal
 }
 
+// Screens side by side, from left to right : the players and the game are chosen between the setup and the scores
 enum ScreenType : Int, Comparable {
     case
     allScores = 0,
     scoreCards = 1,
-    gameSetup = 2,
-    history = 3
+    gameChoice = 2,
+    playerNames = 3,
+    gameSetup = 4,
+    history = 5
     
     public static func < (a: ScreenType, b: ScreenType) -> Bool {
         return a.rawValue < b.rawValue

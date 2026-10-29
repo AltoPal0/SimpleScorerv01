@@ -27,8 +27,16 @@ struct GameHeaderView: View {
             // Gang of Four : the direction of play, changing every round
             if game.activeKind == .gangOfFour {
                 let clockwise = GangOfFour.isClockwise(round: game.currentMaxNumberOfRounds())
-                Label(clockwise ? "Clockwise" : "Counterclockwise",
+                Label(clockwise ? L("Clockwise") : L("Counterclockwise"),
                       systemImage: clockwise ? "arrow.clockwise" : "arrow.counterclockwise")
+                    .font(Font.system(size: 15, weight: .light, design: .rounded))
+                    .foregroundColor(.gray)
+                    .padding(.leading, 8)
+            }
+
+            // Shanghai : the number aimed at this round
+            if let number = game.shanghaiNumber {
+                Label(L("Aim at %ld", number), systemImage: "scope")
                     .font(Font.system(size: 15, weight: .light, design: .rounded))
                     .foregroundColor(.gray)
                     .padding(.leading, 8)
@@ -77,33 +85,49 @@ struct GameOptionsView: View {
     var rulesSummary : String {
         switch game.activeKind {
         case .molkky:
-            return "Exactly 50 to win. Going over 50 sends you back to 25."
+            return L("Exactly 50 to win. Going over 50 sends you back to 25.")
         case .coinche:
             let options = game.options
             var rules = options.coincheScoring == .announced
-                ? "A contract made scores the contract announced, × 2 when coinchée, × 4 when surcoinchée. A contract down gives 160 to the other team, 250 for a capot, × 2 or × 4 as well."
-                : "A contract made scores the contract plus the card points rounded to the ten. Coinchée made : 160 + contract × 2 or × 4. A contract down gives 160 + contract to the other team."
-            rules += options.coincheDefenseScores ? " The defense scores its card points." : " Only the taking team scores."
-            rules += options.coincheBelote ? " Belote +20 to its holder." : " Belote is not counted."
-            return rules + " With 4 players, 1st & 2nd play against 3rd & 4th."
+                ? L("A contract made scores the contract announced, × 2 when coinchée, × 4 when surcoinchée. A contract down gives 160 to the other team, 250 for a capot, × 2 or × 4 as well.")
+                : L("A contract made scores the contract plus the card points rounded to the ten. Coinchée made : 160 + contract × 2 or × 4. A contract down gives 160 + contract to the other team.")
+            rules += " " + (options.coincheDefenseScores ? L("The defense scores its card points.") : L("Only the taking team scores."))
+            rules += " " + (options.coincheBelote ? L("Belote +20 to its holder.") : L("Belote is not counted."))
+            return rules + " " + L("With 4 players, 1st & 2nd play against 3rd & 4th.")
         case .tarot:
-            let petit = game.options.tarotPetitDefense ? "Petit au bout ±10 × contract, for the attack or the defense" : "Petit au bout +10 × contract, for the attack only"
-            return "French federation scoring : 25 + difference, times the contract (×1, ×2, ×4, ×6). \(petit). Poignée 20 / 30 / 40 to the winning side. Chelem not counted."
+            let petit = game.options.tarotPetitDefense ? L("Petit au bout ±10 × contract, for the attack or the defense") : L("Petit au bout +10 × contract, for the attack only")
+            return L("French federation scoring : 25 + difference, times the contract (×1, ×2, ×4, ×6). %@. Poignée 20 / 30 / 40 to the winning side. Chelem not counted.", petit)
         case .scrabble:
-            return "Enter the points of each word. The +50 key adds the bonus for playing all 7 tiles."
+            return L("Enter the points of each word. The +50 key adds the bonus for playing all 7 tiles.")
         case .uno:
             return game.options.unoLowestWins
-                ? "Each player scores the cards left in his hand. The game ends at the target, the lowest score wins."
-                : "Official rules : the player out of cards scores the cards left in the other hands (numbers face value, action cards 20, wild cards 50)."
+                ? L("Each player scores the cards left in his hand. The game ends at the target, the lowest score wins.")
+                : L("Official rules : the player out of cards scores the cards left in the other hands (numbers face value, action cards 20, wild cards 50).")
         case .petanque:
-            return "Each mène, the winning player or team scores 1 to 6 points."
+            return L("Each mène, the winning player or team scores 1 to 6 points.")
         case .gangOfFour:
-            return "The player out of cards ends the round. The others score the cards left : 1 point each up to 7 cards, × 2 from 8, × 3 from 11, × 4 from 14 (16 cards = 64). The game ends at 100, the lowest score wins. The direction of play changes every round."
+            return L("The player out of cards ends the round. The others score the cards left : 1 point each up to 7 cards, × 2 from 8, × 3 from 11, × 4 from 14 (16 cards = 64). The game ends at 100, the lowest score wins. The direction of play changes every round.")
         case .cabo:
-            return "Each player scores the total of their hand. Calling Cabo scores 0 with the lowest hand, otherwise the hand + 10 (a tie is not enough). Kamikaze (\(game.options.caboKamikazeHand)) : 0, and 50 for everyone else. Exactly 100 brings a player back to 50, once. The game ends over 100, the lowest score wins."
+            return L("Each player scores the total of their hand. Calling Cabo scores 0 with the lowest hand, otherwise the hand + 10 (a tie is not enough). Kamikaze (%@) : 0, and 50 for everyone else. Exactly 100 brings a player back to 50, once. The game ends over 100, the lowest score wins.", game.options.caboKamikazeHand)
+        case .darts:
+            switch game.rules?.darts {
+            case .x501?, .x301?:
+                let finish = game.options.dartsDoubleOut
+                    ? L("The last dart must be a double : 1 left is a bust as well.")
+                    : L("Any dart can finish.")
+                return L("Each turn, enter the points of the 3 darts (180 at most) : they are taken off %ld. Going under 0 is a bust, the turn counts nothing. %@ First to exactly 0 wins.", game.rules?.target ?? 501, finish)
+            case .cricket?:
+                return L("Only 15 to 20 and the bull count. 3 hits close a number (double = 2, triple = 3). Once closed, it scores its points for you while still open for an opponent. Enter the points scored each turn : close everything with the most points to win.")
+            case .aroundTheClock?:
+                return L("Hit 1, then 2… up to 20, then the bull. Each turn, enter how many targets in a row were hit. First to the bull wins.")
+            case .shanghai?:
+                return L("7 rounds : round 1 on the 1, round 2 on the 2… Single, double and triple of that number score their value. Hitting all three in one turn is a Shanghai and wins at once. Otherwise the highest score after 7 rounds wins.")
+            case nil:
+                return ""
+            }
         case .universal:
             if let rules = game.rules, rules.isInLibrary {
-                return "\(rules.name) needs \(rules.playerCountHint) : scores are entered freely."
+                return L("%@ needs %@ : scores are entered freely.", rules.displayName, rules.playerCountHint)
             }
             return ""
         }
@@ -135,54 +159,62 @@ struct GameOptionsView: View {
                     VStack(alignment: .leading, spacing: 24) {
 
                         if !GameOptions.targets(for: game.activeKind).isEmpty {
-                            RoundSection(title: "Game ends at") {
+                            RoundSection(title: L("Game ends at")) {
                                 ChoiceChips(items: GameOptions.targets(for: game.activeKind), selection: targetSelection) { "\($0)" }
                             }
                         }
 
                         if game.activeKind == .molkky {
-                            RoundSection(title: "3 misses in a row") {
-                                ChoiceChips(items: [true, false], selection: $game.options.molkkyMissesOut) { $0 ? "Out" : "Keep playing" }
+                            RoundSection(title: L("3 misses in a row")) {
+                                ChoiceChips(items: [true, false], selection: $game.options.molkkyMissesOut) { $0 ? L("Out") : L("Keep playing") }
                             }
                         }
 
                         if game.activeKind == .coinche {
-                            RoundSection(title: "Scoring") {
+                            RoundSection(title: L("Scoring")) {
                                 ChoiceList(items: [CoincheDeal.Scoring.announced, .pointsMade], selection: $game.options.coincheScoring) {
-                                    $0 == .announced ? "Contract announced" : "Contract + card points"
+                                    $0 == .announced ? L("Contract announced") : L("Contract + card points")
                                 }
                             }
-                            RoundSection(title: "Defense card points") {
-                                ChoiceChips(items: [false, true], selection: $game.options.coincheDefenseScores, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
+                            RoundSection(title: L("Defense card points")) {
+                                ChoiceChips(items: [false, true], selection: $game.options.coincheDefenseScores, minimumWidth: 150) { $0 ? L("Counted") : L("Not counted") }
                             }
-                            RoundSection(title: "Belote · Rebelote +20") {
-                                ChoiceChips(items: [false, true], selection: $game.options.coincheBelote, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
+                            RoundSection(title: L("Belote · Rebelote +20")) {
+                                ChoiceChips(items: [false, true], selection: $game.options.coincheBelote, minimumWidth: 150) { $0 ? L("Counted") : L("Not counted") }
                             }
                         }
                         
                         if game.activeKind == .tarot {
-                            RoundSection(title: "Petit au bout by the defense") {
-                                ChoiceChips(items: [false, true], selection: $game.options.tarotPetitDefense, minimumWidth: 150) { $0 ? "Counted" : "Not counted" }
+                            RoundSection(title: L("Petit au bout by the defense")) {
+                                ChoiceChips(items: [false, true], selection: $game.options.tarotPetitDefense, minimumWidth: 150) { $0 ? L("Counted") : L("Not counted") }
                             }
                         }
                         
                         if game.activeKind == .cabo {
-                            RoundSection(title: "Kamikaze hand") {
+                            RoundSection(title: L("Kamikaze hand")) {
                                 ChoiceList(items: [true, false], selection: $game.options.caboKamikazeFourKings) {
-                                    $0 ? "Four kings · 54 cards deck" : "Two 12 and two 13 · Cabo deck"
+                                    $0 ? L("Four kings · 54 cards deck") : L("Two 12 and two 13 · Cabo deck")
+                                }
+                            }
+                        }
+                        
+                        if game.countsDown {
+                            RoundSection(title: L("Finish")) {
+                                ChoiceList(items: [true, false], selection: $game.options.dartsDoubleOut) {
+                                    $0 ? L("On a double · double out") : L("Any dart · straight out")
                                 }
                             }
                         }
                         
                         if game.activeKind == .uno {
-                            RoundSection(title: "Scoring") {
+                            RoundSection(title: L("Scoring")) {
                                 ChoiceList(items: [false, true], selection: $game.options.unoLowestWins) {
-                                    $0 ? "Everyone scores his hand · lowest wins" : "Winner scores the hands · official"
+                                    $0 ? L("Everyone scores his hand · lowest wins") : L("Winner scores the hands · official")
                                 }
                             }
                         }
 
-                        RoundSection(title: "Rules") {
+                        RoundSection(title: L("Rules")) {
                             Text(rulesSummary)
                                 .font(Font.system(size: 17, weight: .light, design: .rounded))
                                 .foregroundColor(.gray)

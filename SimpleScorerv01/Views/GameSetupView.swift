@@ -12,15 +12,17 @@ struct GameSetupView: View {
     
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     @EnvironmentObject var game : Game
-    @Binding var showPlayerEntry : Bool
     
     let dismissHelpForever = UserDefaults.standard.bool(forKey: UserDefaultsKeys.didShowHelpAllScores)
     @State private var showHelp = false
     
     @State private var showingActionSheet = false
+    @State private var showSettings = false
     
     let maxHeight = CGFloat(100)
     let maxWidth = CGFloat(300)
+    // The gear of the app settings, under the buttons
+    let settingsSize = CGFloat(64)
     
     var body: some View {
         
@@ -34,7 +36,7 @@ struct GameSetupView: View {
                     .stroke(Color.offWhite, lineWidth: 1)
                     .frame(maxWidth: maxWidth, maxHeight: maxHeight)
                     .overlay(
-                        Text("RESET SCORES")
+                        Text(L("RESET SCORES"))
                             .fontWeight(.semibold)
                             .font(.system(.largeTitle, design: .rounded))
                             .foregroundColor(Color .offWhite)
@@ -43,7 +45,7 @@ struct GameSetupView: View {
                         self.showingActionSheet = true
                     }
                     .actionSheet(isPresented: $showingActionSheet) {
-                        ActionSheet(title: Text("Reset").font(.system(.headline, design: .rounded)), buttons: self.resetButtons())
+                        ActionSheet(title: Text(L("Reset")).font(.system(.headline, design: .rounded)), buttons: self.resetButtons())
                     }
                 
                 
@@ -76,7 +78,7 @@ struct GameSetupView: View {
                             .font(Font.system(size: 30, weight: .regular, design: .rounded))
                             .foregroundColor(Color .offWhite)
                         
-                        Text("PLAYER\(self.game.playerScores.count > 1 ? "S" : "")")
+                        Text(self.game.playerScores.count > 1 ? L("PLAYERS") : L("PLAYER"))
                             .font(Font.system(size: 15, weight: .light, design: .rounded))
                             .lineLimit(1)
                             .minimumScaleFactor(0.1)
@@ -114,15 +116,15 @@ struct GameSetupView: View {
                     .contentShape(Rectangle())
                     .overlay(
                         VStack {
-                            Text("PLAY")
+                            Text(L("PLAY"))
                                 .fontWeight(.semibold)
                                 .font(.system(.largeTitle, design: .rounded))
                                 .foregroundColor(Color .offWhite)
                             if let rules = self.game.rules, !rules.name.isEmpty {
                                 // While the players are set : what the game needs, without an alert at each tap
                                 Text(self.game.hasWrongPlayerCount
-                                     ? "\(rules.name) · \(rules.playerCountHint)".uppercased()
-                                     : rules.name.uppercased())
+                                     ? "\(rules.displayName) · \(rules.playerCountHint)".uppercased()
+                                     : rules.displayName.uppercased())
                                     .font(Font.system(size: 15, weight: .light, design: .rounded))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.1)
@@ -132,6 +134,20 @@ struct GameSetupView: View {
                     ).onTapGesture {
                         self.moveNextScreen()
                     }
+                
+                // Settings of the app : appearance and language
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.offWhite, lineWidth: 1)
+                    .frame(width: settingsSize, height: settingsSize)
+                    .contentShape(Rectangle())
+                    .overlay(
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 28, weight: .light))
+                            .foregroundColor(Color.offWhite)
+                    )
+                    .onTapGesture {
+                        self.showSettings = true
+                    }
             }
             .padding()
         }
@@ -140,39 +156,54 @@ struct GameSetupView: View {
                 Rectangle().cornerRadius(14).frame(maxWidth: maxWidth, maxHeight: maxHeight)
                 Rectangle().cornerRadius(14).frame(maxWidth: maxWidth, maxHeight: maxHeight)
                 Rectangle().cornerRadius(14).frame(maxWidth: maxWidth, maxHeight: maxHeight)
+                Rectangle().cornerRadius(14).frame(width: settingsSize, height: settingsSize)
             }
                 .padding()
         )
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+        // The screens behind take the new language once the settings are closed
+        .sheet(isPresented: $showSettings, onDismiss: {
+            AppSettings.shared.applyLanguage()
+        }) {
+            SettingsView()
+        }
     }
     
     // Same game again or another one : changing the game also starts from 0
     // Reset scores : same players, same game, scores back to 0. Reset all : as when the app starts
+    // Change game : same players, scores back to 0 and another game to choose
     func resetButtons() -> [ActionSheet.Button] {
-        [
-            .default(Text("Reset scores")) {
+        var buttons : [ActionSheet.Button] = [
+            .default(Text(L("Reset scores"))) {
                 self.game.resetScores(keepingGame: true)
                 if game.playerScores.count > 0 {
                     self.moveNextScreen()
                 }
-            },
-            .destructive(Text("Reset all")) {
-                withAnimation {
-                    self.game.resetAll()
-                    self.displayInfo.gradientIndices = Array(gradiants.indices).shuffled()
-                    self.displayInfo.setSizeAndScroll(nbrPlayers: 0)
-                }
-            },
-            .cancel(),
+            }
         ]
+        if self.game.rules != nil && game.playerScores.count > 0 {
+            buttons.append(.default(Text(L("Change game"))) {
+                self.game.resetScores(keepingGame: false)
+                self.moveNextScreen()
+            })
+        }
+        buttons.append(.destructive(Text(L("Reset all"))) {
+            withAnimation {
+                self.game.resetAll()
+                self.displayInfo.gradientIndices = Array(gradiants.indices).shuffled()
+                self.displayInfo.setSizeAndScroll(nbrPlayers: 0)
+            }
+        })
+        buttons.append(.cancel(Text(L("Cancel"))))
+        return buttons
     }
     
+    // Slides to the names of the players, then the game : only what is still missing
     func moveNextScreen() {
-//        game.updatePreviousPlayers()
-        if self.game.nbrPlayersUnanmed() > 0 {
-            self.showPlayerEntry = true
+        guard self.game.playerScores.count > 0 else { return }
+        withAnimation {
+            self.displayInfo.screenDisplayed = self.displayInfo.screenAfterSetup(game: self.game)
         }
-        self.displayInfo.screenDisplayed = .scoreCards
     }
     
 }
@@ -182,7 +213,7 @@ struct GameSetupView: View {
 struct GameSetupView_Previews: PreviewProvider {
     static var previews: some View {
         
-        GameSetupView(showPlayerEntry: .constant(false))
+        GameSetupView()
             .environmentObject(Game())
             .environmentObject(GlobalDisplayInfo())
     }

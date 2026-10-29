@@ -25,6 +25,8 @@ struct GameOptions: Codable, Equatable {
     var tarotPetitDefense = false
     // Cabo with a 54 cards deck : the kamikaze hand is four kings, two 12 and two 13 with the Cabo deck
     var caboKamikazeFourKings = true
+    // Darts 501 and 301 : the last dart is a double, so 1 left is a bust as well
+    var dartsDoubleOut = true
     
     init() {}
     
@@ -39,6 +41,7 @@ struct GameOptions: Codable, Equatable {
         coincheBelote = try container.decodeIfPresent(Bool.self, forKey: .coincheBelote) ?? false
         tarotPetitDefense = try container.decodeIfPresent(Bool.self, forKey: .tarotPetitDefense) ?? false
         caboKamikazeFourKings = try container.decodeIfPresent(Bool.self, forKey: .caboKamikazeFourKings) ?? true
+        dartsDoubleOut = try container.decodeIfPresent(Bool.self, forKey: .dartsDoubleOut) ?? true
     }
 
     // Targets the players can pick, empty when the game has no target to change
@@ -52,11 +55,11 @@ struct GameOptions: Codable, Equatable {
     }
 
     static func hasOptions(_ kind: GameKind) -> Bool {
-        kind == .molkky || kind == .uno || kind == .coinche || kind == .tarot || kind == .cabo || !targets(for: kind).isEmpty
+        kind == .molkky || kind == .uno || kind == .coinche || kind == .tarot || kind == .cabo || kind == .darts || !targets(for: kind).isEmpty
     }
 
     var caboKamikazeHand: String {
-        caboKamikazeFourKings ? "four kings" : "two 12 and two 13"
+        caboKamikazeFourKings ? L("four kings") : L("two 12 and two 13")
     }
     
     static func key(for rules: GameRules) -> String {

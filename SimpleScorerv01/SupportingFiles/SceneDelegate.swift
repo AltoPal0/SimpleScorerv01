@@ -9,12 +9,15 @@
 import UIKit
 import SwiftUI
 import SwiftData
+import Combine
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     // Saved when the app leaves the screen : names and players change outside the scores
     var game: Game?
+    // Appearance chosen in the settings, applied to the whole window (sheets and alerts included)
+    var appearanceObserver: AnyCancellable?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -109,7 +112,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         #endif
         self.game = game
-        let contentView = GameScoreView()
+        let contentView = RootView()
         
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
@@ -120,6 +123,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     .environmentObject(game)
                     .modelContainer(HistoryStore.shared.container))
             self.window = window
+            appearanceObserver = AppSettings.shared.$appearance.sink { [weak window] appearance in
+                window?.overrideUserInterfaceStyle = appearance.interfaceStyle
+            }
             window.makeKeyAndVisible()
         }
     }
@@ -156,3 +162,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 }
 
+// Rebuilt when the language changes : every text of the app follows
+struct RootView: View {
+
+    @ObservedObject var settings = AppSettings.shared
+
+    var body: some View {
+        GameScoreView()
+            .id(settings.appliedLanguage)
+            .environment(\.locale, Locale(identifier: settings.appliedLanguage.code))
+    }
+}
