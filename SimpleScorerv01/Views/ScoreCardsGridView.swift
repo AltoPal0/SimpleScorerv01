@@ -103,6 +103,10 @@ struct ScoreCardsGridView: View {
                                  scale: scale)
     }
     
+    // The bar of the game, once a game is chosen
+    var showsHeader: Bool { game.rules != nil }
+    var headerHeight: CGFloat { showsHeader ? GameHeaderView.height : 0 }
+    
     // Shanghai : the number to aim at. Gang of Four : the direction of play, changing every round
     var gameInfo: Label<Text, Image>? {
         if let number = game.shanghaiNumber {
@@ -120,84 +124,92 @@ struct ScoreCardsGridView: View {
         GeometryReader { geometry in
         let layout = self.layout(in: geometry.size)
         ZStack{
-            ScrollView {
-                PullToReveal(coordinateSpaceName: "pullToReveal", isRevealed: displayInfo.showsGameHeader) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                        displayInfo.showsGameHeader = true
-                    }
-                } onScroll: {
-                    withAnimation(.easeOut(duration: 0.25)) {
-                        displayInfo.showsGameHeader = false
-                    }
-                }
-                // What the game needs while playing, always in sight right above the cards
-                if let info = gameInfo {
-                    info
-                        .font(Font.system(size: 22, weight: .semibold, design: .rounded))
-                        .foregroundColor(.gray)
-                        .padding(.top, CardLayout.spacing)
-                }
-                ScrollViewReader { value in
-                    // Teams and players are two grids of their own : sharing one grid with the same ids
-                    // left stale cards on screen when switching between them (reset of a Coinche game)
-                    if let teams = teams {
-                        LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
-                                  spacing: CardLayout.spacing) {
-                            ForEach(teams, id: \.first!.player.id) { team in
-                                TeamCardView(team: team)
-                            }
+            ScrollViewReader { outer in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // The bar of the game scrolls with the cards : out of sight above them until the cards are pulled down
+                        if showsHeader {
+                            GameHeaderView()
                         }
-                        .id("teams")
-                    } else {
-                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
-                              spacing: CardLayout.spacing) {
+                        VStack {
+                            Color.clear.frame(height: 0).id("cardsTop")
+                            // What the game needs while playing, always in sight right above the cards
+                            if let info = gameInfo {
+                                info
+                                    .font(Font.system(size: 22, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.gray)
+                                    .padding(.top, CardLayout.spacing)
+                            }
+                            ScrollViewReader { value in
+                                // Teams and players are two grids of their own : sharing one grid with the same ids
+                                // left stale cards on screen when switching between them (reset of a Coinche game)
+                                if let teams = teams {
+                                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
+                                              spacing: CardLayout.spacing) {
+                                        ForEach(teams, id: \.first!.player.id) { team in
+                                            TeamCardView(team: team)
+                                        }
+                                    }
+                                    .id("teams")
+                                } else {
+                                LazyVGrid(columns: Array(repeating: GridItem(.fixed(layout.cardWidth), spacing: CardLayout.spacing), count: layout.columns),
+                                          spacing: CardLayout.spacing) {
                         
-                        ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
+                                    ReorderableForEach(items: game.playerScores.sorted(by: { pScore1, pScore2 in
                             
-                            game.total(for: pScore1) > game.total(for: pScore2) && self.orderedBy == .scoreUp
-                            ||
-                            game.total(for: pScore1) < game.total(for: pScore2) && self.orderedBy == .scoreDown
-                            ||
-                            game.indexOf(player: pScore1.player)! < game.indexOf(player: pScore2.player)!
+                                        game.total(for: pScore1) > game.total(for: pScore2) && self.orderedBy == .scoreUp
+                                        ||
+                                        game.total(for: pScore1) < game.total(for: pScore2) && self.orderedBy == .scoreDown
+                                        ||
+                                        game.indexOf(player: pScore1.player)! < game.indexOf(player: pScore2.player)!
                             
-                        }), draggingItem: $draggedCard, hasChangedLocation: $cardMoved) { playerScore in
-                            ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, indexForEditView: $idxForEditView, displayEditView: $displayEditView ).id(playerScore.id)
-                                .overlay(alignment: .bottom) {
-                                    if endsFirstTeam(playerScore) {
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.5))
-                                            .frame(height: 1)
-                                            .offset(y: CardLayout.spacing / 2 + 0.5)
+                                    }), draggingItem: $draggedCard, hasChangedLocation: $cardMoved) { playerScore in
+                                        ScoreCardView(playerScore:playerScore, scrollReaderProxy: value, indexForEditView: $idxForEditView, displayEditView: $displayEditView ).id(playerScore.id)
+                                            .overlay(alignment: .bottom) {
+                                                if endsFirstTeam(playerScore) {
+                                                    Rectangle()
+                                                        .fill(Color.gray.opacity(0.5))
+                                                        .frame(height: 1)
+                                                        .offset(y: CardLayout.spacing / 2 + 0.5)
+                                                }
+                                            }
+                                    } moveAction: { from, to in
+                                        game.playerScores.move(fromOffsets: from, toOffset: to)
                                     }
                                 }
-                        } moveAction: { from, to in
-                            game.playerScores.move(fromOffsets: from, toOffset: to)
+                                .id("players")
+                                }
+                            }
+                            .environment(\.cardScale, layout.scale)
+                            .environment(\.cardNames, cardNames(for: layout))
+                            .padding(.vertical, CardLayout.spacing)
+                            .frame(maxWidth: .infinity)
+
+                            // Games scoring all the players at once : the round is entered for the whole table
+                            if game.entersRounds, let firstPlayer = game.playerScores.first?.player {
+                                NewRoundButton {
+                                    displayInfo.roundEntryPreselects = false
+                                    displayInfo.roundEntryPlayerID = firstPlayer.id
+                                }
+                                .padding(.horizontal, 20)
+                                // Room for the bottom arrows
+                                .padding(.bottom, 80)
+                            }
                         }
                     }
-                    .id("players")
-                    }
+                    // Always room to scroll the bar out of sight, even with few cards
+                    .frame(minHeight: geometry.size.height + headerHeight, alignment: .top)
                 }
-                .environment(\.cardScale, layout.scale)
-                .environment(\.cardNames, cardNames(for: layout))
-                .padding(.vertical, CardLayout.spacing)
-                .frame(maxWidth: .infinity)
-
-                // Games scoring all the players at once : the round is entered for the whole table
-                if game.entersRounds, let firstPlayer = game.playerScores.first?.player {
-                    NewRoundButton {
-                        displayInfo.roundEntryPreselects = false
-                        displayInfo.roundEntryPlayerID = firstPlayer.id
-                    }
-                    .padding(.horizontal, 20)
-                    // Room for the bottom arrows
-                    .padding(.bottom, 80)
+                .scrollTargetBehavior(HeaderSnap(height: headerHeight))
+                // The bar out of sight stays hidden : not drawn under the status bar
+                .clipped()
+                // The bar hidden to start with
+                .onAppear {
+                    outer.scrollTo("cardsTop", anchor: .top)
                 }
-
-            }
-            // Pulling down changes the order of the cards, not a real refresh
-            .coordinateSpace(name: "pullToReveal")
-            .onChange(of: displayInfo.cardOrder) {
-                showOrderToast()
+                .onChange(of: displayInfo.cardOrder) {
+                    showOrderToast()
+                }
             }
             .onDrop(of: [UTType.text], delegate: DropResetDelegate {
                 withAnimation {
@@ -235,37 +247,15 @@ struct ScoreCardsGridView: View {
 }
 
 // Pulling the cards down changes their order : the ⇡↻⇣ of the app instead of the spinner of iOS
-// Pulled down at the top of the cards : the bar of the game shows. Scrolled up while it shows : it goes away
-struct PullToReveal: View {
-    var coordinateSpaceName: String
-    var isRevealed: Bool
-    var onReveal: () -> Void
-    var onScroll: () -> Void
+// The bar of the game is either shown or out of sight : a scroll stopping halfway goes to the nearest
+struct HeaderSnap: ScrollTargetBehavior {
+    var height: CGFloat
     
-    static let threshold = CGFloat(50)
-    
-    @State private var armed = false
-    
-    var body: some View {
-        GeometryReader { geo in
-            // How far the content is pulled below the top of the scroll view
-            let pull = geo.frame(in: .named(coordinateSpaceName)).minY
-            
-            Color.clear
-                .onChange(of: pull) { _, pull in
-                    if pull > PullToReveal.threshold && !armed && !isRevealed {
-                        armed = true
-                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                    } else if pull < 5 && armed {
-                        // Released
-                        armed = false
-                        onReveal()
-                    } else if pull < -12 && isRevealed {
-                        onScroll()
-                    }
-                }
+    func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
+        let y = target.rect.minY
+        if height > 0 && y < height {
+            target.rect.origin.y = y < height / 2 ? 0 : height
         }
-        .frame(height: 0)
     }
 }
 

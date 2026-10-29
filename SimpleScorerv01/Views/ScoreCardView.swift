@@ -149,14 +149,14 @@ struct ScoreCardView: View {
                     }
                 }
                 .background(GeometryReader { geo -> Color in
-                    DispatchQueue.main.async {
-                            if geo.frame(in: .global).maxY > UIScreen.main.bounds.maxY {
-                                self.isOverflowingScreen = true
-                            } else {
-                                self.isOverflowingScreen = false
-                            }
+                    // Measured at every frame of a scroll : the state changes only when it has to
+                    let overflowing = geo.frame(in: .global).maxY > UIScreen.main.bounds.maxY
+                    if overflowing != self.isOverflowingScreen {
+                        DispatchQueue.main.async {
+                            self.isOverflowingScreen = overflowing
                         }
-                        return Color.clear
+                    }
+                    return Color.clear
                     })
                 .clipShape(Rectangle()).cornerRadius(14)
                 .overlay(

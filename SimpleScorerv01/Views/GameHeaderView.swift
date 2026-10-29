@@ -9,7 +9,7 @@
 import SwiftUI
 
 // Top of the scores screens : the game played and its options, discreet like the arrows at the bottom.
-// Hidden while playing : a pull on the cards shows it, scrolling the cards hides it again
+// Above the cards and scrolling with them : out of sight while playing, the cards pulled down show it
 struct GameHeaderView: View {
 
     @EnvironmentObject var game : Game

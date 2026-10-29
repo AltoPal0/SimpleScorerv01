@@ -23,11 +23,6 @@ struct GameScoreView: View {
     // The game can't be played with this number of players (Coinche with 5...)
     @State private var playerCountAlert = false
     
-    // The game played, on top of the scores screens once pulled down
-    var showGameHeader: Bool {
-        self.game.rules != nil && self.displayInfo.screenDisplayed <= .scoreCards && self.displayInfo.showsGameHeader
-    }
-    
     // Width of the columns of scores : 64 per column with its spacing, and the side margins
     func columnsWidth() -> CGFloat {
         CGFloat(self.game.playerScores.count) * 72 + 48
@@ -48,12 +43,6 @@ struct GameScoreView: View {
                     Color.offWhite.edgesIgnoringSafeArea(.all).zIndex(-1)
                 }
                 VStack(spacing: 0) {
-                    if self.showGameHeader {
-                        GameHeaderView()
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                            .zIndex(1)
-                    }
-                    
                     ZStack {
                         if dual {
                             HStack(spacing: 0) {
@@ -84,7 +73,6 @@ struct GameScoreView: View {
                             .modifier(cubeRotation(dragOffset: $dragOffset, screen: .history, screenWidth: geometry.size.width))
                     }
                 }
-                .animation(.easeInOut(duration: 0.3), value: self.showGameHeader)
                 .onAppear { self.updateDualLayout(dual) }
                 // Leaving the setup for the scores : the number of players must suit the game
                 .onChange(of: self.displayInfo.screenDisplayed) { previous, screen in
