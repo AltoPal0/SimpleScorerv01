@@ -28,6 +28,9 @@ struct ScoreCardView: View {
     @State private var scoreEditing = false
     @State private var showKeyPad = false
     @State private var molkkyAlert : Game.MolkkyWarning?
+    // Shanghai : singles, doubles and triples of the turn being entered
+    @State private var shanghaiHits = [0, 0, 0]
+    @State private var confirmDelete = false
     
     @State private var nameEditing = false
     @State private var username = ""
@@ -60,19 +63,21 @@ struct ScoreCardView: View {
                     Spacer()
                     
                     Button(action: {
-                        if let index = self.playerScore.player.gradientIndex {
-                            self.displayInfo.gradientIndices.append(index)
-                        }
-                        withAnimation {
-                            self.game.removePlayer(player: self.playerScore.player)
-                            self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
-                        }
-                        self.displayInfo.showBottomButtons = true
+                        self.confirmDelete = true
                     }) {
                         Image(systemName: "trash.circle")
                             .font(.system(size: 45 * scale, weight: .light, design: .default))
                             .foregroundColor(Color.offRed)
                             .contentShape(Rectangle()).frame(height: self.frameHeight*2/3)
+                    }
+                    // The player and all his scores go : asked before
+                    .alert(L("Delete %@?", self.playerScore.player.name), isPresented: $confirmDelete) {
+                        Button(L("Delete"), role: .destructive) {
+                            self.deletePlayer()
+                        }
+                        Button(L("Cancel"), role: .cancel) {}
+                    } message: {
+                        Text(L("His scores are deleted as well."))
                     }
                     
                     Button(action: {
@@ -118,15 +123,6 @@ struct ScoreCardView: View {
                             if self.showKeyPad && self.game.activeKind == .molkky {
                                 MolkkyPadView { pins in
                                     self.commitPoints(pins)
-                                }
-                                    .frame(height: frameHeight*4/3)
-                                    .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
-                                    .padding([.horizontal,.bottom],3)
-                                    .disabled(self.dragOffset.width != 0)
-                                    .font(.system(size: 20 * scale, design: .rounded))
-                            } else if self.showKeyPad && self.game.isShanghai, let number = self.game.shanghaiNumber(for: self.playerScore) {
-                                ShanghaiPadView(number: number) { hits in
-                                    self.commitPoints(Darts.shanghaiPoints(number: number, hits: hits), marks: hits)
                                 }
                                     .frame(height: frameHeight*4/3)
                                     .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
@@ -244,7 +240,7 @@ struct ScoreCardView: View {
         if self.game.activeKind == .molkky {
             self.showKeyPad = true
         } else if self.game.isShanghai {
-            self.showKeyPad = true
+            self.showKeyPad = false
         } else if self.displayInfo.scoreCardSize == .compact {
                 self.showKeyPad.toggle()
         }
@@ -341,6 +337,17 @@ struct ScoreCardView: View {
         return offset
     }
     
+    func deletePlayer() {
+        if let index = self.playerScore.player.gradientIndex {
+            self.displayInfo.gradientIndices.append(index)
+        }
+        withAnimation {
+            self.game.removePlayer(player: self.playerScore.player)
+            self.displayInfo.setSizeAndScroll(nbrPlayers: self.game.playerScores.count)
+        }
+        self.displayInfo.showBottomButtons = true
+    }
+    
     // Around the clock : a number reached is a +1, going back takes the last one off
     func moveOnClock(by step: Int) {
         let position = self.game.total(for: self.playerScore)
@@ -357,6 +364,7 @@ struct ScoreCardView: View {
         self.game.addPointsFor(player: self.playerScore.player, points: points, marks: marks)
         self.pointsScored = 0
         self.sign = 1
+        self.shanghaiHits = [0, 0, 0]
         self.scoreEditing = false
         self.showKeyPad = false
         if self.displayInfo.scoreCardSize == .compact {
@@ -410,6 +418,7 @@ struct ScoreCardView: View {
                         self.displayInfo.showBottomButtons = true
                         self.pointsScored = 0
                         self.sign = 1
+                        self.shanghaiHits = [0, 0, 0]
                         self.scoreEditing = false
                         self.showKeyPad = false
                         if self.displayInfo.scoreCardSize == .compact {
@@ -424,7 +433,9 @@ struct ScoreCardView: View {
             HStack {
                 if scoreEditing {
                     
-                    Text(verbatim: self.game.countsDown
+                    Text(verbatim: self.game.isShanghai
+                         ? "\(self.game.total(for: self.playerScore)) + \(self.shanghaiPoints)"
+                         : self.game.countsDown
                          ? "\(self.game.displayedTotal(for: self.playerScore)) - \(String(format: "%.0f",abs(self.pointsScored)))"
                          : "\(self.game.total(for: self.playerScore)) \(self.sign >= 0 ? "+" : "-") \( String(format: "%.0f",abs(self.pointsScored)))")
                         .font(Font.system(size: 25 * scale, weight: .bold, design: .rounded))
@@ -438,7 +449,11 @@ struct ScoreCardView: View {
                             .overlay(Image(systemName: "checkmark").foregroundColor(Color.white).font(.system(size: 17 * scale)))
                             .frame(minWidth:70 * scale, maxWidth:70 * scale, maxHeight: .infinity)
                             .onTapGesture {
-                                self.commitPoints(Int(String(format: "%.0f",abs(self.pointsScored) * sign))!)
+                                if self.game.isShanghai {
+                                    self.commitPoints(self.shanghaiPoints, marks: self.shanghaiHits)
+                                } else {
+                                    self.commitPoints(Int(String(format: "%.0f",abs(self.pointsScored) * sign))!)
+                                }
                         }
                 } else {
                     VStack(alignment: .trailing, spacing: 0) {
@@ -463,7 +478,41 @@ struct ScoreCardView: View {
         }
     }
     
-    var ScoringBottomBarTools: some View {
+    var shanghaiPoints: Int {
+        Darts.shanghaiPoints(number: self.game.shanghaiNumber(for: self.playerScore) ?? 0, hits: self.shanghaiHits)
+    }
+    
+    // Shanghai : a tap per dart on the number of the round, 3 darts at most
+    var ShanghaiBottomBar: some View {
+        HStack (spacing: 0) {
+            ForEach(Array([L("Single"), L("Double"), L("Triple")].enumerated()), id: \.offset) { index, label in
+                Button(action: {
+                    // 3 darts, and only during the 7 rounds
+                    guard self.shanghaiHits.reduce(0, +) < 3, self.game.shanghaiNumber(for: self.playerScore) != nil else { return }
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    self.scoreEditing = true
+                    self.shanghaiHits[index] += 1
+                }) {
+                    Text(self.shanghaiHits[index] > 0 ? "\(label) ×\(self.shanghaiHits[index])" : label)
+                        .foregroundColor(.purpleStart)
+                        .fontWeight(self.shanghaiHits[index] > 0 ? .heavy : .regular)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+                .buttonStyle(SimpleRectButtonStyle())
+            }
+        }
+    }
+    
+    @ViewBuilder var ScoringBottomBarTools: some View {
+        if self.game.isShanghai {
+            ShanghaiBottomBar
+        } else {
+            PointsBottomBar
+        }
+    }
+    
+    var PointsBottomBar: some View {
         HStack (spacing: 0) {
             
             Button(action: {
@@ -476,7 +525,7 @@ struct ScoreCardView: View {
                 self.sign = self.pointsScored <= 0 ? -1 : 1
                 self.pointsScored -= 1
             }) {
-                Image(systemName: "minus.rectangle")
+                Image(systemName: self.game.entersPosition ? "arrow.left.square" : "minus.rectangle")
                     .foregroundColor(.purpleStart)
             }
             .buttonStyle(SimpleRectButtonStyle())
@@ -508,7 +557,7 @@ struct ScoreCardView: View {
                 self.sign = self.pointsScored >= 0 ? 1 : -1
                 self.pointsScored += 1
             }) {
-                Image(systemName: "plus.rectangle")
+                Image(systemName: self.game.entersPosition ? "arrow.right.square" : "plus.rectangle")
                     .foregroundColor(.purpleStart)
             }
             .buttonStyle(SimpleRectButtonStyle())

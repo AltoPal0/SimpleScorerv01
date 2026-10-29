@@ -68,6 +68,7 @@
 "Defense" = "Defense";
 "Defense card points" = "Defense card points";
 "Delete" = "Delete";
+"Delete %@?" = "Delete %@?";
 "Done" = "Done";
 "Double" = "Double";
 "Double poignée" = "Double poignée";
@@ -92,8 +93,9 @@
 "Given to the opponents · cut-throat, lowest wins" = "Given to the opponents · cut-throat, lowest wins";
 "Hands" = "Hands";
 "Highest first" = "Highest first";
-"Hit 1 to 20 in order, then the bull. + and − move the player to the number reached." = "Hit 1 to 20 in order, then the bull. + and − move the player to the number reached.";
-"Hit 1, then 2… up to 20, then the bull (21). Each turn, + and − move the player to the number reached. First to the bull wins." = "Hit 1, then 2… up to 20, then the bull (21). Each turn, + and − move the player to the number reached. First to the bull wins.";
+"His scores are deleted as well." = "His scores are deleted as well.";
+"Hit 1 to 20 in order, then the bull. The arrows move the player to the number reached." = "Hit 1 to 20 in order, then the bull. The arrows move the player to the number reached.";
+"Hit 1, then 2… up to 20, then the bull (21). Each turn, the arrows move the player to the number reached. First to the bull wins." = "Hit 1, then 2… up to 20, then the bull (21). Each turn, the arrows move the player to the number reached. First to the bull wins.";
 "Kamikaze hand" = "Kamikaze hand";
 "Kamikaze · %@" = "Kamikaze · %@";
 "Keep playing" = "Keep playing";

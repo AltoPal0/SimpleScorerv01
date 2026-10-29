@@ -115,6 +115,13 @@ struct ScoreCardsGridView: View {
                     }
                     showOrderToast()
                 }
+                // Shanghai : the number aimed at this round, right above the cards
+                if let number = game.shanghaiNumber {
+                    Label(L("Aim at %ld", number), systemImage: "scope")
+                        .font(Font.system(size: 22, weight: .semibold, design: .rounded))
+                        .foregroundColor(.gray)
+                        .padding(.top, CardLayout.spacing)
+                }
                 ScrollViewReader { value in
                     // Teams and players are two grids of their own : sharing one grid with the same ids
                     // left stale cards on screen when switching between them (reset of a Coinche game)

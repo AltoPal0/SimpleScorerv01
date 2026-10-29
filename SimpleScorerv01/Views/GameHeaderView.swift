@@ -34,14 +34,6 @@ struct GameHeaderView: View {
                     .padding(.leading, 8)
             }
 
-            // Shanghai : the number aimed at this round
-            if let number = game.shanghaiNumber {
-                Label(L("Aim at %ld", number), systemImage: "scope")
-                    .font(Font.system(size: 15, weight: .light, design: .rounded))
-                    .foregroundColor(.gray)
-                    .padding(.leading, 8)
-            }
-
             Spacer()
 
             if game.rules?.isInLibrary == true {
@@ -121,7 +113,7 @@ struct GameOptionsView: View {
                     ? L("Only 15 to 20 and the bull count. 3 marks close a number (double = 2, triple = 3). Once closed, each new hit gives its points to the opponents who haven't closed it. Tap the numbers hit on the board, the points are counted : close everything with the fewest points to win.")
                     : L("Only 15 to 20 and the bull count. 3 marks close a number (double = 2, triple = 3). Once closed, each new hit scores its points for you while an opponent hasn't closed it. Tap the numbers hit on the board, the points are counted : close everything with the most points to win.")
             case .aroundTheClock?:
-                return L("Hit 1, then 2… up to 20, then the bull (21). Each turn, + and − move the player to the number reached. First to the bull wins.")
+                return L("Hit 1, then 2… up to 20, then the bull (21). Each turn, the arrows move the player to the number reached. First to the bull wins.")
             case .shanghai?:
                 return L("7 rounds : round 1 on the 1, round 2 on the 2… Count the singles, doubles and triples of that number, the points are counted. Hitting all three in one turn is a Shanghai and wins at once. Otherwise the highest score after 7 rounds wins.")
             case nil:

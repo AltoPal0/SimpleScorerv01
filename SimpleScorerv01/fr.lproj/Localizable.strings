@@ -66,6 +66,7 @@
 "Defense" = "Défense";
 "Defense card points" = "Points de la défense";
 "Delete" = "Supprimer";
+"Delete %@?" = "Supprimer %@ ?";
 "Done" = "OK";
 "Double" = "Double";
 "Double poignée" = "Double poignée";
@@ -90,8 +91,9 @@
 "Given to the opponents · cut-throat, lowest wins" = "Donnés aux adversaires · cut-throat, le plus bas gagne";
 "Hands" = "Mains";
 "Highest first" = "Meilleur score d'abord";
-"Hit 1 to 20 in order, then the bull. + and − move the player to the number reached." = "Touchez les numéros de 1 à 20 dans l'ordre, puis le bull. + et − placent le joueur sur le numéro atteint.";
-"Hit 1, then 2… up to 20, then the bull (21). Each turn, + and − move the player to the number reached. First to the bull wins." = "Touchez le 1, puis le 2… jusqu'au 20, puis le bull (21). À chaque volée, + et − placent le joueur sur le numéro atteint. Le premier au bull gagne.";
+"His scores are deleted as well." = "Ses scores sont supprimés aussi.";
+"Hit 1 to 20 in order, then the bull. The arrows move the player to the number reached." = "Touchez les numéros de 1 à 20 dans l'ordre, puis le bull. Les flèches placent le joueur sur le numéro atteint.";
+"Hit 1, then 2… up to 20, then the bull (21). Each turn, the arrows move the player to the number reached. First to the bull wins." = "Touchez le 1, puis le 2… jusqu'au 20, puis le bull (21). À chaque volée, les flèches placent le joueur sur le numéro atteint. Le premier au bull gagne.";
 "Kamikaze hand" = "Main kamikaze";
 "Kamikaze · %@" = "Kamikaze · %@";
 "Keep playing" = "Continuer à jouer";

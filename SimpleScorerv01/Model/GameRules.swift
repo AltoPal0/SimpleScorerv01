@@ -37,7 +37,7 @@ enum DartsVariant: String, CaseIterable {
         case .x501: return L("From 501 down to exactly 0, each turn takes off its points. Over 0 is a bust.")
         case .x301: return L("The same from 301 : a shorter game.")
         case .cricket: return L("Close 15 to 20 and the bull with 3 marks each, on a board : the points are counted.")
-        case .aroundTheClock: return L("Hit 1 to 20 in order, then the bull. + and − move the player to the number reached.")
+        case .aroundTheClock: return L("Hit 1 to 20 in order, then the bull. The arrows move the player to the number reached.")
         case .shanghai: return L("7 rounds, aim at the number of the round. Single, double and triple at once : Shanghai!")
         }
     }
