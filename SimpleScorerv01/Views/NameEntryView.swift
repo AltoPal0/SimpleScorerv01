@@ -74,7 +74,9 @@ struct NameEntryView: View {
                                     numberOfPreviousPlayers: previousPlayers.count
                                 )
                                 .padding(.vertical)
-                                .transition(.slide)
+                                // Named : the card flies out of the screen to the right, the next one is already under it
+                                .transition(.asymmetric(insertion: .opacity,
+                                                        removal: .offset(x: geometry.size.width).combined(with: .opacity)))
                             }
                         }
                     }
@@ -437,7 +439,7 @@ struct NameCardView : View {
             self.username = "P\(index+1)"
         }
         
-        withAnimation {
+        withAnimation(.easeOut(duration: 0.3)) {
             game.playerScores[index].player.name = username
         }
         
@@ -465,8 +467,9 @@ struct cardStackMove: ViewModifier {
     @EnvironmentObject var game : Game
     var playerScore : PlayerScore
     
+    // The card leaving once named is no longer among the unnamed players : it keeps the place of the top card
     private func indexNoName (for playerScore: PlayerScore) -> Int? {
-        return self.game.indexOfPlayerWithNoName(playerScore: playerScore)
+        return max(0, self.game.indexOfPlayerWithNoName(playerScore: playerScore))
     }
     
     private func index(for playerScore: PlayerScore) -> Int? {
@@ -478,11 +481,11 @@ struct cardStackMove: ViewModifier {
     }
     
     private func zIndex(for playerScore: PlayerScore) -> Double {
-        
-        guard let cardIndex = indexNoName(for: playerScore) else {
-            return 0.0
+        let cardIndex = self.game.indexOfPlayerWithNoName(playerScore: playerScore)
+        // Leaving : over the new top card until out of the screen
+        if cardIndex < 0 {
+            return 1
         }
-        
         return -Double(cardIndex)
     }
     
