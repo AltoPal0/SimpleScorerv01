@@ -291,7 +291,7 @@ struct CricketRoundView: View {
             RoundPreview(points: points,
                          caption: L("Next : %@", players[(throwerIndex + 1) % players.count].player.name))
         } confirm: {
-            ConfirmBar(isEnabled: true) {
+            ConfirmBar(isEnabled: true, darts: taps.count) {
                 onConfirm(points, [throwerID : hits])
                 clearTurn()
                 throwerID = game.cricketNextThrower ?? throwerID
@@ -777,15 +777,26 @@ struct RoundPreview: View {
 
 struct ConfirmBar: View {
     var isEnabled : Bool
+    // Cricket : a small dart for each tap of the turn, to follow how many were entered
+    var darts = 0
     var action : () -> Void
 
     var body: some View {
         RoundedRectangle(cornerRadius: 14)
             .fill(LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: UnitPoint(x: 0.2, y: 0.2), endPoint: UnitPoint(x: 0.8, y: 0.8)))
             .overlay(
-                Image(systemName: "checkmark")
-                    .font(.system(size: 30, weight: .semibold))
-                    .foregroundColor(.offWhite)
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 30, weight: .semibold))
+                        .foregroundColor(.offWhite)
+                    if darts > 0 {
+                        Text(String(repeating: "🎯", count: darts))
+                            .font(.system(size: 16))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
+                }
+                .padding(.horizontal)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
