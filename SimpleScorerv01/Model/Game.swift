@@ -119,6 +119,16 @@ class Game : ObservableObject {
         Darts.cricketMarks(of: playerScore.pointsList.compactMap { $0.marks })
     }
 
+    // Cricket : each turn is a line of the scores, with the marks of the player who threw. The next one follows him
+    var cricketNextThrower : UUID? {
+        guard !playerScores.isEmpty else { return nil }
+        let round = currentMaxNumberOfRounds() - 1
+        guard let last = playerScores.firstIndex(where: { $0.pointsList.indices.contains(round) && $0.pointsList[round].marks != nil }) else {
+            return playerScores.first?.player.id
+        }
+        return playerScores[(last + 1) % playerScores.count].player.id
+    }
+
     func hasClosedAll(_ playerScore : PlayerScore) -> Bool {
         cricketMarks(for: playerScore).allSatisfy { $0 >= Darts.marksToClose }
     }

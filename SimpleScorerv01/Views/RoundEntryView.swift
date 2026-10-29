@@ -36,11 +36,15 @@ struct RoundEntryView: View {
             case .cabo:
                 CaboRoundView(callerID: playerID, onConfirm: confirm)
             case .darts:
-                CricketRoundView(throwerID: playerID) { points, marks in
+                // From the New round button : the next player in turn
+                CricketRoundView(throwerID: displayInfo.roundEntryPreselects ? playerID : game.cricketNextThrower ?? playerID) { points, marks in
                     withAnimation {
                         game.addRound(points: points, marks: marks)
                     }
-                    displayInfo.roundEntryPlayerID = nil
+                    // The board stays for the next player, until someone wins
+                    if game.winner() != nil {
+                        displayInfo.roundEntryPlayerID = nil
+                    }
                 }
             default:
                 EmptyView()
@@ -175,7 +179,7 @@ struct PetanqueRoundView: View {
 
 // MARK: - Cricket
 
-// The board of the round : each player throws in turn, a tap on a number adds a mark to the one throwing
+// The board : a tap on a number adds a mark to the player throwing. Each turn is saved once done, a line of the scores
 struct CricketRoundView: View {
 
     @EnvironmentObject var game : Game
@@ -183,10 +187,10 @@ struct CricketRoundView: View {
     @State var throwerID : UUID
     var onConfirm : ([UUID : Int], [UUID : [Int]]) -> Void
 
-    // Marks of this round on each number, by player
-    @State private var hits : [UUID : [Int]] = [:]
-    // Numbers tapped by each player, the last one goes first when undone
-    @State private var taps : [UUID : [Int]] = [:]
+    // Marks of this turn on each number
+    @State private var hits = Array(repeating: 0, count: Darts.cricketNumbers.count)
+    // Numbers tapped, the last one goes first when undone
+    @State private var taps : [Int] = []
 
     var players : [PlayerScore] { game.playerScores }
 
@@ -194,46 +198,44 @@ struct CricketRoundView: View {
         players.firstIndex { $0.player.id == throwerID } ?? 0
     }
 
-    func turnHits(_ id : UUID) -> [Int] {
-        hits[id] ?? Array(repeating: 0, count: Darts.cricketNumbers.count)
+    var savedMarks : [[Int]] {
+        players.map { game.cricketMarks(for: $0) }
     }
 
-    // The marks of everyone once this round is added
+    // The marks of everyone once this turn is added
     var boardMarks : [[Int]] {
-        players.map { playerScore in
-            zip(game.cricketMarks(for: playerScore), turnHits(playerScore.player.id)).map { $0 + $1 }
-        }
+        var marks = savedMarks
+        marks[throwerIndex] = zip(marks[throwerIndex], hits).map { $0 + $1 }
+        return marks
     }
 
-    // The players throw in turn : the points of each turn depend on what the others had closed before
+    // For the player, or for the opponents still open when cut-throat
     var points : [UUID : Int] {
-        var marks = players.map { game.cricketMarks(for: $0) }
         var points = [UUID : Int]()
-        for index in players.indices {
-            let turn = turnHits(players[index].player.id)
-            for (scorer, value) in Darts.cricketPoints(hits: turn, player: index, marks: marks, cutThroat: game.options.cricketCutThroat) {
-                points[players[scorer].player.id, default: 0] += value
-            }
-            marks[index] = zip(marks[index], turn).map { $0 + $1 }
+        for (scorer, value) in Darts.cricketPoints(hits: hits, player: throwerIndex, marks: savedMarks, cutThroat: game.options.cricketCutThroat) {
+            points[players[scorer].player.id] = value
         }
         return points
     }
 
     func addHit(on index : Int) {
-        let turn = turnHits(throwerID)
         let isBull = Darts.cricketNumbers[index] == 25
-        guard turn.reduce(0, +) < Darts.maxMarksPerTurn,
-              !isBull || turn[index] < Darts.maxBullMarksPerTurn else { return }
+        guard hits.reduce(0, +) < Darts.maxMarksPerTurn,
+              !isBull || hits[index] < Darts.maxBullMarksPerTurn else { return }
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-        var newTurn = turn
-        newTurn[index] += 1
-        hits[throwerID] = newTurn
-        taps[throwerID, default: []].append(index)
+        hits[index] += 1
+        taps.append(index)
     }
 
     func undoHit() {
-        guard let index = taps[throwerID]?.popLast() else { return }
-        hits[throwerID]?[index] -= 1
+        guard let index = taps.popLast() else { return }
+        hits[index] -= 1
+    }
+
+    // Another player picked : his turn starts from nothing
+    func clearTurn() {
+        hits = Array(repeating: 0, count: Darts.cricketNumbers.count)
+        taps = []
     }
 
     var body: some View {
@@ -243,7 +245,7 @@ struct CricketRoundView: View {
             }
 
             VStack(spacing: 6) {
-                // Who each column is, with his score once the round is added
+                // Who each column is, with his score once the turn is added
                 HStack(spacing: 6) {
                     Color.clear.frame(width: 56, height: 1)
                     ForEach(players) { playerScore in
@@ -268,7 +270,7 @@ struct CricketRoundView: View {
                             .frame(width: 56, alignment: .leading)
                         ForEach(Array(players.enumerated()), id: \.element.id) { playerIndex, playerScore in
                             CricketMarkCell(marks: boardMarks[playerIndex][index],
-                                            turnMarks: turnHits(playerScore.player.id)[index],
+                                            turnMarks: playerIndex == throwerIndex ? hits[index] : 0,
                                             playerScore: playerScore,
                                             isThrowing: playerIndex == throwerIndex)
                         }
@@ -281,25 +283,22 @@ struct CricketRoundView: View {
                 }
             }
 
-            HStack(spacing: 8) {
-                ChoiceChip(label: "↺ " + L("Undo"), isSelected: false, fullWidth: true) {
-                    undoHit()
-                }
-                .opacity(taps[throwerID]?.isEmpty == false ? 1 : 0.4)
-                if throwerIndex < players.count - 1 {
-                    ChoiceChip(label: L("Next : %@", players[throwerIndex + 1].player.name), isSelected: true, fullWidth: true) {
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            throwerID = players[throwerIndex + 1].player.id
-                        }
-                    }
-                }
+            ChoiceChip(label: "↺ " + L("Undo"), isSelected: false, fullWidth: true) {
+                undoHit()
             }
+            .opacity(taps.isEmpty ? 0.4 : 1)
         } preview: {
-            RoundPreview(points: points)
+            RoundPreview(points: points,
+                         caption: L("Next : %@", players[(throwerIndex + 1) % players.count].player.name))
         } confirm: {
             ConfirmBar(isEnabled: true) {
-                onConfirm(points, Dictionary(uniqueKeysWithValues: players.map { ($0.player.id, turnHits($0.player.id)) }))
+                onConfirm(points, [throwerID : hits])
+                clearTurn()
+                throwerID = game.cricketNextThrower ?? throwerID
             }
+        }
+        .onChange(of: throwerID) {
+            clearTurn()
         }
     }
 }
