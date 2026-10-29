@@ -45,7 +45,7 @@ struct BottomButtonsView: View {
                 if self.displayInfo.screenDisplayed == .gameSetup {
                     Image(systemName: "gearshape")
                         .font(.system(.largeTitle, design: .rounded).weight(.light))
-                        .foregroundColor(Color.gray)
+                        .foregroundColor(Color.gray.opacity(0.5))
                         .contentShape(Circle())
                         .onTapGesture {
                             self.showSettings = true

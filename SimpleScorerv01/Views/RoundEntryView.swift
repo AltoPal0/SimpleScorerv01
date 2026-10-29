@@ -785,19 +785,24 @@ struct ConfirmBar: View {
         RoundedRectangle(cornerRadius: 14)
             .fill(LinearGradient(gradient: Gradient(colors: [Color.red, Color.orange, Color.purple]), startPoint: UnitPoint(x: 0.2, y: 0.2), endPoint: UnitPoint(x: 0.8, y: 0.8)))
             .overlay(
-                HStack(spacing: 12) {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 30, weight: .semibold))
-                        .foregroundColor(.offWhite)
-                    if darts > 0 {
-                        Text(String(repeating: "🎯", count: darts))
-                            .font(.system(size: 16))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 30, weight: .semibold))
+                    .foregroundColor(.offWhite)
+            )
+            // The darts on the left, the checkmark stays in the middle
+            .overlay(alignment: .leading) {
+                // 9 marks at most in a turn : still clear of the checkmark on a small iPhone
+                HStack(spacing: 1) {
+                    ForEach(0..<darts, id: \.self) { _ in
+                        Image("dart")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 15, height: 15)
+                            .foregroundColor(.offWhite)
                     }
                 }
-                .padding(.horizontal)
-            )
+                .padding(.leading, 12)
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
                     .stroke(Color.offWhite, lineWidth: 1)
