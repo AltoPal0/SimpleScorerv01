@@ -17,6 +17,8 @@ struct GameSnapshot: Codable {
         var initials: String
         var gradientIndex: Int?
         var points: [Int]
+        // Darts : the hits of each turn, nil for the other games
+        var marks: [[Int]]? = nil
     }
 
     var players: [SavedPlayer]

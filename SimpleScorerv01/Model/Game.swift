@@ -76,6 +76,11 @@ class Game : ObservableObject {
         activeKind == .darts && rules?.darts?.countsDown == true
     }
 
+    // Around the clock : the players move from a number to the next, the card shows where they are
+    var entersPosition : Bool {
+        activeKind == .darts && rules?.darts == .aroundTheClock
+    }
+
     // The big number of the cards and columns
     func displayedTotal(for playerScore : PlayerScore) -> Int {
         if countsDown, let remaining = remaining(for: playerScore) {
@@ -86,7 +91,7 @@ class Game : ObservableObject {
 
     // Shanghai : the number aimed at by the players still to play this round, nil once the 7 rounds are over
     var shanghaiNumber : Int? {
-        guard activeKind == .darts, rules?.darts == .shanghai else { return nil }
+        guard isShanghai else { return nil }
         let round = (playerScores.map { $0.pointsList.count }.min() ?? 0) + 1
         return round <= Darts.shanghaiRounds ? round : nil
     }
@@ -97,7 +102,55 @@ class Game : ObservableObject {
     }
 
     var lowestScoreWins : Bool {
-        return rules?.lowestScoreWins == true || (activeKind == .uno && options.unoLowestWins)
+        return rules?.lowestScoreWins == true || (activeKind == .uno && options.unoLowestWins) || (isCricket && options.cricketCutThroat)
+    }
+
+    // MARK: - Darts
+    var isCricket : Bool {
+        activeKind == .darts && rules?.darts == .cricket
+    }
+
+    var isShanghai : Bool {
+        activeKind == .darts && rules?.darts == .shanghai
+    }
+
+    // Cricket : the marks of the player on 20 … 15 and the bull
+    func cricketMarks(for playerScore : PlayerScore) -> [Int] {
+        Darts.cricketMarks(of: playerScore.pointsList.compactMap { $0.marks })
+    }
+
+    func hasClosedAll(_ playerScore : PlayerScore) -> Bool {
+        cricketMarks(for: playerScore).allSatisfy { $0 >= Darts.marksToClose }
+    }
+
+    // Shanghai : the number aimed at by this player on his next turn, nil once his 7 rounds are played
+    func shanghaiNumber(for playerScore : PlayerScore) -> Int? {
+        let round = playerScore.pointsList.count + 1
+        return round <= Darts.shanghaiRounds ? round : nil
+    }
+
+    func didShanghai(_ playerScore : PlayerScore) -> Bool {
+        playerScore.pointsList.contains { Darts.isShanghai($0.marks ?? []) }
+    }
+
+    // Darts without a target to reach : who won, nil while the game goes on
+    func dartsWinner() -> PlayerScore? {
+        if isCricket {
+            // Everything closed, with the best score
+            return playerScores.first { playerScore in
+                hasClosedAll(playerScore) && playerScores.allSatisfy {
+                    lowestScoreWins ? total(for: playerScore) <= total(for: $0) : total(for: playerScore) >= total(for: $0)
+                }
+            }
+        }
+        if isShanghai {
+            if let shanghai = playerScores.first(where: { didShanghai($0) }) {
+                return shanghai
+            }
+            guard playerScores.allSatisfy({ shanghaiNumber(for: $0) == nil }) else { return nil }
+            return playerScores.max { total(for: $0) < total(for: $1) }
+        }
+        return nil
     }
 
     func isEliminated(_ playerScore : PlayerScore) -> Bool {
@@ -150,6 +203,9 @@ class Game : ObservableObject {
     }
 
     func winner() -> PlayerScore? {
+        if activeKind == .darts, let winner = dartsWinner() {
+            return winner
+        }
         guard let target = target else { return nil }
 
         if activeKind == .molkky {
@@ -198,7 +254,8 @@ class Game : ObservableObject {
                     name: playerScore.player.name,
                     initials: playerScore.player.initials,
                     gradientIndex: playerScore.player.gradientIndex,
-                    points: playerScore.pointsList.map { $0.score })
+                    points: playerScore.pointsList.map { $0.score },
+                    marks: playerScore.savedMarks)
             },
             gameName: rules?.name,
             recordID: recordID,
@@ -212,9 +269,7 @@ class Game : ObservableObject {
             var playerScore = PlayerScore(
                 player: Player(name: saved.name, initials: saved.initials, gradientIndex: saved.gradientIndex),
                 pointsList: [])
-            for points in saved.points {
-                playerScore.addPoints(scoreValue: points)
-            }
+            playerScore.addPoints(saved.points, marks: saved.marks)
             return playerScore
         }
         
@@ -238,9 +293,7 @@ class Game : ObservableObject {
             var playerScore = PlayerScore(
                 player: Player(id: saved.id, name: saved.name, initials: saved.initials, gradientIndex: saved.gradientIndex),
                 pointsList: [])
-            for points in saved.points {
-                playerScore.addPoints(scoreValue: points)
-            }
+            playerScore.addPoints(saved.points, marks: saved.marks)
             game.playerScores.append(playerScore)
         }
         if let gameName = snapshot.gameName {
@@ -285,20 +338,22 @@ class Game : ObservableObject {
                         initials: playerScore.player.initials,
                         gradientIndex: playerScore.player.gradientIndex,
                         points: playerScore.pointsList.map { $0.score },
-                        total: total(for: playerScore))
+                        total: total(for: playerScore),
+                        marks: playerScore.savedMarks)
                 })
         }
     }
 
     // A whole round at once : every player gets his points, 0 when absent from the dictionary
-    func addRound(points : [UUID : Int]) {
+    func addRound(points : [UUID : Int], marks : [UUID : [Int]] = [:]) {
         let round = self.currentMaxNumberOfRounds()
 
         for index in self.playerScores.indices {
             while self.playerScores[index].pointsList.count < round {
                 self.playerScores[index].addPoints(scoreValue: 0)
             }
-            self.playerScores[index].addPoints(scoreValue: points[self.playerScores[index].player.id] ?? 0)
+            let id = self.playerScores[index].player.id
+            self.playerScores[index].addPoints(scoreValue: points[id] ?? 0, marks: marks[id])
         }
 
         self.maxNbrOfRounds = self.currentMaxNumberOfRounds()
@@ -536,21 +591,21 @@ class Game : ObservableObject {
     
     // MARK: - Score functions
     
-    func addPointsFor(player : Player, points : Int) {
+    func addPointsFor(player : Player, points : Int, marks : [Int]? = nil) {
         
         let nbrOfRounds = self.currentMaxNumberOfRounds()
         let pIndex = self.indexOf(player: player)!
 
         if self.rules?.roundsInSync == false {
             // Players score independently : no 0 to fill the rounds they did not play
-            self.playerScores[pIndex].addPoints(scoreValue: points)
+            self.playerScores[pIndex].addPoints(scoreValue: points, marks: marks)
         } else if self.playerScores[pIndex].pointsList.count == nbrOfRounds {
-            self.playerScores[pIndex].addPoints(scoreValue: points)
+            self.playerScores[pIndex].addPoints(scoreValue: points, marks: marks)
         } else if self.playerScores[pIndex].pointsList.count == (nbrOfRounds - 1) {
-            self.playerScores[pIndex].addPoints(scoreValue: points)
+            self.playerScores[pIndex].addPoints(scoreValue: points, marks: marks)
         } else {
             self.playerScores[pIndex].addPoints(scoreValue: 0)
-            self.addPointsFor(player: player, points: points)
+            self.addPointsFor(player: player, points: points, marks: marks)
         }
         
         self.maxNbrOfRounds = self.currentMaxNumberOfRounds()

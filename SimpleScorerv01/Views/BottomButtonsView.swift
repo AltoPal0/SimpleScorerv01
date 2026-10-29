@@ -13,6 +13,8 @@ struct BottomButtonsView: View {
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     @EnvironmentObject var game : Game
     
+    @State private var showSettings = false
+    
     var body: some View {
         VStack {
             Spacer()
@@ -38,6 +40,24 @@ struct BottomButtonsView: View {
                         }.padding()
                 }
             }
+            // Settings of the app on the setup screen, between the arrows : appearance and language
+            .overlay {
+                if self.displayInfo.screenDisplayed == .gameSetup {
+                    Image(systemName: "gearshape.circle")
+                        .font(.system(.largeTitle, design: .rounded))
+                        .foregroundColor(Color.gray)
+                        .contentShape(Circle())
+                        .onTapGesture {
+                            self.showSettings = true
+                        }.padding()
+                }
+            }
+        }
+        // The screens behind take the new language once the settings are closed
+        .sheet(isPresented: $showSettings, onDismiss: {
+            AppSettings.shared.applyLanguage()
+        }) {
+            SettingsView()
         }
 //        .contentShape(Rectangle())
 //        .gesture(

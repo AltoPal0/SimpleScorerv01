@@ -46,6 +46,58 @@ struct MolkkyPadView: View {
     }
 }
 
+// Shanghai : the singles, doubles and triples of the number of the round, 3 darts at most
+struct ShanghaiPadView: View {
+
+    var number : Int
+    var onCommit : ([Int]) -> Void
+
+    @State private var hits = [0, 0, 0]
+
+    let labels = [L("Single"), L("Double"), L("Triple")]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                ForEach(hits.indices, id: \.self) { index in
+                    Button(action: { add(index) }) {
+                        VStack(spacing: 2) {
+                            Text(labels[index]).fontWeight(.light)
+                            Text(hits[index] > 0 ? "× \(hits[index])" : "\(number * (index + 1))").fontWeight(.heavy)
+                        }
+                        .foregroundColor(.purpleStart)
+                    }
+                    .buttonStyle(SimpleRectButtonStyle())
+                }
+            }
+
+            HStack(spacing: 0) {
+                Button(action: { hits = [0, 0, 0] }) {
+                    Text("↺").foregroundColor(.offRed).fontWeight(.light)
+                }
+                .buttonStyle(SimpleRectButtonStyle())
+
+                // No hit is a turn as well : 0
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                    onCommit(hits)
+                    hits = [0, 0, 0]
+                }) {
+                    Text(Darts.isShanghai(hits) ? "Shanghai !" : "✓  \(Darts.shanghaiPoints(number: number, hits: hits))")
+                        .foregroundColor(.purpleStart).fontWeight(.heavy)
+                }
+                .buttonStyle(SimpleRectButtonStyle())
+            }
+        }
+    }
+
+    func add(_ index: Int) {
+        guard hits.reduce(0, +) < 3 else { return }
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        hits[index] += 1
+    }
+}
+
 struct MolkkyPadView_Previews: PreviewProvider {
     static var previews: some View {
         MolkkyPadView { _ in }

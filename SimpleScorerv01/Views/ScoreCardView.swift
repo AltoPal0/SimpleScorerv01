@@ -124,6 +124,15 @@ struct ScoreCardView: View {
                                     .padding([.horizontal,.bottom],3)
                                     .disabled(self.dragOffset.width != 0)
                                     .font(.system(size: 20 * scale, design: .rounded))
+                            } else if self.showKeyPad && self.game.isShanghai, let number = self.game.shanghaiNumber(for: self.playerScore) {
+                                ShanghaiPadView(number: number) { hits in
+                                    self.commitPoints(Darts.shanghaiPoints(number: number, hits: hits), marks: hits)
+                                }
+                                    .frame(height: frameHeight*4/3)
+                                    .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
+                                    .padding([.horizontal,.bottom],3)
+                                    .disabled(self.dragOffset.width != 0)
+                                    .font(.system(size: 20 * scale, design: .rounded))
                             } else if self.showKeyPad {
                                 KeyPadView(valueDisplayed: $pointsScored, sign: $sign,
                                            extraKey: self.game.activeKind == .scrabble ? "+50" : nil,
@@ -190,6 +199,16 @@ struct ScoreCardView: View {
                 else if self.game.entersRounds {
                     self.displayInfo.roundEntryPlayerID = self.playerScore.player.id
                 }
+                else if self.game.entersPosition {
+                    if self.displayInfo.scoreCardSize == .compact {
+                        withAnimation {
+                            self.showBottomBar.toggle()
+                        }
+                    }
+                }
+                else if self.game.isShanghai && self.game.shanghaiNumber(for: self.playerScore) == nil {
+                    return
+                }
                 else if self.game.isEliminated(self.playerScore) {
                     self.molkkyAlert = .eliminated
                 }
@@ -223,6 +242,8 @@ struct ScoreCardView: View {
     func startScoreEntry() {
         self.scoreEditing = true
         if self.game.activeKind == .molkky {
+            self.showKeyPad = true
+        } else if self.game.isShanghai {
             self.showKeyPad = true
         } else if self.displayInfo.scoreCardSize == .compact {
                 self.showKeyPad.toggle()
@@ -320,9 +341,20 @@ struct ScoreCardView: View {
         return offset
     }
     
-    func commitPoints(_ points: Int) {
+    // Around the clock : a number reached is a +1, going back takes the last one off
+    func moveOnClock(by step: Int) {
+        let position = self.game.total(for: self.playerScore)
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        if step > 0 && position < Darts.clockTargets {
+            self.game.addPointsFor(player: self.playerScore.player, points: 1)
+        } else if step < 0, let last = self.playerScore.pointsList.last {
+            self.game.deletePointsFor(player: self.playerScore.player, round: last.round)
+        }
+    }
+    
+    func commitPoints(_ points: Int, marks: [Int]? = nil) {
         self.displayInfo.showBottomButtons = true
-        self.game.addPointsFor(player: self.playerScore.player, points: points)
+        self.game.addPointsFor(player: self.playerScore.player, points: points, marks: marks)
         self.pointsScored = 0
         self.sign = 1
         self.scoreEditing = false
@@ -435,6 +467,11 @@ struct ScoreCardView: View {
         HStack (spacing: 0) {
             
             Button(action: {
+                // Around the clock : back to the previous number at once
+                if self.game.entersPosition {
+                    self.moveOnClock(by: -1)
+                    return
+                }
                 self.scoreEditing = true
                 self.sign = self.pointsScored <= 0 ? -1 : 1
                 self.pointsScored -= 1
@@ -444,21 +481,29 @@ struct ScoreCardView: View {
             }
             .buttonStyle(SimpleRectButtonStyle())
             
-            Button(action: {
-                self.scoreEditing = true
-                self.showKeyPad.toggle()
-            }) {
-                if showKeyPad {
-                    Image(systemName: "chevron.up.circle")
-                        .foregroundColor(.purpleStart)
-                } else {
-                    Image(systemName: "keyboard.chevron.compact.down")
-                        .foregroundColor(.purpleStart)
+            // Around the clock : only the next number or the previous one, no points to type
+            if !self.game.entersPosition {
+                Button(action: {
+                    self.scoreEditing = true
+                    self.showKeyPad.toggle()
+                }) {
+                    if showKeyPad {
+                        Image(systemName: "chevron.up.circle")
+                            .foregroundColor(.purpleStart)
+                    } else {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                            .foregroundColor(.purpleStart)
+                    }
                 }
+                .buttonStyle(SimpleRectButtonStyle())
             }
-            .buttonStyle(SimpleRectButtonStyle())
             
             Button(action: {
+                // Around the clock : on to the next number at once
+                if self.game.entersPosition {
+                    self.moveOnClock(by: 1)
+                    return
+                }
                 self.scoreEditing = true
                 self.sign = self.pointsScored >= 0 ? 1 : -1
                 self.pointsScored += 1

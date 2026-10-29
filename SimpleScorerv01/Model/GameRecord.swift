@@ -16,6 +16,8 @@ struct RecordedPlayer: Codable, Hashable {
     var gradientIndex: Int?
     var points: [Int]
     var total: Int
+    // Darts : the hits of each turn, nil for the other games
+    var marks: [[Int]]? = nil
 }
 
 // One game of the history : saved from the first points, updated with every score

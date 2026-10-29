@@ -117,11 +117,13 @@ struct GameOptionsView: View {
                     : L("Any dart can finish.")
                 return L("Each turn, enter the points of the 3 darts (180 at most) : they are taken off %ld. Going under 0 is a bust, the turn counts nothing. %@ First to exactly 0 wins.", game.rules?.target ?? 501, finish)
             case .cricket?:
-                return L("Only 15 to 20 and the bull count. 3 hits close a number (double = 2, triple = 3). Once closed, it scores its points for you while still open for an opponent. Enter the points scored each turn : close everything with the most points to win.")
+                return game.options.cricketCutThroat
+                    ? L("Only 15 to 20 and the bull count. 3 marks close a number (double = 2, triple = 3). Once closed, each new hit gives its points to the opponents who haven't closed it. Tap the numbers hit on the board, the points are counted : close everything with the fewest points to win.")
+                    : L("Only 15 to 20 and the bull count. 3 marks close a number (double = 2, triple = 3). Once closed, each new hit scores its points for you while an opponent hasn't closed it. Tap the numbers hit on the board, the points are counted : close everything with the most points to win.")
             case .aroundTheClock?:
-                return L("Hit 1, then 2… up to 20, then the bull. Each turn, enter how many targets in a row were hit. First to the bull wins.")
+                return L("Hit 1, then 2… up to 20, then the bull (21). Each turn, + and − move the player to the number reached. First to the bull wins.")
             case .shanghai?:
-                return L("7 rounds : round 1 on the 1, round 2 on the 2… Single, double and triple of that number score their value. Hitting all three in one turn is a Shanghai and wins at once. Otherwise the highest score after 7 rounds wins.")
+                return L("7 rounds : round 1 on the 1, round 2 on the 2… Count the singles, doubles and triples of that number, the points are counted. Hitting all three in one turn is a Shanghai and wins at once. Otherwise the highest score after 7 rounds wins.")
             case nil:
                 return ""
             }
@@ -202,6 +204,14 @@ struct GameOptionsView: View {
                             RoundSection(title: L("Finish")) {
                                 ChoiceList(items: [true, false], selection: $game.options.dartsDoubleOut) {
                                     $0 ? L("On a double · double out") : L("Any dart · straight out")
+                                }
+                            }
+                        }
+                        
+                        if game.isCricket {
+                            RoundSection(title: L("Points")) {
+                                ChoiceList(items: [false, true], selection: $game.options.cricketCutThroat) {
+                                    $0 ? L("Given to the opponents · cut-throat, lowest wins") : L("For the player · classic, highest wins")
                                 }
                             }
                         }

@@ -17,12 +17,9 @@ struct GameSetupView: View {
     @State private var showHelp = false
     
     @State private var showingActionSheet = false
-    @State private var showSettings = false
     
     let maxHeight = CGFloat(100)
     let maxWidth = CGFloat(300)
-    // The gear of the app settings, under the buttons
-    let settingsSize = CGFloat(64)
     
     var body: some View {
         
@@ -134,20 +131,6 @@ struct GameSetupView: View {
                     ).onTapGesture {
                         self.moveNextScreen()
                     }
-                
-                // Settings of the app : appearance and language
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.offWhite, lineWidth: 1)
-                    .frame(width: settingsSize, height: settingsSize)
-                    .contentShape(Rectangle())
-                    .overlay(
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 28, weight: .light))
-                            .foregroundColor(Color.offWhite)
-                    )
-                    .onTapGesture {
-                        self.showSettings = true
-                    }
             }
             .padding()
         }
@@ -156,17 +139,10 @@ struct GameSetupView: View {
                 Rectangle().cornerRadius(14).frame(maxWidth: maxWidth, maxHeight: maxHeight)
                 Rectangle().cornerRadius(14).frame(maxWidth: maxWidth, maxHeight: maxHeight)
                 Rectangle().cornerRadius(14).frame(maxWidth: maxWidth, maxHeight: maxHeight)
-                Rectangle().cornerRadius(14).frame(width: settingsSize, height: settingsSize)
             }
                 .padding()
         )
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
-        // The screens behind take the new language once the settings are closed
-        .sheet(isPresented: $showSettings, onDismiss: {
-            AppSettings.shared.applyLanguage()
-        }) {
-            SettingsView()
-        }
     }
     
     // Same game again or another one : changing the game also starts from 0

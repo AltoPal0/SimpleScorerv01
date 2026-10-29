@@ -270,6 +270,58 @@ enum Darts {
     // Shanghai : one round per number, from 1 to 7
     static let shanghaiRounds = 7
 
+    // Cricket : 20 down to 15, then the bull scoring 25. 3 marks close a number
+    static let cricketNumbers = [20, 19, 18, 17, 16, 15, 25]
+    static let marksToClose = 3
+    // 3 darts, a triple each : no bull triple, so 6 marks at most on the bull
+    static let maxMarksPerTurn = 9
+    static let maxBullMarksPerTurn = 6
+
+    static func cricketLabel(_ number: Int) -> String {
+        number == 25 ? L("Bull") : "\(number)"
+    }
+
+    // The marks of a player on each number, all turns added
+    static func cricketMarks(of turns: [[Int]]) -> [Int] {
+        var marks = Array(repeating: 0, count: cricketNumbers.count)
+        for turn in turns {
+            for index in marks.indices where turn.indices.contains(index) {
+                marks[index] += turn[index]
+            }
+        }
+        return marks
+    }
+
+    // Points of the turn of a player : the marks over 3 score while an opponent hasn't closed the number.
+    // For the player himself, or for the opponents still open when the game is cut-throat
+    static func cricketPoints(hits: [Int], player: Int, marks: [[Int]], cutThroat: Bool) -> [Int: Int] {
+        var points = [Int: Int]()
+        for (index, number) in cricketNumbers.enumerated() where hits.indices.contains(index) {
+            let before = marks[player][index]
+            let extra = max(0, before + hits[index] - marksToClose) - max(0, before - marksToClose)
+            guard extra > 0 else { continue }
+            let open = marks.indices.filter { $0 != player && marks[$0][index] < marksToClose }
+            if cutThroat {
+                for opponent in open {
+                    points[opponent, default: 0] += extra * number
+                }
+            } else if !open.isEmpty {
+                points[player, default: 0] += extra * number
+            }
+        }
+        return points
+    }
+
+    // Shanghai : the hits are singles, doubles and triples of the number of the round
+    static func shanghaiPoints(number: Int, hits: [Int]) -> Int {
+        number * hits.enumerated().reduce(0) { $0 + $1.element * ($1.offset + 1) }
+    }
+
+    // A single, a double and a triple in the same turn
+    static func isShanghai(_ hits: [Int]) -> Bool {
+        hits.count == 3 && hits.allSatisfy { $0 > 0 }
+    }
+
     // 501 and 301 : a turn going under 0, or leaving 1 when the game ends on a double, is a bust and counts nothing
     static func countdownTotal(of points: [Int], start: Int, doubleOut: Bool) -> Int {
         var total = 0

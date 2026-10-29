@@ -27,6 +27,8 @@ struct GameOptions: Codable, Equatable {
     var caboKamikazeFourKings = true
     // Darts 501 and 301 : the last dart is a double, so 1 left is a bust as well
     var dartsDoubleOut = true
+    // Cricket cut-throat : the points go to the opponents still open and the lowest score wins
+    var cricketCutThroat = false
     
     init() {}
     
@@ -42,6 +44,7 @@ struct GameOptions: Codable, Equatable {
         tarotPetitDefense = try container.decodeIfPresent(Bool.self, forKey: .tarotPetitDefense) ?? false
         caboKamikazeFourKings = try container.decodeIfPresent(Bool.self, forKey: .caboKamikazeFourKings) ?? true
         dartsDoubleOut = try container.decodeIfPresent(Bool.self, forKey: .dartsDoubleOut) ?? true
+        cricketCutThroat = try container.decodeIfPresent(Bool.self, forKey: .cricketCutThroat) ?? false
     }
 
     // Targets the players can pick, empty when the game has no target to change

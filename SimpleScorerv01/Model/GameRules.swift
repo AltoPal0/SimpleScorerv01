@@ -36,8 +36,8 @@ enum DartsVariant: String, CaseIterable {
         switch self {
         case .x501: return L("From 501 down to exactly 0, each turn takes off its points. Over 0 is a bust.")
         case .x301: return L("The same from 301 : a shorter game.")
-        case .cricket: return L("Close 15 to 20 and the bull with 3 hits each, score on those still open for the others.")
-        case .aroundTheClock: return L("Hit 1 to 20 in order, then the bull. Enter the targets hit each turn.")
+        case .cricket: return L("Close 15 to 20 and the bull with 3 marks each, on a board : the points are counted.")
+        case .aroundTheClock: return L("Hit 1 to 20 in order, then the bull. + and − move the player to the number reached.")
         case .shanghai: return L("7 rounds, aim at the number of the round. Single, double and triple at once : Shanghai!")
         }
     }
@@ -84,7 +84,7 @@ struct GameRules: Identifiable, Hashable {
 
     // Points of a whole round are entered at once for all the players (deal, mène)
     var entersRounds: Bool {
-        [.coinche, .tarot, .uno, .petanque, .gangOfFour, .cabo].contains(kind)
+        [.coinche, .tarot, .uno, .petanque, .gangOfFour, .cabo].contains(kind) || darts == .cricket
     }
 
     func supports(playerCount: Int) -> Bool {
@@ -147,7 +147,7 @@ enum GameLibrary {
         GameRules(id: "darts.501", name: "Darts 501", aliases: ["501", "Fléchettes 501"], kind: .darts, target: 501, playerCounts: Darts.playerCounts, darts: .x501),
         GameRules(id: "darts.301", name: "Darts 301", aliases: ["301", "Fléchettes 301"], kind: .darts, target: 301, playerCounts: Darts.playerCounts, darts: .x301),
         GameRules(id: "darts.cricket", name: "Cricket", aliases: ["Darts Cricket", "Fléchettes Cricket"], kind: .darts, playerCounts: Darts.playerCounts, darts: .cricket),
-        GameRules(id: "darts.clock", name: "Around the Clock", aliases: ["Tour de l'horloge", "Horloge", "Clock"], kind: .darts, target: Darts.clockTargets, playerCounts: Darts.playerCounts, darts: .aroundTheClock),
+        GameRules(id: "darts.clock", name: "Around the Clock", aliases: ["Tour de l'horloge", "Horloge", "Clock"], kind: .darts, roundsInSync: false, target: Darts.clockTargets, playerCounts: Darts.playerCounts, darts: .aroundTheClock),
         GameRules(id: "darts.shanghai", name: "Shanghai", kind: .darts, playerCounts: Darts.playerCounts, darts: .shanghai),
     ]
 

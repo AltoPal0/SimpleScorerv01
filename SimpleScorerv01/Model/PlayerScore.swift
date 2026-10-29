@@ -31,12 +31,12 @@ struct PlayerScore: Identifiable, Equatable {
         return total
     }
     
-    mutating func addPoints(scoreValue: Int) {
-        pointsList.append(Points(score: scoreValue, round: pointsList.count))
+    mutating func addPoints(scoreValue: Int, marks: [Int]? = nil) {
+        pointsList.append(Points(score: scoreValue, round: pointsList.count, marks: marks))
     }
     
     mutating func modifyScore(newScore: Int, forRound: Int) {
-        pointsList[indexFor(round: forRound)!] = Points(score: newScore, round: forRound)
+        pointsList[indexFor(round: forRound)!].score = newScore
     }
     
     mutating func resetScore () {
@@ -53,10 +53,26 @@ struct Points : Identifiable, Hashable {
     var id = UUID()
     var score : Int
     var round : Int
+    // Darts : the hits behind the score, on the cricket numbers or single / double / triple at Shanghai
+    var marks : [Int]? = nil
     
 }
 
 extension PlayerScore {
+    // Darts : the hits of each turn as saved, nil when no turn has any
+    var savedMarks : [[Int]]? {
+        guard pointsList.contains(where: { $0.marks != nil }) else { return nil }
+        return pointsList.map { $0.marks ?? [] }
+    }
+
+    // Saved points back in the list, with their hits when there are some
+    mutating func addPoints(_ points: [Int], marks: [[Int]]?) {
+        for (index, score) in points.enumerated() {
+            let turnMarks = marks.flatMap { $0.indices.contains(index) && !$0[index].isEmpty ? $0[index] : nil }
+            addPoints(scoreValue: score, marks: turnMarks)
+        }
+    }
+
     init() {
         self.id = UUID()
         self.player = Player()

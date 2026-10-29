@@ -35,6 +35,13 @@ struct RoundEntryView: View {
                 GangOfFourRoundView(winnerID: playerID, onConfirm: confirm)
             case .cabo:
                 CaboRoundView(callerID: playerID, onConfirm: confirm)
+            case .darts:
+                CricketRoundView(throwerID: playerID) { points, marks in
+                    withAnimation {
+                        game.addRound(points: points, marks: marks)
+                    }
+                    displayInfo.roundEntryPlayerID = nil
+                }
             default:
                 EmptyView()
             }
@@ -163,6 +170,175 @@ struct PetanqueRoundView: View {
                 onConfirm([scorerID : points])
             }
         }
+    }
+}
+
+// MARK: - Cricket
+
+// The board of the round : each player throws in turn, a tap on a number adds a mark to the one throwing
+struct CricketRoundView: View {
+
+    @EnvironmentObject var game : Game
+
+    @State var throwerID : UUID
+    var onConfirm : ([UUID : Int], [UUID : [Int]]) -> Void
+
+    // Marks of this round on each number, by player
+    @State private var hits : [UUID : [Int]] = [:]
+    // Numbers tapped by each player, the last one goes first when undone
+    @State private var taps : [UUID : [Int]] = [:]
+
+    var players : [PlayerScore] { game.playerScores }
+
+    var throwerIndex : Int {
+        players.firstIndex { $0.player.id == throwerID } ?? 0
+    }
+
+    func turnHits(_ id : UUID) -> [Int] {
+        hits[id] ?? Array(repeating: 0, count: Darts.cricketNumbers.count)
+    }
+
+    // The marks of everyone once this round is added
+    var boardMarks : [[Int]] {
+        players.map { playerScore in
+            zip(game.cricketMarks(for: playerScore), turnHits(playerScore.player.id)).map { $0 + $1 }
+        }
+    }
+
+    // The players throw in turn : the points of each turn depend on what the others had closed before
+    var points : [UUID : Int] {
+        var marks = players.map { game.cricketMarks(for: $0) }
+        var points = [UUID : Int]()
+        for index in players.indices {
+            let turn = turnHits(players[index].player.id)
+            for (scorer, value) in Darts.cricketPoints(hits: turn, player: index, marks: marks, cutThroat: game.options.cricketCutThroat) {
+                points[players[scorer].player.id, default: 0] += value
+            }
+            marks[index] = zip(marks[index], turn).map { $0 + $1 }
+        }
+        return points
+    }
+
+    func addHit(on index : Int) {
+        let turn = turnHits(throwerID)
+        let isBull = Darts.cricketNumbers[index] == 25
+        guard turn.reduce(0, +) < Darts.maxMarksPerTurn,
+              !isBull || turn[index] < Darts.maxBullMarksPerTurn else { return }
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        var newTurn = turn
+        newTurn[index] += 1
+        hits[throwerID] = newTurn
+        taps[throwerID, default: []].append(index)
+    }
+
+    func undoHit() {
+        guard let index = taps[throwerID]?.popLast() else { return }
+        hits[throwerID]?[index] -= 1
+    }
+
+    var body: some View {
+        RoundEntryLayout(title: "Cricket") {
+            RoundSection(title: L("Throwing")) {
+                PlayerPickRow(players: players, selected: $throwerID)
+            }
+
+            VStack(spacing: 6) {
+                // Who each column is, with his score once the round is added
+                HStack(spacing: 6) {
+                    Color.clear.frame(width: 56, height: 1)
+                    ForEach(players) { playerScore in
+                        VStack(spacing: 0) {
+                            Text(playerScore.player.initials)
+                                .font(Font.system(size: 15, weight: .semibold, design: .rounded))
+                            Text("\(game.total(for: playerScore) + (points[playerScore.player.id] ?? 0))")
+                                .font(Font.system(size: 13, weight: .light, design: .rounded))
+                        }
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                ForEach(Array(Darts.cricketNumbers.enumerated()), id: \.offset) { index, number in
+                    let closedByAll = boardMarks.allSatisfy { $0[index] >= Darts.marksToClose }
+                    HStack(spacing: 6) {
+                        Text(Darts.cricketLabel(number))
+                            .font(Font.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundColor(.gray)
+                            .frame(width: 56, alignment: .leading)
+                        ForEach(Array(players.enumerated()), id: \.element.id) { playerIndex, playerScore in
+                            CricketMarkCell(marks: boardMarks[playerIndex][index],
+                                            turnMarks: turnHits(playerScore.player.id)[index],
+                                            playerScore: playerScore,
+                                            isThrowing: playerIndex == throwerIndex)
+                        }
+                    }
+                    .opacity(closedByAll ? 0.35 : 1)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        addHit(on: index)
+                    }
+                }
+            }
+
+            HStack(spacing: 8) {
+                ChoiceChip(label: "↺ " + L("Undo"), isSelected: false, fullWidth: true) {
+                    undoHit()
+                }
+                .opacity(taps[throwerID]?.isEmpty == false ? 1 : 0.4)
+                if throwerIndex < players.count - 1 {
+                    ChoiceChip(label: L("Next : %@", players[throwerIndex + 1].player.name), isSelected: true, fullWidth: true) {
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            throwerID = players[throwerIndex + 1].player.id
+                        }
+                    }
+                }
+            }
+        } preview: {
+            RoundPreview(points: points)
+        } confirm: {
+            ConfirmBar(isEnabled: true) {
+                onConfirm(points, Dictionary(uniqueKeysWithValues: players.map { ($0.player.id, turnHits($0.player.id)) }))
+            }
+        }
+    }
+}
+
+// The marks of a player on a number : /, ✕, then ⓧ once closed. Those of this round are brighter
+struct CricketMarkCell: View {
+    var marks : Int
+    var turnMarks : Int
+    var playerScore : PlayerScore
+    var isThrowing : Bool
+
+    var symbol : String? {
+        switch min(marks, Darts.marksToClose) {
+        case 1: return "line.diagonal"
+        case 2: return "xmark"
+        case 3: return "xmark.circle"
+        default: return nil
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(isThrowing ? AnyShapeStyle(playerScore.player.colorGradient) : AnyShapeStyle(Color.gray.opacity(0.12)))
+            if let symbol = symbol {
+                Image(systemName: symbol)
+                    .font(.system(size: 22, weight: turnMarks > 0 ? .heavy : .regular))
+                    .foregroundColor(isThrowing ? .offWhite : .gray)
+            }
+            // Marks over 3 : the points scored
+            if marks > Darts.marksToClose {
+                Text("+\(marks - Darts.marksToClose)")
+                    .font(Font.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(isThrowing ? .offWhite : .gray)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(4)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 44)
     }
 }
 
