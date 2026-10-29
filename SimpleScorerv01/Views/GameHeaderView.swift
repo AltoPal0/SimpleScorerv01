@@ -9,10 +9,11 @@
 import SwiftUI
 
 // Top of the scores screens : the game played and its options, discreet like the arrows at the bottom.
-// Hidden while playing : a short pull on the cards shows it, scrolling the cards hides it again
+// Hidden while playing : a pull on the cards shows it, scrolling the cards hides it again
 struct GameHeaderView: View {
 
     @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
     @State private var showOptions = false
 
     static let height = CGFloat(56)
@@ -26,6 +27,21 @@ struct GameHeaderView: View {
                 .foregroundColor(.gray)
 
             Spacer()
+
+            // Order of the cards : table order, highest first, lowest first
+            if displayInfo.screenDisplayed == .scoreCards {
+                Image(systemName: "arrow.up.arrow.down")
+                    .font(.system(size: 22, weight: .light))
+                    .foregroundColor(.gray)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                        withAnimation {
+                            displayInfo.cardOrder = displayInfo.cardOrder.next
+                        }
+                    }
+            }
 
             if game.rules?.isInLibrary == true {
                 Image(systemName: "gearshape")
@@ -230,5 +246,6 @@ struct GameHeaderView_Previews: PreviewProvider {
             Spacer()
         }
         .environmentObject(game)
+        .environmentObject(GlobalDisplayInfo())
     }
 }

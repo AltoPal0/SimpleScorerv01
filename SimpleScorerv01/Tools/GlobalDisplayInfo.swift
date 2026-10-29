@@ -40,6 +40,8 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var isDualLayout = false
     // The bar with the name of the game and its options : hidden while playing, a short pull on the cards shows it
     @Published var showsGameHeader = false
+    // Order of the score cards, changed from the bar of the game
+    @Published var cardOrder = OrderBy.players
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         

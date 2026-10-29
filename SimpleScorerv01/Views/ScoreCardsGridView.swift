@@ -39,13 +39,13 @@ struct ScoreCardsGridView: View {
     @EnvironmentObject var game : Game
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
-    @State var orderedBy = OrderBy.players
+    var orderedBy: OrderBy { displayInfo.cardOrder }
     
     @State var displayEditView = false
     @State private var draggedCard : PlayerScore?
     @State private var cardMoved = false
     @State var idxForEditView = 0
-    // Short message naming the new order after a pull
+    // Short message naming the new order, chosen in the bar of the game
     @State private var orderToast : String?
     
     func showOrderToast() {
@@ -54,7 +54,7 @@ struct ScoreCardsGridView: View {
             orderToast = order.label
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            // A newer pull keeps its own message
+            // A newer choice keeps its own message
             if orderedBy == order {
                 withAnimation {
                     orderToast = nil
@@ -121,15 +121,10 @@ struct ScoreCardsGridView: View {
         let layout = self.layout(in: geometry.size)
         ZStack{
             ScrollView {
-                PullToReveal(coordinateSpaceName: "pullToReorder", isRevealed: displayInfo.showsGameHeader) {
+                PullToReveal(coordinateSpaceName: "pullToReveal", isRevealed: displayInfo.showsGameHeader) {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                         displayInfo.showsGameHeader = true
                     }
-                } onReorder: {
-                    withAnimation {
-                        orderedBy = orderedBy.next
-                    }
-                    showOrderToast()
                 } onScroll: {
                     withAnimation(.easeOut(duration: 0.25)) {
                         displayInfo.showsGameHeader = false
@@ -200,7 +195,10 @@ struct ScoreCardsGridView: View {
 
             }
             // Pulling down changes the order of the cards, not a real refresh
-            .coordinateSpace(name: "pullToReorder")
+            .coordinateSpace(name: "pullToReveal")
+            .onChange(of: displayInfo.cardOrder) {
+                showOrderToast()
+            }
             .onDrop(of: [UTType.text], delegate: DropResetDelegate {
                 withAnimation {
                     draggedCard = nil
@@ -237,55 +235,31 @@ struct ScoreCardsGridView: View {
 }
 
 // Pulling the cards down changes their order : the ⇡↻⇣ of the app instead of the spinner of iOS
-// Pulled down at the top of the cards : a short pull shows the bar of the game, a long one changes the order of the cards.
-// Scrolled up while the bar shows : the bar goes away
+// Pulled down at the top of the cards : the bar of the game shows. Scrolled up while it shows : it goes away
 struct PullToReveal: View {
     var coordinateSpaceName: String
     var isRevealed: Bool
     var onReveal: () -> Void
-    var onReorder: () -> Void
     var onScroll: () -> Void
     
-    static let revealThreshold = CGFloat(40)
-    static let reorderThreshold = CGFloat(110)
+    static let threshold = CGFloat(50)
     
-    @State private var revealArmed = false
-    @State private var reorderArmed = false
-    @State private var degrees = 0.0
+    @State private var armed = false
     
     var body: some View {
         GeometryReader { geo in
             // How far the content is pulled below the top of the scroll view
             let pull = geo.frame(in: .named(coordinateSpaceName)).minY
             
-            // Only past the short pull : the order changes further down
-            Text("⇡↻⇣")
-                .font(.system(.largeTitle, design: .rounded))
-                .foregroundColor(.gray)
-                .rotationEffect(.degrees(degrees))
-                .opacity(Double(min(1, max(0, (pull - PullToReveal.revealThreshold) / (PullToReveal.reorderThreshold - PullToReveal.revealThreshold)))))
-                .frame(maxWidth: .infinity)
-                // In the middle of the gap opened above the cards
-                .offset(y: -pull / 2 - 20)
+            Color.clear
                 .onChange(of: pull) { _, pull in
-                    if pull > PullToReveal.reorderThreshold && !reorderArmed {
-                        reorderArmed = true
+                    if pull > PullToReveal.threshold && !armed && !isRevealed {
+                        armed = true
                         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                        withAnimation {
-                            degrees += 180
-                        }
-                    } else if pull > PullToReveal.revealThreshold && !revealArmed && !isRevealed {
-                        revealArmed = true
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    } else if pull < 5 && (revealArmed || reorderArmed) {
-                        // Released : the long pull wins over the short one
-                        if reorderArmed {
-                            onReorder()
-                        } else {
-                            onReveal()
-                        }
-                        revealArmed = false
-                        reorderArmed = false
+                    } else if pull < 5 && armed {
+                        // Released
+                        armed = false
+                        onReveal()
                     } else if pull < -12 && isRevealed {
                         onScroll()
                     }
