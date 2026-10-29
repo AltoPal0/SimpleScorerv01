@@ -43,8 +43,8 @@ struct BottomButtonsView: View {
             // Settings of the app on the setup screen, between the arrows : appearance and language
             .overlay {
                 if self.displayInfo.screenDisplayed == .gameSetup {
-                    Image(systemName: "gearshape.circle")
-                        .font(.system(.largeTitle, design: .rounded))
+                    Image(systemName: "gearshape")
+                        .font(.system(.largeTitle, design: .rounded).weight(.light))
                         .foregroundColor(Color.gray)
                         .contentShape(Circle())
                         .onTapGesture {
