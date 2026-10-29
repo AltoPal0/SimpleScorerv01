@@ -797,7 +797,7 @@ struct ConfirmBar: View {
                         Image("dart")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 15, height: 15)
+                            .frame(width: 16, height: 16)
                             .foregroundColor(.offWhite)
                     }
                 }

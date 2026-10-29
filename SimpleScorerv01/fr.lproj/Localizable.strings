@@ -58,10 +58,8 @@
 "Contract made" = "Contrat réussi";
 "Counted" = "Comptée";
 "Counterclockwise" = "Sens antihoraire";
-"Credits" = "Crédits";
 "Cricket" = "Cricket";
 "Dark" = "Sombre";
-"Dart icon : Lorc, game-icons.net" = "Icône fléchette : Lorc, game-icons.net";
 "Darts" = "Fléchettes";
 "Darts 301" = "Fléchettes 301";
 "Darts 501" = "Fléchettes 501";
@@ -101,7 +99,6 @@
 "Keep playing" = "Continuer à jouer";
 "Language" = "Langue";
 "Let %@ keep playing? Players won't be out after 3 misses anymore." = "Laisser %@ continuer ? Les joueurs ne seront plus éliminés après 3 manqués.";
-"License CC BY 3.0" = "Licence CC BY 3.0";
 "Light" = "Clair";
 "Lowest first" = "Plus petit score d'abord";
 "Misère %@" = "Misère %@";
