@@ -40,6 +40,8 @@ class GlobalDisplayInfo: ObservableObject {
     @Published var isDualLayout = false
     // Order of the score cards, changed from the bar of the game
     @Published var cardOrder = OrderBy.players
+    // A game streamed by another device : its scores are shown, nothing can be changed
+    var watchesLive = false
 
     func setSizeAndScroll (nbrPlayers : Int/*, screenSize : CGSize*/) {
         

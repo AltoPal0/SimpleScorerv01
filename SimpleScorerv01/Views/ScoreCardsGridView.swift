@@ -103,8 +103,8 @@ struct ScoreCardsGridView: View {
                                  scale: scale)
     }
     
-    // The bar of the game, once a game is chosen
-    var showsHeader: Bool { game.rules != nil }
+    // The bar of the game, once a game is chosen. The device watching a game has its own
+    var showsHeader: Bool { game.rules != nil && !displayInfo.watchesLive }
     var headerHeight: CGFloat { showsHeader ? GameHeaderView.height : 0 }
     
     // Shanghai : the number to aim at. Gang of Four : the direction of play, changing every round
@@ -182,11 +182,13 @@ struct ScoreCardsGridView: View {
                             }
                             .environment(\.cardScale, layout.scale)
                             .environment(\.cardNames, cardNames(for: layout))
+                            // Watching a game : the cards only follow, the list still scrolls
+                            .allowsHitTesting(!displayInfo.watchesLive)
                             .padding(.vertical, CardLayout.spacing)
                             .frame(maxWidth: .infinity)
 
                             // Games scoring all the players at once : the round is entered for the whole table
-                            if game.entersRounds, let firstPlayer = game.playerScores.first?.player {
+                            if game.entersRounds, !displayInfo.watchesLive, let firstPlayer = game.playerScores.first?.player {
                                 NewRoundButton {
                                     displayInfo.roundEntryPreselects = false
                                     displayInfo.roundEntryPlayerID = firstPlayer.id

@@ -24,11 +24,14 @@ class Game : ObservableObject {
     @Published var rules : GameRules?
     @Published var options = GameOptions() {
         didSet {
-            if let rules = rules {
+            if let rules = rules, !isMirror {
                 options.save(for: rules)
             }
         }
     }
+
+    // The game streamed by another device and watched here : nothing of it is saved on this device
+    var isMirror = false
 
     // History entry of the game being played, created with its first points
     private var recordID : UUID?
@@ -257,20 +260,39 @@ class Game : ObservableObject {
     // MARK: - History
     // MARK: - Interrupted game
     func saveSnapshot() {
+        guard !isMirror else { return }
         GameSnapshot(
-            players: playerScores.map { playerScore in
-                GameSnapshot.SavedPlayer(
-                    id: playerScore.player.id,
-                    name: playerScore.player.name,
-                    initials: playerScore.player.initials,
-                    gradientIndex: playerScore.player.gradientIndex,
-                    points: playerScore.pointsList.map { $0.score },
-                    marks: playerScore.savedMarks)
-            },
+            players: savedPlayers,
             gameName: rules?.name,
             recordID: recordID,
             recordDate: recordDate
         ).save()
+    }
+
+    // The players as saved, the same for the interrupted game and the live game sent to the devices watching
+    var savedPlayers : [GameSnapshot.SavedPlayer] {
+        playerScores.map { playerScore in
+            GameSnapshot.SavedPlayer(
+                id: playerScore.player.id,
+                name: playerScore.player.name,
+                initials: playerScore.player.initials,
+                gradientIndex: playerScore.player.gradientIndex,
+                points: playerScore.pointsList.map { $0.score },
+                marks: playerScore.savedMarks)
+        }
+    }
+
+    // Saved players back in the game, each card keeping the id of its player
+    func setPlayers(_ players : [GameSnapshot.SavedPlayer]) {
+        playerScores = players.map { saved in
+            var playerScore = PlayerScore(
+                id: saved.id,
+                player: Player(id: saved.id, name: saved.name, initials: saved.initials, gradientIndex: saved.gradientIndex),
+                pointsList: [])
+            playerScore.addPoints(saved.points, marks: saved.marks)
+            return playerScore
+        }
+        maxNbrOfRounds = currentMaxNumberOfRounds()
     }
 
     // A game of the history played again : its scores go on in the same history entry
@@ -299,13 +321,7 @@ class Game : ObservableObject {
         let game = Game()
         guard let snapshot = GameSnapshot.load() else { return game }
 
-        for saved in snapshot.players {
-            var playerScore = PlayerScore(
-                player: Player(id: saved.id, name: saved.name, initials: saved.initials, gradientIndex: saved.gradientIndex),
-                pointsList: [])
-            playerScore.addPoints(saved.points, marks: saved.marks)
-            game.playerScores.append(playerScore)
-        }
+        game.setPlayers(snapshot.players)
         if let gameName = snapshot.gameName {
             let rules = GameLibrary.rules(named: gameName)
             game.rules = rules
@@ -313,11 +329,11 @@ class Game : ObservableObject {
         }
         game.recordID = snapshot.recordID
         game.recordDate = snapshot.recordDate
-        game.maxNbrOfRounds = game.currentMaxNumberOfRounds()
         return game
     }
 
     func recordHistory() {
+        guard !isMirror else { return }
         self.saveSnapshot()
 
         let hasPoints = playerScores.contains { !$0.pointsList.isEmpty }

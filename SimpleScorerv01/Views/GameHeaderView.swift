@@ -14,6 +14,7 @@ struct GameHeaderView: View {
 
     @EnvironmentObject var game : Game
     @EnvironmentObject var displayInfo : GlobalDisplayInfo
+    @ObservedObject var live = LiveShare.shared
     @State private var showOptions = false
 
     static let height = CGFloat(56)
@@ -43,7 +44,20 @@ struct GameHeaderView: View {
                     }
             }
 
-            if game.rules?.isInLibrary == true {
+            // Streamed to the devices nearby : in sight, stopped from the options
+            if live.role == .streaming {
+                Image(systemName: "dot.radiowaves.left.and.right")
+                    .font(.system(size: 22, weight: .light))
+                    .foregroundColor(.green)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        showOptions = true
+                    }
+            }
+
+            // Options of the game and its stream to the devices nearby, for every game
+            if game.rules != nil {
                 Image(systemName: "gearshape")
                     .font(.system(size: 24, weight: .light))
                     .foregroundColor(.gray)
@@ -73,6 +87,17 @@ struct GameOptionsView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var game : Game
+    @ObservedObject var live = LiveShare.shared
+
+    var isStreaming : Bool { live.role == .streaming }
+
+    var streamStatus : String {
+        switch live.viewerCount {
+        case 0: return L("Live : open %@ on the iPad, gear of the first screen, Watch a game nearby.", AppConfig.appName)
+        case 1: return L("Live : 1 device watching")
+        default: return L("Live : %ld devices watching", live.viewerCount)
+        }
+    }
 
     var targetSelection : Binding<Int> {
         Binding(
@@ -144,6 +169,22 @@ struct GameOptionsView: View {
                         .font(.system(.largeTitle, design: .rounded))
                         .fontWeight(.semibold)
                         .foregroundColor(.gray)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    // Stream to an iPad or another iPhone nearby, the scores shown there as here
+                    Image(systemName: "dot.radiowaves.left.and.right")
+                        .font(.system(size: 22, weight: isStreaming ? .semibold : .light))
+                        .foregroundColor(isStreaming ? .green : .gray)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                            if isStreaming {
+                                live.stop()
+                            } else {
+                                live.startStreaming(game)
+                            }
+                        }
                     Spacer()
                     Image(systemName: "xmark")
                         .font(.system(size: 22, weight: .light))
@@ -158,6 +199,13 @@ struct GameOptionsView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
+
+                        if isStreaming {
+                            Text(streamStatus)
+                                .font(Font.system(size: 17, weight: .light, design: .rounded))
+                                .foregroundColor(.green)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
 
                         if !GameOptions.targets(for: game.activeKind).isEmpty {
                             RoundSection(title: L("Game ends at")) {
@@ -223,11 +271,14 @@ struct GameOptionsView: View {
                             }
                         }
 
-                        RoundSection(title: L("Rules")) {
-                            Text(rulesSummary)
-                                .font(Font.system(size: 17, weight: .light, design: .rounded))
-                                .foregroundColor(.gray)
-                                .fixedSize(horizontal: false, vertical: true)
+                        // Nothing to say for the games outside the library
+                        if !rulesSummary.isEmpty {
+                            RoundSection(title: L("Rules")) {
+                                Text(rulesSummary)
+                                    .font(Font.system(size: 17, weight: .light, design: .rounded))
+                                    .foregroundColor(.gray)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                     }
                     .padding()

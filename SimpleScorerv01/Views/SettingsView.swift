@@ -8,12 +8,13 @@
 
 import SwiftUI
 
-// Under the gear of the setup screen : appearance and language of the app
+// Under the gear of the setup screen : appearance and language of the app, and the games streamed nearby
 struct SettingsView: View {
 
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @ObservedObject var settings = AppSettings.shared
+    @State private var watchesLive = false
 
     var body: some View {
         ZStack {
@@ -55,6 +56,13 @@ struct SettingsView: View {
                             .font(Font.system(size: 15, weight: .light, design: .rounded))
                             .foregroundColor(.gray)
                             .fixedSize(horizontal: false, vertical: true)
+
+                        // An iPad next to the iPhone keeping the scores : the same game on a larger screen
+                        RoundSection(title: L("Live game")) {
+                            ChoiceChip(label: L("Watch a game nearby"), isSelected: false, fullWidth: true) {
+                                watchesLive = true
+                            }
+                        }
                     }
                     .padding()
                 }
@@ -62,6 +70,9 @@ struct SettingsView: View {
         }
         // The settings speak the language chosen at once
         .environment(\.locale, settings.locale)
+        .fullScreenCover(isPresented: $watchesLive) {
+            LiveViewerView()
+        }
     }
 }
 

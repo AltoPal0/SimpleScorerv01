@@ -27,6 +27,13 @@
 	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_score2000-live._tcp</string>
+		<string>_score2000-live._udp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Show the scores live on an iPad or another iPhone nearby</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow user to take a picture for his Avatar</string>
 	<key>NSPhotoLibraryUsageDescription</key>

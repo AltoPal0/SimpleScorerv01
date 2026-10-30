@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C1A5E77B20B44E8F9D3A6E23 /* LiveViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E24 /* LiveViewerView.swift */; };
+		C1A5E77B20B44E8F9D3A6E21 /* LiveShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E22 /* LiveShare.swift */; };
 		C1A5E77B20B44E8F9D3A6E01 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E02 /* AppSettings.swift */; };
 		C1A5E77B20B44E8F9D3A6E03 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */; };
 		C1A5E77B20B44E8F9D3A6E05 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E06 /* Localizable.strings */; };
@@ -60,6 +62,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C1A5E77B20B44E8F9D3A6E24 /* LiveViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveViewerView.swift; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6E22 /* LiveShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveShare.swift; sourceTree = "<group>"; };
 		C1A5E77B20B44E8F9D3A6E02 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C1A5E77B20B44E8F9D3A6E07 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -135,6 +139,7 @@
 				D76274F0247D020C0035F6DD /* GlobalDisplayInfo.swift */,
 				D7A42388297A8FCF000398EB /* ReorderableForEach.swift */,
 				C1A5E77B20B44E8F9D3A6E02 /* AppSettings.swift */,
+				C1A5E77B20B44E8F9D3A6E22 /* LiveShare.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -239,6 +244,7 @@
 				D7A8F3412928DE2700E95110 /* NameEntryView.swift */,
 				D7FE41982990157900D680E8 /* EditView.swift */,
 				C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */,
+				C1A5E77B20B44E8F9D3A6E24 /* LiveViewerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -342,6 +348,8 @@
 				F6653F2E7FE830A5A8704766 /* AppConfig.swift in Sources */,
 				C1A5E77B20B44E8F9D3A6E01 /* AppSettings.swift in Sources */,
 				C1A5E77B20B44E8F9D3A6E03 /* SettingsView.swift in Sources */,
+				C1A5E77B20B44E8F9D3A6E23 /* LiveViewerView.swift in Sources */,
+				C1A5E77B20B44E8F9D3A6E21 /* LiveShare.swift in Sources */,
 				314AFFC5A3391E68E8C92C44 /* HistoryView.swift in Sources */,
 				2F6F383DC9DDF7E18CF19BAA /* GameRecord.swift in Sources */,
 				40215D2EECA688AE5EB15175 /* GameHeaderView.swift in Sources */,

@@ -62,6 +62,7 @@ struct ColumnMetrics {
 struct AllScoresView_new: View {
     
     @EnvironmentObject var game : Game
+    @EnvironmentObject var displayInfo : GlobalDisplayInfo
     
     @State private var showKeypad = false
     @State var scoreEdit = (playerIdx: 0, round: 0, mode: ScoreEditMode.addition)
@@ -133,6 +134,8 @@ struct AllScoresView_new: View {
                                     PointsRows(playerIndex: column[0], metrics: metrics, showKeypad: keypadRequest, scoreEdit: $scoreEdit)
                                 }
                             }
+                            // Watching a game : the points only follow, the columns still scroll
+                            .allowsHitTesting(!displayInfo.watchesLive)
                         }
                         .frame(height: metrics.pointsHeight)
                         
@@ -142,6 +145,7 @@ struct AllScoresView_new: View {
                                 TotalRows(playerIndex: column[0], metrics: metrics, showKeyPad: keypadRequest, scoreEdit: $scoreEdit)
                             }
                         }
+                        .allowsHitTesting(!displayInfo.watchesLive)
                     }
                     // Drawn behind the content at its exact size : nothing gets cut
                     .background(alignment: .top) {
