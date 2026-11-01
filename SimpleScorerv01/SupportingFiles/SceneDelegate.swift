@@ -81,6 +81,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if arguments.contains("-demoColumns") {
             displayInfo.screenDisplayed = .allScores
         }
+        // -demoChoice opens the choice of the game
+        if arguments.contains("-demoChoice") {
+            game.rules = nil
+            displayInfo.screenDisplayed = .gameChoice
+        }
         // -demoHistory adds sample games to the history and opens it
         if arguments.contains("-demoHistory") {
             let store = HistoryStore.shared
