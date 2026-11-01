@@ -93,9 +93,7 @@ struct ScoreCorrectionView: View {
                             commit(points)
                         }
                     } else {
-                        KeyPadView(valueDisplayed: $pointsScored, sign: $sign,
-                                   extraKey: game.activeKind == .scrabble ? "+50" : nil,
-                                   onExtraKey: { pointsScored += 50 })
+                        KeyPadView(valueDisplayed: $pointsScored, sign: $sign)
                     }
                     
                 }

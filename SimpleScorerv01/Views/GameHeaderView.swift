@@ -122,17 +122,17 @@ struct GameOptionsView: View {
             let petit = game.options.tarotPetitDefense ? L("Petit au bout ±10 × contract, for the attack or the defense") : L("Petit au bout +10 × contract, for the attack only")
             return L("French federation scoring : 25 + difference, times the contract (×1, ×2, ×4, ×6). %@. Poignée 20 / 30 / 40 to the winning side. Chelem not counted.", petit)
         case .scrabble:
-            return L("Enter the points of each word. The +50 key adds the bonus for playing all 7 tiles.")
+            return L("The points are added up, the highest score wins.")
         case .uno:
             return game.options.unoLowestWins
-                ? L("Each player scores the cards left in his hand. The game ends at the target, the lowest score wins.")
-                : L("Official rules : the player out of cards scores the cards left in the other hands (numbers face value, action cards 20, wild cards 50).")
+                ? L("The points are added up. The game ends at the target, the lowest score wins.")
+                : L("The points are added up. The game ends at the target, the highest score wins.")
         case .petanque:
-            return L("Each mène, the winning player or team scores 1 to 6 points.")
+            return L("The points are added up. The game ends at the target, the highest score wins.")
         case .gangOfFour:
-            return L("The player out of cards ends the round. The others score the cards left : 1 point each up to 7 cards, × 2 from 8, × 3 from 11, × 4 from 14 (16 cards = 64). The game ends at 100, the lowest score wins. The direction of play changes every round.")
+            return L("The points are added up. The game ends at 100, the lowest score wins. The direction of play changes every round.")
         case .cabo:
-            return L("Each player scores the total of their hand. Calling Cabo scores 0 with the lowest hand, otherwise the hand + 10 (a tie is not enough). Kamikaze (%@) : 0, and 50 for everyone else. Exactly 100 brings a player back to 50, once. The game ends over 100, the lowest score wins.", game.options.caboKamikazeHand)
+            return L("The points are added up. The game ends at 100, the lowest score wins.")
         case .darts:
             switch game.rules?.darts {
             case .x501?, .x301?:
@@ -239,14 +239,6 @@ struct GameOptionsView: View {
                             }
                         }
                         
-                        if game.activeKind == .cabo {
-                            RoundSection(title: L("Kamikaze hand")) {
-                                ChoiceList(items: [true, false], selection: $game.options.caboKamikazeFourKings) {
-                                    $0 ? L("Four kings · 54 cards deck") : L("Two 12 and two 13 · Cabo deck")
-                                }
-                            }
-                        }
-                        
                         if game.countsDown {
                             RoundSection(title: L("Finish")) {
                                 ChoiceList(items: [true, false], selection: $game.options.dartsDoubleOut) {
@@ -264,9 +256,9 @@ struct GameOptionsView: View {
                         }
                         
                         if game.activeKind == .uno {
-                            RoundSection(title: L("Scoring")) {
+                            RoundSection(title: L("Winner")) {
                                 ChoiceList(items: [false, true], selection: $game.options.unoLowestWins) {
-                                    $0 ? L("Everyone scores his hand · lowest wins") : L("Winner scores the hands · official")
+                                    $0 ? L("Lowest score") : L("Highest score · official")
                                 }
                             }
                         }

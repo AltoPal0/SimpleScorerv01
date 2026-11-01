@@ -84,7 +84,7 @@ struct GameRules: Identifiable, Hashable {
 
     // Points of a whole round are entered at once for all the players (deal, mène)
     var entersRounds: Bool {
-        [.coinche, .tarot, .uno, .petanque, .gangOfFour, .cabo].contains(kind) || darts == .cricket
+        [.coinche, .tarot].contains(kind) || darts == .cricket
     }
 
     func supports(playerCount: Int) -> Bool {
@@ -102,8 +102,6 @@ struct GameRules: Identifiable, Hashable {
             return points.reduce(0) { total, points in
                 total + points > Molkky.target ? Molkky.fallback : total + points
             }
-        case .cabo:
-            return Cabo.total(of: points)
         case .darts where darts == .aroundTheClock:
             return min(points.reduce(0, +), Darts.clockTargets)
         default:

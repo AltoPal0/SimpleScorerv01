@@ -27,14 +27,6 @@ struct RoundEntryView: View {
                 TarotRoundView(takerID: displayInfo.roundEntryPreselects ? playerID : nil, onConfirm: confirm)
             case .coinche:
                 CoincheRoundView(playerID: playerID, onConfirm: confirm)
-            case .uno:
-                UnoRoundView(winnerID: playerID, onConfirm: confirm)
-            case .petanque:
-                PetanqueRoundView(scorerID: playerID, onConfirm: confirm)
-            case .gangOfFour:
-                GangOfFourRoundView(winnerID: playerID, onConfirm: confirm)
-            case .cabo:
-                CaboRoundView(callerID: playerID, onConfirm: confirm)
             case .darts:
                 // From the New round button : the next player in turn
                 CricketRoundView(throwerID: displayInfo.roundEntryPreselects ? playerID : game.cricketNextThrower ?? playerID) { points, marks in
@@ -57,123 +49,6 @@ struct RoundEntryView: View {
             game.addRound(points: points)
         }
         displayInfo.roundEntryPlayerID = nil
-    }
-}
-
-// MARK: - Uno
-
-struct UnoRoundView: View {
-
-    @EnvironmentObject var game : Game
-
-    @State var winnerID : UUID
-    var onConfirm : ([UUID : Int]) -> Void
-
-    // Card points left in each loser's hand
-    @State private var handPoints : [UUID : CGFloat] = [:]
-    @State private var editedID : UUID?
-    @State private var sign = CGFloat(1)
-
-    var losers : [PlayerScore] {
-        game.playerScores.filter { $0.player.id != winnerID }
-    }
-
-    var winnerPoints : Int {
-        Int(losers.reduce(CGFloat(0)) { $0 + (handPoints[$1.player.id] ?? 0) })
-    }
-    
-    // Official : the winner scores all the hands. House rule : everyone keeps the points of his hand
-    var points : [UUID : Int] {
-        guard game.options.unoLowestWins else {
-            return [winnerID : winnerPoints]
-        }
-        var points = [UUID : Int]()
-        for playerScore in losers {
-            points[playerScore.player.id] = Int(handPoints[playerScore.player.id] ?? 0)
-        }
-        return points
-    }
-
-    var body: some View {
-        RoundEntryLayout(title: "Uno") {
-            RoundSection(title: L("Out of cards")) {
-                PlayerPickRow(players: game.playerScores, selected: $winnerID)
-            }
-
-            RoundSection(title: L("Cards left")) {
-                VStack(spacing: 8) {
-                    ForEach(losers) { playerScore in
-                        PointsRow(playerScore: playerScore,
-                                  value: Int(handPoints[playerScore.player.id] ?? 0),
-                                  isEdited: editedID == playerScore.player.id)
-                        .onTapGesture {
-                            editedID = playerScore.player.id
-                        }
-                    }
-                }
-
-                if let editedID = editedID {
-                    HStack(spacing: 8) {
-                        ChoiceChip(label: "+\(Uno.actionCard)", isSelected: false) {
-                            handPoints[editedID, default: 0] += CGFloat(Uno.actionCard)
-                        }
-                        ChoiceChip(label: "+\(Uno.wildCard)", isSelected: false) {
-                            handPoints[editedID, default: 0] += CGFloat(Uno.wildCard)
-                        }
-                    }
-                    KeyPadView(valueDisplayed: Binding(
-                        get: { handPoints[editedID] ?? 0 },
-                        set: { handPoints[editedID] = $0 }), sign: $sign)
-                    .frame(height: 180)
-                    .cornerRadius(14)
-                }
-            }
-        } preview: {
-            RoundPreview(points: points)
-        } confirm: {
-            ConfirmBar(isEnabled: game.options.unoLowestWins || winnerPoints > 0) {
-                onConfirm(points)
-            }
-        }
-        .onAppear {
-            editedID = losers.first?.player.id
-        }
-        .onChange(of: winnerID) {
-            handPoints[winnerID] = nil
-            if editedID == winnerID {
-                editedID = losers.first?.player.id
-            }
-        }
-    }
-}
-
-// MARK: - Pétanque
-
-struct PetanqueRoundView: View {
-
-    @EnvironmentObject var game : Game
-
-    @State var scorerID : UUID
-    var onConfirm : ([UUID : Int]) -> Void
-
-    @State private var points = 1
-
-    var body: some View {
-        RoundEntryLayout(title: "Pétanque") {
-            RoundSection(title: L("Wins the mène")) {
-                PlayerPickRow(players: game.playerScores, selected: $scorerID)
-            }
-
-            RoundSection(title: L("Points")) {
-                ChoiceChips(items: Array(1...Petanque.maxPointsPerMene), selection: $points) { "\($0)" }
-            }
-        } preview: {
-            RoundPreview(points: [scorerID : points])
-        } confirm: {
-            ConfirmBar(isEnabled: true) {
-                onConfirm([scorerID : points])
-            }
-        }
     }
 }
 
@@ -703,38 +578,6 @@ struct PointsKeypadEntry: View {
             }
         }
         .frame(maxWidth: .infinity)
-    }
-}
-
-// One player with a value, used for the hands of Uno losers
-struct PointsRow: View {
-    var playerScore : PlayerScore
-    var value : Int
-    var isEdited : Bool
-
-    var body: some View {
-        HStack {
-            AvatarView(user: playerScore.player)
-                .frame(width: 40, height: 40)
-            Text(playerScore.player.name)
-                .font(Font.system(size: 20, weight: .semibold, design: .rounded))
-                .foregroundColor(.offWhite)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-            Spacer()
-            Text("\(value)")
-                .font(Font.system(size: 25, weight: .bold, design: .rounded))
-                .foregroundColor(.offWhite)
-        }
-        .padding(.horizontal, 10)
-        .frame(height: 56)
-        .background(playerScore.player.colorGradient)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.offWhite, lineWidth: isEdited ? 3 : 1)
-        )
-        .opacity(isEdited ? 1 : 0.7)
     }
 }
 

@@ -130,9 +130,7 @@ struct ScoreCardView: View {
                                     .disabled(self.dragOffset.width != 0)
                                     .font(.system(size: 20 * scale, design: .rounded))
                             } else if self.showKeyPad {
-                                KeyPadView(valueDisplayed: $pointsScored, sign: $sign,
-                                           extraKey: self.game.activeKind == .scrabble ? "+50" : nil,
-                                           onExtraKey: { self.pointsScored += 50 })
+                                KeyPadView(valueDisplayed: $pointsScored, sign: $sign)
                                     .frame(height: frameHeight*4/3)
                                     .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
                                     .padding([.horizontal,.bottom],3)

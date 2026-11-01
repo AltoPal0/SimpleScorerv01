@@ -15,7 +15,7 @@ struct GameOptions: Codable, Equatable {
     var target: Int?
     // Mölkky : 3 misses in a row and the player is out
     var molkkyMissesOut = true
-    // Uno : each player scores the cards left in his own hand and the lowest score wins
+    // Uno : the lowest score wins, the highest one with the official rules
     var unoLowestWins = false
     // Coinche
     var coincheScoring = CoincheDeal.Scoring.announced
@@ -23,8 +23,6 @@ struct GameOptions: Codable, Equatable {
     var coincheBelote = false
     // Tarot : the defense can score the petit au bout, often luck so off by default
     var tarotPetitDefense = false
-    // Cabo with a 54 cards deck : the kamikaze hand is four kings, two 12 and two 13 with the Cabo deck
-    var caboKamikazeFourKings = true
     // Darts 501 and 301 : the last dart is a double, so 1 left is a bust as well
     var dartsDoubleOut = true
     // Cricket cut-throat : the points go to the opponents still open and the lowest score wins
@@ -42,7 +40,6 @@ struct GameOptions: Codable, Equatable {
         coincheDefenseScores = try container.decodeIfPresent(Bool.self, forKey: .coincheDefenseScores) ?? false
         coincheBelote = try container.decodeIfPresent(Bool.self, forKey: .coincheBelote) ?? false
         tarotPetitDefense = try container.decodeIfPresent(Bool.self, forKey: .tarotPetitDefense) ?? false
-        caboKamikazeFourKings = try container.decodeIfPresent(Bool.self, forKey: .caboKamikazeFourKings) ?? true
         dartsDoubleOut = try container.decodeIfPresent(Bool.self, forKey: .dartsDoubleOut) ?? true
         cricketCutThroat = try container.decodeIfPresent(Bool.self, forKey: .cricketCutThroat) ?? false
     }
@@ -58,13 +55,9 @@ struct GameOptions: Codable, Equatable {
     }
 
     static func hasOptions(_ kind: GameKind) -> Bool {
-        kind == .molkky || kind == .uno || kind == .coinche || kind == .tarot || kind == .cabo || kind == .darts || !targets(for: kind).isEmpty
+        kind == .molkky || kind == .uno || kind == .coinche || kind == .tarot || kind == .darts || !targets(for: kind).isEmpty
     }
 
-    var caboKamikazeHand: String {
-        caboKamikazeFourKings ? L("four kings") : L("two 12 and two 13")
-    }
-    
     static func key(for rules: GameRules) -> String {
         "gameOptions." + rules.id
     }
