@@ -45,8 +45,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         Task { await GameRequests.sendPending() }
     }
     
-    // "Your game is in" also shows while the app is open
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+    // "Your game is in" also shows while the app is open.
+    // Called by iOS off the main thread : nonisolated, or the check of the main actor stops the app
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         [.banner, .sound]
     }
 
