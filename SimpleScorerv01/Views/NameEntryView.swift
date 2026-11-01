@@ -391,7 +391,10 @@ struct NameCardView : View {
                 
                 TextField(L(Player.defaultName), text: binding, onCommit:{
                     self.username = binding.wrappedValue
-                    commitName()
+                    // Once the return key is done with the text field : the last name closes the screen and the field with it
+                    DispatchQueue.main.async {
+                        commitName()
+                    }
                 })
                 .font(Font.system(size: 40, weight: .semibold, design: .rounded))
                 .foregroundColor(.offWhite)
