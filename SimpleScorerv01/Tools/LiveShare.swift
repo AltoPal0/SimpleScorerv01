@@ -129,7 +129,7 @@ final class LiveShare: NSObject, ObservableObject {
         session = newSession()
         let browser = MCNearbyServiceBrowser(peer: peer, serviceType: LiveShare.serviceType)
         browser.delegate = self
-        browser.startBrowsingPeer()
+        browser.startBrowsingForPeers()
         self.browser = browser
         streams = []
         isConnected = false
@@ -153,7 +153,7 @@ final class LiveShare: NSObject, ObservableObject {
 
     // A connection lost : the games nearby are looked for again, the one followed is joined again once found
     private func startBrowsingAgain() {
-        browser?.stopBrowsingPeer()
+        browser?.stopBrowsingForPeers()
         session?.disconnect()
         startBrowsing()
     }
@@ -163,7 +163,7 @@ final class LiveShare: NSObject, ObservableObject {
     func stop() {
         changes = nil
         advertiser?.stopAdvertisingPeer()
-        browser?.stopBrowsingPeer()
+        browser?.stopBrowsingForPeers()
         session?.disconnect()
         advertiser = nil
         browser = nil
