@@ -1,0 +1,10 @@
+/*
+  InfoPlist.strings
+  SimpleScorerv01
+
+  Français : the texts iOS shows when the app asks for an access.
+*/
+
+"NSCameraUsageDescription" = "Prendre une photo pour l'avatar d'un joueur";
+"NSPhotoLibraryUsageDescription" = "Choisir une photo pour l'avatar d'un joueur";
+"NSLocalNetworkUsageDescription" = "Afficher les scores en direct sur un iPad ou un autre iPhone à côté";

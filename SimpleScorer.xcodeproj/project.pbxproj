@@ -12,6 +12,7 @@
 		C1A5E77B20B44E8F9D3A6E01 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E02 /* AppSettings.swift */; };
 		C1A5E77B20B44E8F9D3A6E03 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */; };
 		C1A5E77B20B44E8F9D3A6E05 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6E06 /* Localizable.strings */; };
+		C1A5E77B20B44E8F9D3A6F01 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1A5E77B20B44E8F9D3A6F02 /* InfoPlist.strings */; };
 		27B5EC2F3544DDBC6A8B1AC2 /* TeamCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D7FEA28B0C6480A64F8012 /* TeamCardView.swift */; };
 		81E9832E75CBC0E4AD6D4FED /* GameSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0409596E9FE86A86506BCBB /* GameSnapshot.swift */; };
 		6F6E380DCBCC3DF4221E61ED /* CardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5226305D8DC2236578A88643 /* CardLayout.swift */; };
@@ -67,6 +68,10 @@
 		C1A5E77B20B44E8F9D3A6E04 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C1A5E77B20B44E8F9D3A6E07 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1A5E77B20B44E8F9D3A6E08 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6E09 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6F03 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6F04 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C1A5E77B20B44E8F9D3A6F05 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		86D7FEA28B0C6480A64F8012 /* TeamCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamCardView.swift; sourceTree = "<group>"; };
 		C0409596E9FE86A86506BCBB /* GameSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSnapshot.swift; sourceTree = "<group>"; };
 		5226305D8DC2236578A88643 /* CardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardLayout.swift; sourceTree = "<group>"; };
@@ -174,6 +179,7 @@
 				E88751A2241F99DC0091853F /* LaunchScreen.storyboard */,
 				E88751A5241F99DC0091853F /* Info.plist */,
 				C1A5E77B20B44E8F9D3A6E06 /* Localizable.strings */,
+				C1A5E77B20B44E8F9D3A6F02 /* InfoPlist.strings */,
 				A1B2C3D4E5F60718293A4B5C /* PrivacyInfo.xcprivacy */,
 				E887519F241F99DC0091853F /* Preview Content */,
 				E88751B2241F9CB20091853F /* SupportingFiles */,
@@ -303,6 +309,7 @@
 			knownRegions = (
 				en,
 				fr,
+				es,
 				Base,
 			);
 			mainGroup = E887518B241F99DB0091853F;
@@ -325,6 +332,7 @@
 				E887519E241F99DC0091853F /* Assets.xcassets in Resources */,
 				A1B2C3D4E5F60718293A4B5D /* PrivacyInfo.xcprivacy in Resources */,
 				C1A5E77B20B44E8F9D3A6E05 /* Localizable.strings in Resources */,
+				C1A5E77B20B44E8F9D3A6F01 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -388,11 +396,22 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		C1A5E77B20B44E8F9D3A6F02 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C1A5E77B20B44E8F9D3A6F03 /* en */,
+				C1A5E77B20B44E8F9D3A6F04 /* fr */,
+				C1A5E77B20B44E8F9D3A6F05 /* es */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		C1A5E77B20B44E8F9D3A6E06 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				C1A5E77B20B44E8F9D3A6E07 /* en */,
 				C1A5E77B20B44E8F9D3A6E08 /* fr */,
+				C1A5E77B20B44E8F9D3A6E09 /* es */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

@@ -134,18 +134,18 @@ enum GameLibrary {
         GameRules(id: "tarot", name: "Tarot", kind: .tarot, playerCounts: 3...5),
         GameRules(id: "scrabble", name: "Scrabble", kind: .scrabble, playerCounts: 2...4),
         GameRules(id: "uno", name: "Uno", kind: .uno, target: 500, playerCounts: 2...10),
-        GameRules(id: "petanque", name: "Pétanque", aliases: ["Boules"], kind: .petanque, target: 13, playerCounts: 2...4),
+        GameRules(id: "petanque", name: "Pétanque", aliases: ["Boules", "Petanca"], kind: .petanque, target: 13, playerCounts: 2...4),
         GameRules(id: "gangoffour", name: "Gang of 4", aliases: ["Gang of Four", "Gang"], kind: .gangOfFour, lowestScoreWins: true, target: 100, playerCounts: 3...4),
         GameRules(id: "cabo", name: "Cabo", aliases: ["Gabot", "Gabo"], kind: .cabo, lowestScoreWins: true, target: 100, playerCounts: 2...4),
-        GameRules(id: "darts", name: "Darts", aliases: ["Fléchettes", "Dart"], kind: .darts, playerCounts: Darts.playerCounts),
+        GameRules(id: "darts", name: "Darts", aliases: ["Fléchettes", "Dart", "Dardos"], kind: .darts, playerCounts: Darts.playerCounts),
     ] + dartsVariants
 
     // Played once picked on the screen of the variants, or typed
     static let dartsVariants: [GameRules] = [
-        GameRules(id: "darts.501", name: "Darts 501", aliases: ["501", "Fléchettes 501"], kind: .darts, target: 501, playerCounts: Darts.playerCounts, darts: .x501),
-        GameRules(id: "darts.301", name: "Darts 301", aliases: ["301", "Fléchettes 301"], kind: .darts, target: 301, playerCounts: Darts.playerCounts, darts: .x301),
-        GameRules(id: "darts.cricket", name: "Cricket", aliases: ["Darts Cricket", "Fléchettes Cricket"], kind: .darts, playerCounts: Darts.playerCounts, darts: .cricket),
-        GameRules(id: "darts.clock", name: "Around the Clock", aliases: ["Tour de l'horloge", "Horloge", "Clock"], kind: .darts, roundsInSync: false, target: Darts.clockTargets, playerCounts: Darts.playerCounts, darts: .aroundTheClock),
+        GameRules(id: "darts.501", name: "Darts 501", aliases: ["501", "Fléchettes 501", "Dardos 501"], kind: .darts, target: 501, playerCounts: Darts.playerCounts, darts: .x501),
+        GameRules(id: "darts.301", name: "Darts 301", aliases: ["301", "Fléchettes 301", "Dardos 301"], kind: .darts, target: 301, playerCounts: Darts.playerCounts, darts: .x301),
+        GameRules(id: "darts.cricket", name: "Cricket", aliases: ["Darts Cricket", "Fléchettes Cricket", "Dardos Cricket"], kind: .darts, playerCounts: Darts.playerCounts, darts: .cricket),
+        GameRules(id: "darts.clock", name: "Around the Clock", aliases: ["Tour de l'horloge", "Horloge", "Clock", "Vuelta al reloj", "Reloj"], kind: .darts, roundsInSync: false, target: Darts.clockTargets, playerCounts: Darts.playerCounts, darts: .aroundTheClock),
         GameRules(id: "darts.shanghai", name: "Shanghai", kind: .darts, playerCounts: Darts.playerCounts, darts: .shanghai),
     ]
 

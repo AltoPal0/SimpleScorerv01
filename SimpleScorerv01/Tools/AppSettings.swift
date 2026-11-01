@@ -36,7 +36,7 @@ class AppSettings: ObservableObject {
 
     // Languages of the app, Automatic picks the one of the iPhone when the app has it, English otherwise
     enum Language: String, CaseIterable {
-        case automatic, french = "fr", english = "en"
+        case automatic, french = "fr", english = "en", spanish = "es"
 
         // Each language in its own name, as in the settings of iOS
         var label: String {
@@ -44,6 +44,7 @@ class AppSettings: ObservableObject {
             case .automatic: return L("Automatic")
             case .french: return "Français"
             case .english: return "English"
+            case .spanish: return "Español"
             }
         }
 
