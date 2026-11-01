@@ -233,6 +233,16 @@ struct ScoreCardView: View {
                 } message: {
                     Text(self.molkkyAlert.map { self.game.molkkyWarningMessage($0, for: self.playerScore) } ?? "")
                 }
+            // The keypad open : the whole card in sight down to its last row, the bottom arrows out of the way
+            .onChange(of: self.showKeyPad) {
+                self.displayInfo.showBottomButtons = !self.showKeyPad
+                guard self.showKeyPad else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    withAnimation {
+                        self.scrollReaderProxy.scrollTo(self.playerScore.id)
+                    }
+                }
+            }
     }
     
     func startScoreEntry() {
