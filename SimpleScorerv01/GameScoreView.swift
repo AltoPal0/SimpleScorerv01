@@ -22,6 +22,8 @@ struct GameScoreView: View {
     
     // The game can't be played with this number of players (Coinche with 5...)
     @State private var playerCountAlert = false
+    // Uno in a number of rounds : the winner is told once the rounds are played
+    @State private var roundsPlayedAlert = false
     
     // Width of the columns of scores : 64 per column with its spacing, and the side margins
     func columnsWidth() -> CGFloat {
@@ -94,6 +96,11 @@ struct GameScoreView: View {
                         }
                     }
                 }
+                .onChange(of: self.game.roundsPlayed) { _, played in
+                    if played && !self.game.isMirror {
+                        self.roundsPlayedAlert = true
+                    }
+                }
                 .onChange(of: dual) { self.updateDualLayout(dual) }
                 
                 TopSwiperView(dragOffset: $dragOffset, orderByScores: $orderedByScores)
@@ -116,6 +123,14 @@ struct GameScoreView: View {
             Button(L("Enter scores freely"), role: .cancel) {}
         } message: {
             Text(L("There are %ld players : the scores of %@ can't be counted.", self.game.playerScores.count, self.game.rules?.displayName ?? ""))
+        }
+        .alert(L("%ld rounds played : %@ wins!", self.game.roundsToPlay ?? 0, self.game.winner()?.player.name ?? ""),
+               isPresented: self.$roundsPlayedAlert) {
+            Button(L("Keep counting"), role: .cancel) {}
+        } message: {
+            Text(self.game.lowestScoreWins
+                 ? L("The game goes on in lowest score mode : the points are still counted, and after each round the lowest score leads.")
+                 : L("The game goes on in highest score mode : the points are still counted, and after each round the highest score leads."))
         }
         .alert(L("%@ isn't in %@ yet", self.displayInfo.gameToRequest ?? "", AppConfig.appName),
                isPresented: Binding(

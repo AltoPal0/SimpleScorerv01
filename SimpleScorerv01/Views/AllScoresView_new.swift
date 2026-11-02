@@ -66,7 +66,7 @@ struct AllScoresView_new: View {
     
     @State private var showKeypad = false
     @State var scoreEdit = (playerIdx: 0, round: 0, mode: ScoreEditMode.addition)
-    @State private var molkkyAlert : Game.MolkkyWarning?
+    @State private var entryAlert : Game.EntryWarning?
     
     // Room for the arrows at the bottom
     static let bottomRoom = CGFloat(70)
@@ -80,7 +80,7 @@ struct AllScoresView_new: View {
         game.coincheTeams ?? game.playerScores.indices.map { [$0] }
     }
     
-    // Cells and totals ask for the keypad through this : Mölkky warnings come first
+    // Cells and totals ask for the keypad through this : the warnings come first (Mölkky, round not complete)
     var keypadRequest: Binding<Bool> {
         Binding(
             get: { showKeypad },
@@ -90,8 +90,8 @@ struct AllScoresView_new: View {
                     return
                 }
                 if scoreEdit.mode == .addition, game.playerScores.indices.contains(scoreEdit.playerIdx),
-                   let warning = game.molkkyWarning(for: game.playerScores[scoreEdit.playerIdx]) {
-                    molkkyAlert = warning
+                   let warning = game.entryWarning(for: game.playerScores[scoreEdit.playerIdx]) {
+                    entryAlert = warning
                 } else {
                     showKeypad = true
                 }
@@ -176,12 +176,20 @@ struct AllScoresView_new: View {
                 }
             }
         }
-        .alert(molkkyAlertTitle, isPresented: Binding(
-            get: { molkkyAlert != nil },
-            set: { if !$0 { molkkyAlert = nil } })) {
-                if molkkyAlert == .eliminated {
+        .alert(entryAlertTitle, isPresented: Binding(
+            get: { entryAlert != nil },
+            set: { if !$0 { entryAlert = nil } })) {
+                if entryAlert == .eliminated {
                     Button(L("Keep playing")) {
                         game.keepEliminatedPlaying()
+                        showKeypad = true
+                    }
+                    Button(L("Cancel"), role: .cancel) {}
+                } else if entryAlert == .roundIncomplete, let player = editedPlayer {
+                    Button(L("Fill with 0")) {
+                        withAnimation {
+                            game.completeRound(of: player)
+                        }
                         showKeypad = true
                     }
                     Button(L("Cancel"), role: .cancel) {}
@@ -191,7 +199,7 @@ struct AllScoresView_new: View {
                     }
                 }
             } message: {
-                Text(molkkyAlertMessage)
+                Text(entryAlertMessage)
             }
     }
     
@@ -199,14 +207,14 @@ struct AllScoresView_new: View {
         game.playerScores[optional: scoreEdit.playerIdx]
     }
     
-    var molkkyAlertTitle: String {
-        guard let warning = molkkyAlert, let player = editedPlayer else { return "" }
-        return game.molkkyWarningTitle(warning, for: player)
+    var entryAlertTitle: String {
+        guard let warning = entryAlert, let player = editedPlayer else { return "" }
+        return game.entryWarningTitle(warning, for: player)
     }
     
-    var molkkyAlertMessage: String {
-        guard let warning = molkkyAlert, let player = editedPlayer else { return "" }
-        return game.molkkyWarningMessage(warning, for: player)
+    var entryAlertMessage: String {
+        guard let warning = entryAlert, let player = editedPlayer else { return "" }
+        return game.entryWarningMessage(warning, for: player)
     }
 }
 

@@ -100,8 +100,19 @@ class Game : ObservableObject {
     }
 
     var target : Int? {
-        guard activeKind != .universal else { return nil }
+        guard activeKind != .universal, roundsToPlay == nil else { return nil }
         return options.target ?? rules?.target
+    }
+    
+    // Uno played in a number of rounds instead of a target, nil otherwise
+    var roundsToPlay : Int? {
+        activeKind == .uno ? options.unoRounds : nil
+    }
+    
+    // Every player played the rounds of the game : a winner, and the points can still be counted
+    var roundsPlayed : Bool {
+        guard let rounds = roundsToPlay, !playerScores.isEmpty else { return false }
+        return playerScores.allSatisfy { $0.pointsList.count >= rounds }
     }
 
     var lowestScoreWins : Bool {
@@ -171,29 +182,60 @@ class Game : ObservableObject {
             && Molkky.consecutiveMisses(playerScore.pointsList.map { $0.score }) >= Molkky.missesToBeOut
     }
 
-    // Mölkky : why entering a score for this player deserves a warning, nil when it doesn't
-    enum MolkkyWarning {
-        case eliminated, alreadyPlayed
+    // Why entering a score for this player deserves a warning, nil when it doesn't :
+    // Mölkky out or turn already played, or a round where the others are still to score
+    enum EntryWarning {
+        case eliminated, alreadyPlayed, roundIncomplete
     }
 
-    func molkkyWarning(for playerScore : PlayerScore) -> MolkkyWarning? {
+    func entryWarning(for playerScore : PlayerScore) -> EntryWarning? {
         if isEliminated(playerScore) {
             return .eliminated
+        }
+        if !playersMissing(inRoundOf: playerScore).isEmpty {
+            return .roundIncomplete
         }
         return playersYetToPlay(before: playerScore).isEmpty ? nil : .alreadyPlayed
     }
 
-    func molkkyWarningTitle(_ warning : MolkkyWarning, for playerScore : PlayerScore) -> String {
-        warning == .eliminated
-            ? L("%@ is out after 3 misses", playerScore.player.name)
-            : L("%@ already played this turn", playerScore.player.name)
+    func entryWarningTitle(_ warning : EntryWarning, for playerScore : PlayerScore) -> String {
+        switch warning {
+        case .eliminated: return L("%@ is out after 3 misses", playerScore.player.name)
+        case .alreadyPlayed: return L("%@ already played this turn", playerScore.player.name)
+        case .roundIncomplete: return L("Round %ld isn't complete", playerScore.pointsList.count)
+        }
     }
 
-    func molkkyWarningMessage(_ warning : MolkkyWarning, for playerScore : PlayerScore) -> String {
-        if warning == .eliminated {
+    func entryWarningMessage(_ warning : EntryWarning, for playerScore : PlayerScore) -> String {
+        switch warning {
+        case .eliminated:
             return L("Let %@ keep playing? Players won't be out after 3 misses anymore.", playerScore.player.name)
+        case .alreadyPlayed:
+            return L("Still to play : %@.", playersYetToPlay(before: playerScore).map { $0.player.name }.joined(separator: ", "))
+        case .roundIncomplete:
+            let missing = playersMissing(inRoundOf: playerScore).map { $0.player.name }.joined(separator: ", ")
+            return L("%@ already scored in this round. Still to enter : %@. Fill them with 0 and go on to the next round?", playerScore.player.name, missing)
         }
-        return L("Still to play : %@.", playersYetToPlay(before: playerScore).map { $0.player.name }.joined(separator: ", "))
+    }
+    
+    // Every player scores in each round : the players without a score in the last round of this one.
+    // Not for the games entered a whole round at once, nor the free ones
+    func playersMissing(inRoundOf playerScore : PlayerScore) -> [PlayerScore] {
+        guard activeKind != .universal, rules?.roundsInSync == true, !entersRounds else { return [] }
+        let rounds = playerScore.pointsList.count
+        return playerScores.filter { $0.id != playerScore.id && $0.pointsList.count < rounds }
+    }
+    
+    // The players still to score in the round of this one get 0
+    func completeRound(of playerScore : PlayerScore) {
+        let rounds = playerScore.pointsList.count
+        for index in playerScores.indices {
+            while playerScores[index].pointsList.count < rounds {
+                playerScores[index].addPoints(scoreValue: 0)
+            }
+        }
+        maxNbrOfRounds = currentMaxNumberOfRounds()
+        recordHistory()
     }
 
     // Players won't be out after 3 misses anymore
@@ -218,6 +260,13 @@ class Game : ObservableObject {
     func winner() -> PlayerScore? {
         if activeKind == .darts, let winner = dartsWinner() {
             return winner
+        }
+        // Once the rounds are played, the best score leads at every new round
+        if roundsToPlay != nil {
+            guard roundsPlayed else { return nil }
+            return lowestScoreWins
+                ? playerScores.min { total(for: $0) < total(for: $1) }
+                : playerScores.max { total(for: $0) < total(for: $1) }
         }
         guard let target = target else { return nil }
 

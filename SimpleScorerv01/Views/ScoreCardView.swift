@@ -27,7 +27,9 @@ struct ScoreCardView: View {
     @State private var sign = CGFloat(1)
     @State private var scoreEditing = false
     @State private var showKeyPad = false
-    @State private var molkkyAlert : Game.MolkkyWarning?
+    @State private var entryAlert : Game.EntryWarning?
+    // Points entered while the others are still to score in the round : added once the round is filled with 0
+    @State private var pendingPoints : (points: Int, marks: [Int]?)?
     // Shanghai : singles, doubles and triples of the turn being entered
     @State private var shanghaiHits = [0, 0, 0]
     @State private var confirmDelete = false
@@ -204,32 +206,48 @@ struct ScoreCardView: View {
                     return
                 }
                 else if self.game.isEliminated(self.playerScore) {
-                    self.molkkyAlert = .eliminated
+                    self.entryAlert = .eliminated
                 }
-                else if !self.scoreEditing, let warning = self.game.molkkyWarning(for: self.playerScore) {
-                    // Mölkky : everyone plays the same number of turns
-                    self.molkkyAlert = warning
+                else if !self.scoreEditing, let warning = self.game.entryWarning(for: self.playerScore) {
+                    // Everyone plays the same number of turns
+                    self.entryAlert = warning
                 }
                 else {
                     self.startScoreEntry()
                 }
             } //tap
-            .alert(self.molkkyAlert.map { self.game.molkkyWarningTitle($0, for: self.playerScore) } ?? "", isPresented: Binding(
-                get: { self.molkkyAlert != nil },
-                set: { if !$0 { self.molkkyAlert = nil } })) {
-                    if self.molkkyAlert == .eliminated {
+            .alert(self.entryAlert.map { self.game.entryWarningTitle($0, for: self.playerScore) } ?? "", isPresented: Binding(
+                get: { self.entryAlert != nil },
+                set: { if !$0 { self.entryAlert = nil } })) {
+                    if self.entryAlert == .eliminated {
                         Button(L("Keep playing")) {
                             self.game.keepEliminatedPlaying()
                             self.startScoreEntry()
                         }
                         Button(L("Cancel"), role: .cancel) {}
+                    } else if self.entryAlert == .roundIncomplete {
+                        Button(L("Fill with 0")) {
+                            withAnimation {
+                                self.game.completeRound(of: self.playerScore)
+                            }
+                            if let pending = self.pendingPoints {
+                                self.pendingPoints = nil
+                                self.commitPoints(pending.points, marks: pending.marks)
+                            } else {
+                                self.startScoreEntry()
+                            }
+                        }
+                        // The points entered stay on the card, the cross cancels them
+                        Button(L("Cancel"), role: .cancel) {
+                            self.pendingPoints = nil
+                        }
                     } else {
                         Button(L("OK")) {
                             self.startScoreEntry()
                         }
                     }
                 } message: {
-                    Text(self.molkkyAlert.map { self.game.molkkyWarningMessage($0, for: self.playerScore) } ?? "")
+                    Text(self.entryAlert.map { self.game.entryWarningMessage($0, for: self.playerScore) } ?? "")
                 }
             // The keypad open : the whole card in sight down to its last row, the bottom arrows out of the way
             .onChange(of: self.showKeyPad) {
@@ -370,6 +388,12 @@ struct ScoreCardView: View {
     }
     
     func commitPoints(_ points: Int, marks: [Int]? = nil) {
+        // Entered from the bar of the card, without a tap on it : the round is checked now
+        if !self.game.playersMissing(inRoundOf: self.playerScore).isEmpty {
+            self.pendingPoints = (points, marks)
+            self.entryAlert = .roundIncomplete
+            return
+        }
         self.displayInfo.showBottomButtons = true
         self.game.addPointsFor(player: self.playerScore.player, points: points, marks: marks)
         self.pointsScored = 0

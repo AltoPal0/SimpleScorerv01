@@ -99,10 +99,48 @@ struct GameOptionsView: View {
         }
     }
 
+    // Custom chip picked : the target is typed
+    @State private var isCustomTarget = false
+    
+    var targets : [Int] {
+        GameOptions.targets(for: game.activeKind)
+    }
+    
+    // Custom chip picked, or a target typed before
+    var showsCustomTarget : Bool {
+        guard GameOptions.allowsCustomTarget(game.activeKind) else { return false }
+        return isCustomTarget || !targets.contains(game.target ?? 0)
+    }
+    
+    // 0 stands for the Custom chip
     var targetSelection : Binding<Int> {
+        Binding(
+            get: { showsCustomTarget ? 0 : game.target ?? 0 },
+            set: {
+                isCustomTarget = $0 == 0
+                if $0 != 0 {
+                    game.options.target = $0
+                }
+            })
+    }
+    
+    var targetValue : Binding<Int> {
         Binding(
             get: { game.target ?? 0 },
             set: { game.options.target = $0 })
+    }
+    
+    // Uno : to the target, or in a number of rounds
+    var playsRounds : Binding<Bool> {
+        Binding(
+            get: { game.options.unoRounds != nil },
+            set: { game.options.unoRounds = $0 ? GameOptions.defaultUnoRounds : nil })
+    }
+    
+    var roundsValue : Binding<Int> {
+        Binding(
+            get: { game.options.unoRounds ?? GameOptions.defaultUnoRounds },
+            set: { game.options.unoRounds = $0 })
     }
 
     // How the app counts, in one sentence, so the players know which variant is played
@@ -124,6 +162,11 @@ struct GameOptionsView: View {
         case .scrabble:
             return L("The points are added up, the highest score wins.")
         case .uno:
+            if let rounds = game.roundsToPlay {
+                return game.options.unoLowestWins
+                    ? L("The points are added up. After %ld rounds, the lowest score wins. The points can still be counted after : the lowest score keeps the lead.", rounds)
+                    : L("The points are added up. After %ld rounds, the highest score wins. The points can still be counted after : the highest score keeps the lead.", rounds)
+            }
             return game.options.unoLowestWins
                 ? L("The points are added up. The game ends at the target, the lowest score wins.")
                 : L("The points are added up. The game ends at the target, the highest score wins.")
@@ -207,9 +250,23 @@ struct GameOptionsView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
-                        if !GameOptions.targets(for: game.activeKind).isEmpty {
+                        if game.activeKind == .uno {
+                            RoundSection(title: L("Game ends")) {
+                                ChoiceChips(items: [false, true], selection: playsRounds, columns: 2) { $0 ? L("After rounds") : L("At a score") }
+                            }
+                        }
+                        
+                        if let rounds = game.roundsToPlay {
+                            RoundSection(title: L("Number of rounds")) {
+                                NumberField(value: roundsValue, unit: rounds > 1 ? L("rounds") : L("round"))
+                            }
+                        } else if !targets.isEmpty {
                             RoundSection(title: L("Game ends at")) {
-                                ChoiceChips(items: GameOptions.targets(for: game.activeKind), selection: targetSelection) { "\($0)" }
+                                let custom = GameOptions.allowsCustomTarget(game.activeKind)
+                                ChoiceChips(items: targets + (custom ? [0] : []), selection: targetSelection, minimumWidth: custom ? 80 : 64) { $0 == 0 ? L("Custom") : "\($0)" }
+                                if showsCustomTarget {
+                                    NumberField(value: targetValue, unit: L("points"), focusOnAppear: isCustomTarget)
+                                }
                             }
                         }
 
@@ -275,6 +332,56 @@ struct GameOptionsView: View {
                     }
                     .padding()
                 }
+            }
+        }
+    }
+}
+
+// A number typed by the players : the value changes only for a number above 0
+struct NumberField: View {
+    @Binding var value : Int
+    var unit : String
+    var focusOnAppear = false
+    
+    @State private var text = ""
+    @FocusState private var focused : Bool
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            TextField("", text: $text)
+                .keyboardType(.numberPad)
+                .focused($focused)
+                .font(Font.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .frame(width: 100, height: 44)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                )
+            Text(unit)
+                .font(Font.system(size: 18, weight: .light, design: .rounded))
+                .foregroundColor(.gray)
+        }
+        .onAppear {
+            text = "\(value)"
+            focused = focusOnAppear
+        }
+        .onChange(of: text) {
+            if let number = Int(text.filter(\.isNumber).prefix(5)), number > 0 {
+                value = number
+            }
+        }
+        // Left empty or at 0 : the value kept is shown again
+        .onChange(of: focused) {
+            if !focused {
+                text = "\(value)"
+            }
+        }
+        // Changed elsewhere, by the device streaming the game
+        .onChange(of: value) {
+            if !focused {
+                text = "\(value)"
             }
         }
     }

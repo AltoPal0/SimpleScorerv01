@@ -17,6 +17,8 @@ struct GameOptions: Codable, Equatable {
     var molkkyMissesOut = true
     // Uno : the lowest score wins, the highest one with the official rules
     var unoLowestWins = false
+    // Uno : number of rounds ending the game instead of the target, nil to play to the target
+    var unoRounds: Int?
     // Coinche
     var coincheScoring = CoincheDeal.Scoring.announced
     var coincheDefenseScores = false
@@ -36,6 +38,7 @@ struct GameOptions: Codable, Equatable {
         target = try container.decodeIfPresent(Int.self, forKey: .target)
         molkkyMissesOut = try container.decodeIfPresent(Bool.self, forKey: .molkkyMissesOut) ?? true
         unoLowestWins = try container.decodeIfPresent(Bool.self, forKey: .unoLowestWins) ?? false
+        unoRounds = try container.decodeIfPresent(Int.self, forKey: .unoRounds)
         coincheScoring = try container.decodeIfPresent(CoincheDeal.Scoring.self, forKey: .coincheScoring) ?? .announced
         coincheDefenseScores = try container.decodeIfPresent(Bool.self, forKey: .coincheDefenseScores) ?? false
         coincheBelote = try container.decodeIfPresent(Bool.self, forKey: .coincheBelote) ?? false
@@ -53,6 +56,14 @@ struct GameOptions: Codable, Equatable {
         default: return []
         }
     }
+
+    // The players can also type their own target
+    static func allowsCustomTarget(_ kind: GameKind) -> Bool {
+        kind == .coinche || kind == .uno
+    }
+
+    // Uno played in a number of rounds : the one offered first
+    static let defaultUnoRounds = 10
 
     static func hasOptions(_ kind: GameKind) -> Bool {
         kind == .molkky || kind == .uno || kind == .coinche || kind == .tarot || kind == .darts || !targets(for: kind).isEmpty
