@@ -17,6 +17,7 @@ struct GameSetupView: View {
     @State private var showHelp = false
     
     @State private var showingActionSheet = false
+    @State private var showSettings = false
     
     let maxHeight = CGFloat(100)
     let maxWidth = CGFloat(300)
@@ -143,6 +144,22 @@ struct GameSetupView: View {
                 .padding()
         )
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
+        // Settings of the app, between the arrows : appearance and language. Part of this screen, it turns away with it
+        .overlay(alignment: .bottom) {
+            Image(systemName: "gearshape")
+                .font(.system(.largeTitle, design: .rounded).weight(.light))
+                .foregroundColor(Color.gray.opacity(0.5))
+                .contentShape(Circle())
+                .onTapGesture {
+                    self.showSettings = true
+                }.padding()
+        }
+        // The screens behind take the new language once the settings are closed
+        .sheet(isPresented: $showSettings, onDismiss: {
+            AppSettings.shared.applyLanguage()
+        }) {
+            SettingsView()
+        }
     }
     
     // Same game again or another one : changing the game also starts from 0
