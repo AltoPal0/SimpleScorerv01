@@ -299,9 +299,10 @@ struct GameChoiceView: View {
     var onTap : () -> Void
     var onTrash : () -> Void
     
-    @State private var dragOffset = CGSize.zero
-    // A long press lifts the game, then it can be dragged to the trash
-    @State private var isLifted = false
+    // A long press lifts the game, then it can be dragged to the trash. Both end with the finger up
+    @GestureState(resetTransaction: Transaction(animation: .easeOut(duration: 0.15))) private var isLifted = false
+    // Released away from the trash : the game springs back in place
+    @GestureState(resetTransaction: Transaction(animation: ScoreCardView.slideSpring)) private var dragOffset = CGSize.zero
     @State private var isAboveTrash = false
     @State private var trashFeedbackPlayed = false
     
@@ -337,6 +338,7 @@ struct GameChoiceView: View {
                 .stroke(isAboveTrash ? Color.offRed : Color.offWhite, lineWidth: isAboveTrash ? 2 : 1)
         )
         .scaleEffect(isLifted ? 1.08 : 1)
+        .animation(.easeOut(duration: 0.15), value: isLifted)
         .offset(dragOffset)
         .opacity(choice.hint == nil ? 1 : 0.5)
         .zIndex(isLifted ? 1 : 0)
@@ -345,55 +347,57 @@ struct GameChoiceView: View {
                 onTap()
             }
         }
-        .onLongPressGesture(minimumDuration: 0.3, maximumDistance: .infinity) {
-            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-            withAnimation(.easeOut(duration: 0.15)) {
-                isLifted = true
-                isDragging = true
+        .gesture(liftAndDrag)
+        // Lifted : a light tap and the trash shows. Released : all back in place
+        .onChange(of: isLifted) {
+            if isLifted {
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            } else {
+                trashFeedbackPlayed = false
+                isAboveTrash = false
             }
-        } onPressingChanged: { pressing in
-            // Lifted and released without moving : back in place
-            if !pressing && isLifted && dragOffset == .zero {
-                drop()
+            withAnimation(.easeOut(duration: 0.15)) {
+                isDragging = isLifted
             }
         }
-        .simultaneousGesture(trashGesture)
         .shadow(color: Color.black.opacity(isLifted ? 0.45 : 0.3), radius: isLifted ? 16 : 10, x: 0, y: 10)
         .transition(.asymmetric(insertion: .opacity, removal: .scale))
     }
     
-    var trashGesture: some Gesture {
-        DragGesture(coordinateSpace: .named(GameChoiceView.coordinateSpace))
-            .onChanged { value in
-                guard isLifted else { return }
-                dragOffset = value.translation
-                let aboveTrash = abs(value.location.x - containerSize.width / 2) < 50
-                    && value.location.y > containerSize.height - 80
-                if aboveTrash && !trashFeedbackPlayed {
-                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                    trashFeedbackPlayed = true
-                } else if !aboveTrash {
-                    trashFeedbackPlayed = false
-                }
-                isAboveTrash = aboveTrash
-            }
-            .onEnded { _ in
-                guard isLifted else { return }
-                if isAboveTrash {
-                    onTrash()
-                }
-                drop()
-            }
+    // The trash, at the bottom in the middle of the screen
+    func isOverTrash(_ location: CGPoint) -> Bool {
+        abs(location.x - containerSize.width / 2) < 50
+            && location.y > containerSize.height - 80
     }
     
-    func drop() {
-        trashFeedbackPlayed = false
-        withAnimation {
-            dragOffset = .zero
-            isLifted = false
-            isAboveTrash = false
-            isDragging = false
-        }
+    // Held still a moment, then moved : a quick swipe or a tap stays for the screen and the choice
+    var liftAndDrag: some Gesture {
+        LongPressGesture(minimumDuration: 0.3)
+            .sequenced(before: DragGesture(coordinateSpace: .named(GameChoiceView.coordinateSpace)))
+            .updating($isLifted) { value, state, _ in
+                if case .second(true, _) = value {
+                    state = true
+                }
+            }
+            .updating($dragOffset) { value, state, _ in
+                if case .second(true, let drag?) = value {
+                    state = drag.translation
+                }
+            }
+            .onChanged { value in
+                guard case .second(true, let drag?) = value else { return }
+                let aboveTrash = isOverTrash(drag.location)
+                if aboveTrash && !trashFeedbackPlayed {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                }
+                trashFeedbackPlayed = aboveTrash
+                isAboveTrash = aboveTrash
+            }
+            .onEnded { value in
+                if case .second(true, let drag?) = value, isOverTrash(drag.location) {
+                    onTrash()
+                }
+            }
     }
 }
 

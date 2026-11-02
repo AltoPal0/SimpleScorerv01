@@ -189,15 +189,60 @@ struct previousPlayerView: View {
     
     @Binding var indexOfTopPlayer : Int
     
-    @GestureState private var dragOffset = CGSize.zero
-    // A long press lifts the player, then it can be dragged to the trash
-    @State private var isLifted = false
+    // A long press lifts the player, then it can be dragged to the trash. Both end with the finger up
+    @GestureState(resetTransaction: Transaction(animation: .easeOut(duration: 0.15))) private var isLifted = false
+    // Released away from the trash : the player springs back in place
+    @GestureState(resetTransaction: Transaction(animation: ScoreCardView.slideSpring)) private var dragOffset = CGSize.zero
     @State private var isAboveTrash = false
     @State var geoProxy : GeometryProxy
     @Binding var isDragging : Bool
     
-    @State private var startFeedbackPlayed = false
     @State private var trashFeedbackPlayed = false
+    
+    var isSelected : Bool {
+        game.listNames().contains(name)
+    }
+    
+    // The trash, at the bottom in the middle of the screen
+    func isOverTrash(_ location: CGPoint) -> Bool {
+        location.x > (geoProxy.size.width / 2) - 35
+            && location.x < (geoProxy.size.width / 2) + 35
+            && location.y > (geoProxy.size.height) - 30
+    }
+    
+    // Held still a moment, then moved : a quick swipe or a tap stays for the screen and the selection
+    var liftAndDrag : some Gesture {
+        LongPressGesture(minimumDuration: 0.3)
+            .sequenced(before: DragGesture(coordinateSpace: .global))
+            .updating($isLifted) { value, state, _ in
+                if case .second(true, _) = value {
+                    state = true
+                }
+            }
+            .updating($dragOffset) { value, state, _ in
+                if case .second(true, let drag?) = value {
+                    state = drag.translation
+                }
+            }
+            .onChanged { value in
+                guard case .second(true, let drag?) = value else { return }
+                let aboveTrash = isOverTrash(drag.location)
+                if aboveTrash && !trashFeedbackPlayed {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                }
+                trashFeedbackPlayed = aboveTrash
+                isAboveTrash = aboveTrash
+            }
+            .onEnded { value in
+                guard case .second(true, let drag?) = value, isOverTrash(drag.location),
+                      let index = savedPlayers.firstIndex(where: { $0.name == name })
+                else { return }
+                savedPlayers.remove(at: index)
+                withAnimation {
+                    UserDefaults.standard.set(try! JSONEncoder().encode(savedPlayers), forKey: "previousPlayers")
+                }
+            }
+    }
     
     var body: some View {
         ZStack {
@@ -232,59 +277,10 @@ struct previousPlayerView: View {
                     .stroke(isAboveTrash ? Color.offRed : Color.offWhite, lineWidth: isAboveTrash ? 2 : 1)
             )
             .scaleEffect(isLifted ? 1.08 : 1)
+            .animation(.easeOut(duration: 0.15), value: isLifted)
             .offset(dragOffset)
             .opacity(game.listNames().contains(name) ? 0.5 : 1)
 //            .scaleEffect(isAboveTrash ? 0.8 : 1, anchor: .bottom)
-            .simultaneousGesture(!game.listNames().contains(name) ?
-                     DragGesture(coordinateSpace: .global)
-                .updating($dragOffset) { value, state, transaction in
-                    guard isLifted else { return }
-                    state.height = value.translation.height
-                    state.width = value.translation.width
-                }
-                .onChanged({ value in
-                    guard isLifted else { return }
-                    if value.location.x > (geoProxy.size.width / 2) - 35
-                        && value.location.x < (geoProxy.size.width / 2) + 35
-                        && value.location.y > (geoProxy.size.height) - 30 {
-                        if !trashFeedbackPlayed {
-                            let impactMed = UIImpactFeedbackGenerator(style: .soft)
-                            impactMed.impactOccurred()
-                            trashFeedbackPlayed = true
-                        }
-                        isAboveTrash = true
-                        withAnimation {
-                            isDragging = true
-                        }
-                        
-                    } else {
-                        isAboveTrash = false
-                        trashFeedbackPlayed = false
-                        withAnimation{
-                            isDragging = true
-                            
-                        }
-                    }
-                    
-                })
-                    .onEnded({ (value) in
-                        guard isLifted else { return }
-                        startFeedbackPlayed = false
-                        trashFeedbackPlayed = false
-                        isLifted = false
-                        if isAboveTrash {
-                            self.savedPlayers.remove(at: self.savedPlayers.firstIndex(where: {$0.name == name})! )
-                            withAnimation {
-                                UserDefaults.standard.set(try! JSONEncoder().encode(savedPlayers), forKey: "previousPlayers")
-                            }
-                            
-                        }
-                        withAnimation{
-                            isAboveTrash = false
-                            isDragging = false
-                        }
-                    }) : nil
-            )
             .onTapGesture {
                 
                 var indexOfPlayer : Int {
@@ -327,24 +323,18 @@ struct previousPlayerView: View {
                     
                 }
             }
-            .onLongPressGesture(minimumDuration: 0.3, maximumDistance: .infinity) {
-                guard !game.listNames().contains(name) else { return }
-                if !startFeedbackPlayed {
+            // A player already in the game stays where it is
+            .gesture(liftAndDrag, including: isSelected ? .subviews : .all)
+            // Lifted : a light tap and the trash shows. Released : all back in place
+            .onChange(of: isLifted) {
+                if isLifted {
                     UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                    startFeedbackPlayed = true
+                } else {
+                    trashFeedbackPlayed = false
+                    isAboveTrash = false
                 }
                 withAnimation(.easeOut(duration: 0.15)) {
-                    isLifted = true
-                    isDragging = true
-                }
-            } onPressingChanged: { pressing in
-                // Lifted and released without moving : back in place
-                if !pressing && isLifted && dragOffset == .zero {
-                    startFeedbackPlayed = false
-                    withAnimation {
-                        isLifted = false
-                        isDragging = false
-                    }
+                    isDragging = isLifted
                 }
             }
             .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10)
